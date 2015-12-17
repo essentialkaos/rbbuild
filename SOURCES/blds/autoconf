@@ -1,0 +1,53 @@
+autoconfBuilder() {
+  checkVersionCompatibility "1.5.0"
+
+  local pkg="$1"
+  local pkg_dir="$2"
+
+  shift 2
+
+  exportCompilerOpts
+
+  pushd $pkg_dir &> /dev/null
+
+    showm "Autoconf... "
+
+    local start_time=`now`
+    local fail
+
+    exit_protect=true
+
+    spinnerOn
+
+    if [[ -n "$verbose" ]] ; then
+      { show "autoconf"
+        autoconf
+        [[ $? -ne 0 ]] && fail=true
+      } &>> $output
+    else
+      { autoconf
+        [[ $? -ne 0 ]] && fail=true
+      } &>> $log
+    fi
+
+    spinnerOff
+
+    if [[ -n "$fail" ]] ; then
+      unset exit_protect
+      buildFailed "$prfx"
+      return 1
+    fi
+
+    local end_time=`now`
+    local grc_time=`getGraceTime "$start_time" "$end_time"`
+
+    show "${CL_GREEN}DONE${CL_NORM} ${CL_GREY}($grc_time)${CL_NORM}"
+
+    echo -n > $log
+
+    unset exit_protect
+
+  popd &> /dev/null
+
+  buildPackage "$pkg" "$pkg_dir" "default" $@
+}

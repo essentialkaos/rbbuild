@@ -1,0 +1,62 @@
+rubyBuilder() {
+  checkVersionCompatibility "1.2.0"
+
+  local pkg="$1"
+  local pkg_dir="$2"
+
+  local prfx="${XPREFIX:-${prefix}}"
+  local ruby_bin="$prfx/bin/ruby"
+
+  pushd $pkg_dir &> /dev/null
+
+    showm "Building... "
+
+    local start_time=`now`
+    local fail
+    local installer
+
+    if checkPerms "FR" "setup.rb" ; then
+      installer="setup.rb"
+    elif checkPerms "FR" "installer.rb" ; then
+      installer="installer.rb"
+    else
+      show "FAIL" $RED
+      show ""
+      show "Can't find installer file."
+      doExit $ERROR_UNKNOWN
+    fi
+
+    exit_protect=true
+
+    spinnerOn
+
+    if [[ -n "$verbose" ]] ; then
+      { show "$ruby_bin $installer"
+        $ruby_bin $installer
+        [[ $? -ne 0 ]] && fail=true
+      } &>> $output
+    else
+      { $ruby_bin $installer
+        [[ $? -ne 0 ]] && fail=true
+      } &>> $log
+    fi
+
+    spinnerOff
+
+    if [[ -n "$fail" ]] ; then
+      unset exit_protect
+      buildFailed "$prfx"
+      return 1
+    fi
+
+    local end_time=`now`
+    local grc_time=`getGraceTime "$start_time" "$end_time"`
+
+    show "${CL_GREEN}DONE${CL_NORM} ${CL_GREY}($grc_time)${CL_NORM}"
+
+    echo -n > $log
+
+    unset exit_protect
+
+  popd &> /dev/null
+}

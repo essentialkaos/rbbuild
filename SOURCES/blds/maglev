@@ -1,0 +1,74 @@
+maglevBuilder() {
+  checkVersionCompatibility "1.2.0"
+
+  local pkg="$1"
+  local pkg_dir="$2"
+
+  local iopts="${INSTOPTS}"
+  local prfx="${XPREFIX:-${prefix}}"
+
+  exportCompilerOpts
+
+  pushd $pkg_dir &> /dev/null
+    showm "Building... "
+
+    local start_time=`now`
+    local fail
+
+    exit_protect=true
+
+    spinnerOn
+
+    if [[ -n "$verbose" ]] ; then
+      { mkdir -p $prfx
+        [[ $? -ne 0 ]] && fail=true
+        cp -r . $prfx
+        [[ $? -ne 0 ]] && fail=true
+
+        pushd $prfx
+          show "./install.sh $iopts"
+          ./install.sh $iopts
+          [[ $? -ne 0 ]] && fail=true
+        popd
+      } &>> $output
+    else
+      { mkdir -p $prfx
+        [[ $? -ne 0 ]] && fail=true
+        cp -r . $prfx
+        [[ $? -ne 0 ]] && fail=true
+
+        pushd $prfx
+          ./install.sh $iopts
+          [[ $? -ne 0 ]] && fail=true
+        popd
+      } &>> $log
+    fi
+
+    spinnerOff
+
+    if [[ -n "$fail" ]] ; then
+      unset exit_protect
+      buildFailed "$prfx"
+      return 1
+    fi
+
+    pushd $prfx/bin &> /dev/null
+
+      ln -fs maglev-ruby ruby
+      ln -fs maglev-irb irb
+
+    popd &> /dev/null
+
+    local end_time=`now`
+    local grc_time=`getGraceTime "$start_time" "$end_time"`
+
+    show "${CL_GREEN}DONE${CL_NORM} ${CL_GREY}($grc_time)${CL_NORM}"
+
+    echo -n > $log
+
+    unset exit_protect
+
+  popd &> /dev/null
+
+  show "Run \"maglev start\" to start up the stone before using \"ruby\" or \"irb\"" $BROWN
+}

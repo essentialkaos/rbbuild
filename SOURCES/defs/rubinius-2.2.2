@@ -1,0 +1,13 @@
+# RBBuild Def File
+# UPDATED 13/Aug/2015 11:53:23 by Anton Novojlov <andy@essentialkaos.com>
+
+deps(deb): gcc build-essentials libssl1.0.0 libssl-dev zlib1g-dev
+deps(rpm): gcc gcc-c++ openssl-devel zlib-devel
+deps(bin): ruby rake
+deps(gem): bundler
+
+[default]
+  package: "rubinius-2.2.2" "https://s3.amazonaws.com/releases.rubini.us/rubinius-2.2.2.tar.bz2" "51047deb13b3b3e32bddeaffe2969b33581866ab" rbx
+
+[essentialkaos]
+  package: "rubinius-2.2.2" "https://ruby.kaos.io/rubinius-2.2.2.7z" "ad20d5b4aa1ede9bace614bc11851843da3b35dd" rbx

@@ -1,0 +1,12 @@
+# RBBuild Def File
+# UPDATED 13/Aug/2015 11:53:13 by Anton Novojlov <andy@essentialkaos.com>
+
+deps(rpm): make gcc gcc-c++
+deps(deb): make gcc build-essentials
+deps(bin): java
+
+[default]
+  package: "jruby-1.6.8" "https://s3.amazonaws.com/jruby.org/downloads/1.6.8/jruby-bin-1.6.8.tar.gz" "b1d191723b34255e5833946c6591bc5e89379d8c" jruby
+
+[essentialkaos]
+  package: "jruby-1.6.8" "https://ruby.kaos.io/jruby-1.6.8.7z" "aa2036b86d04d75d6fe59a24831c66e332206520" jruby

@@ -1,0 +1,73 @@
+jrubyBuilder() {
+  checkVersionCompatibility "1.5.0"
+
+  local pkg="$1"
+  local pkg_dir="$2"
+
+  local prfx="${XPREFIX:-${prefix}}"
+
+  exportCompilerOpts
+
+  pushd $pkg_dir &> /dev/null
+
+    showm "Building... "
+
+    local start_time=`now`
+    local fail
+
+    exit_protect=true
+
+    spinnerOn
+
+    if [[ -n "$verbose" ]] ; then
+      { mkdir -p $prfx
+        [[ $? -ne 0 ]] && fail=true
+        cp -r . $prfx
+        [[ $? -ne 0 ]] && fail=true
+
+        pushd $prfx/bin
+          ln -fs jruby ruby
+          [[ $? -ne 0 ]] && fail=true
+          show "./ruby gem install jruby-launcher"
+          ./ruby gem install jruby-launcher
+          [[ $? -ne 0 ]] && fail=true
+        popd
+      } >> $output
+    else
+      { mkdir -p $prfx
+        [[ $? -ne 0 ]] && fail=true
+        cp -r . $prfx
+        [[ $? -ne 0 ]] && fail=true
+
+        pushd $prfx/bin
+          ln -fs jruby ruby
+          [[ $? -ne 0 ]] && fail=true
+          ./ruby gem install jruby-launcher &> $verb_output
+          [[ $? -ne 0 ]] && fail=true
+        popd
+      } > $log 2>>$output
+    fi
+
+    spinnerOff
+
+    if [[ -n "$fail" ]] ; then
+      unset exit_protect
+      buildFailed "$prfx"
+      return 1
+    fi
+
+    rm -f $prfx/bin/*.bat
+    rm -f $prfx/bin/*.exe
+    rm -f $prfx/bin/*.dll
+
+    local end_time=`now`
+    local grc_time=`getGraceTime "$start_time" "$end_time"`
+
+    show "${CL_GREEN}DONE${CL_NORM} ${CL_GREY}($grc_time)${CL_NORM}"
+
+  popd &> /dev/null
+
+  echo -n > $log
+
+  unset exit_protect
+}

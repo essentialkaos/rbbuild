@@ -1,0 +1,13 @@
+# RBBuild Def File
+# UPDATED 13/Aug/2015 11:53:23 by Anton Novojlov <andy@essentialkaos.com>
+
+deps(deb): gcc build-essentials bison zlib1g-dev libyaml-dev libssl-dev libreadline-dev libncurses5-dev llvm llvm-dev libeditline-dev
+deps(rpm): gcc gcc-c++ readline-devel openssl-devel zlib-devel llvm-devel llvm-static libedit-devel
+deps(bin): ruby rake
+deps(gem): bundler
+
+[default]
+  package: "rubinius-2.5.4" "https://s3.amazonaws.com/releases.rubini.us/rubinius-2.5.4.tar.bz2" "aeab30359a4fa3f57fc4d5cc35033614238154bf" rbx
+
+[essentialkaos]
+  package: "rubinius-2.5.4" "https://ruby.kaos.io/rubinius-2.5.4.7z" "78e419f5b2a3d37ccaeabd165b15c5f7af404dd8" rbx

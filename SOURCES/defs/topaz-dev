@@ -1,0 +1,8 @@
+# RBBuild Def File
+# UPDATED 13/Aug/2015 11:53:23 by Anton Novojlov <andy@essentialkaos.com>
+
+deps(rpm): python glibc
+deps(deb): python glibc
+
+[default]
+  package: "topaz-dev" "http://topazruby.com/builds/${os_arnm}/latest/" "2ce86afcfa9d06acd77652a57c8e34c8625572e7" "topaz"

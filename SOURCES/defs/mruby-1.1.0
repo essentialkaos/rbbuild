@@ -1,0 +1,12 @@
+# RBBuild Def File
+# UPDATED 13/Aug/2015 11:53:23 by Anton Novojlov <andy@essentialkaos.com>
+
+deps(rpm): make gcc gperf byacc
+deps(deb): make gcc gperf byacc
+deps(bin): ruby
+
+[default]
+  package: "mruby-1.1.0" "https://github.com/mruby/mruby/archive/1.1.0.tar.gz" "828eadbc0640d3f670a5eb24bf8d99f6bb90b5fc" "mruby"
+
+[essentialkaos]
+  package: "mruby-1.1.0" "https://ruby.kaos.io/mruby-1.1.0.7z" "dd61c99c93c34f48f6f7b61350bc13bdbae5c3f1" "mruby"

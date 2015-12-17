@@ -1,0 +1,56 @@
+reeBuilder() {
+  checkVersionCompatibility "1.5.0"
+
+  local pkg="$1"
+  local pkg_dir="$2"
+
+  local copts="${CONFOPTS}"
+  local prfx="${XPREFIX:-${prefix}}"
+
+  if isOS $OS_MACOSX ; then
+    copts="${copts} --no-tcmalloc"
+  fi
+
+  pushd $pkg_dir &> /dev/null
+
+    showm "Building... "
+
+    local start_time=`now`
+    local fail
+
+    exit_protect=true
+
+    spinnerOn
+
+    mkdir -p "$prfx/lib/ruby/gems/1.8/gems"
+
+    if [[ -n "$verbose" ]] ; then
+      { show "./installer --auto \"$prfx\" --dont-install-useful-gems \"$copts\""
+        ./installer --auto "$prfx" --dont-install-useful-gems "$copts"
+        [[ $? -ne 0 ]] && fail=true
+      } &>> $output
+    else
+      { ./installer --auto "$prfx" --dont-install-useful-gems "$copts"
+        [[ $? -ne 0 ]] && fail=true
+      } &>> $log
+    fi
+
+    spinnerOff
+
+    if [[ -n "$fail" ]] ; then
+      unset exit_protect
+      buildFailed "$prfx"
+      return 1
+    fi
+
+    local end_time=`now`
+    local grc_time=`getGraceTime "$start_time" "$end_time"`
+
+    show "${CL_GREEN}DONE${CL_NORM} ${CL_GREY}($grc_time)${CL_NORM}"
+
+    echo -n > $log
+
+    unset exit_protect
+
+  popd &> /dev/null
+}

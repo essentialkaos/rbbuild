@@ -1,0 +1,15 @@
+# RBBuild Def File
+# UPDATED 13/Aug/2015 11:53:23 by Anton Novojlov <andy@essentialkaos.com>
+
+deps(rpm): gcc make openssl openssl-devel zlib zlib-devel readline readline-devel
+deps(rpm): glibc glibc-devel ncurses ncurses-devel bison byacc
+deps(deb): gcc make libssl libssl-dev zlib1g zlib1g-dev libreadline libreadline-dev
+deps(deb): libc6 libc6-dev ncurses ncurses-dev byson byacc
+
+[default]
+  package: "ruby-enterprise-1.8.7-20090928" "http://files.rubyforge.vm.bytemark.co.uk/emm-ruby/ruby-enterprise-1.8.7-20090928.tar.gz" "ef3e4add2f7c0b10a0072ae25a79c1ed4b669933" ree
+  package: "rubygems-2.4.7" "http://production.cf.rubygems.org/rubygems/rubygems-2.4.7.tgz" "5cb12bd69ad1c80a01e98bcd012a37ac10b710d2" ruby
+
+[essentialkaos]
+  package: "ruby-enterprise-1.8.7-20090928" "https://ruby.kaos.io/ruby-enterprise-1.8.7-20090928.7z" "e6cc91f7bd1fea7af2520862bd96a50d9502423a" ree
+  package: "rubygems-2.4.7" "https://ruby.kaos.io/rubygems-2.4.7.7z" "93cf521e4ff9d8f6c3d425d0b52cfc5fa038b354" ruby

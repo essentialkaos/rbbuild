@@ -1,0 +1,66 @@
+rbxBuilder() {
+  checkVersionCompatibility "1.5.0"
+
+  requireCompiler
+
+  local pkg="$1"
+  local pkg_dir="$2"
+
+  local copts="${CONFOPTS}"
+  local iopts="${INSTOPTS}"
+  local prfx="${XPREFIX:-${prefix}}"
+
+  exportCompilerOpts
+
+  [[ -z $gem_prefix ]] && gem_prefix="$prfx"
+
+  pushd $pkg_dir &> /dev/null
+
+    showm "Building... "
+
+    local start_time=`now`
+    local fail
+
+    exit_protect=true
+
+    spinnerOn
+
+    if [[ $verbose ]] ; then
+      { show "bundle install"
+        bundle install
+        [[ $? -ne 0 ]] && fail=true
+        show "./configure --prefix=$prfx $copts"
+        ./configure --prefix=$prfx $copts
+        [[ $? -ne 0 && $strict ]] && fail=true
+        rake install $iopts --trace
+        [[ $? -ne 0 ]] && fail=true
+      } &>> $output
+    else
+      { bundle install
+        [[ $? -ne 0 ]] && fail=true
+        ./configure --prefix=$prfx $copts
+        [[ $? -ne 0 && $strict ]] && fail=true
+        rake install $iopts
+        [[ $? -ne 0 ]] && fail=true
+      } &>> $log
+    fi
+
+    spinnerOff
+
+    if [[ $fail ]] ; then
+      unset exit_protect
+      buildFailed "$prfx"
+      return 1
+    fi
+
+    local end_time=`now`
+    local grc_time=`getGraceTime "$start_time" "$end_time"`
+
+    show "${CL_GREEN}DONE${CL_NORM} ${CL_GREY}($grc_time)${CL_NORM}"
+
+    echo -n > $log
+
+    unset exit_protect
+
+  popd &> /dev/null
+}
