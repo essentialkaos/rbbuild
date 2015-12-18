@@ -45,7 +45,7 @@ BuildArch:       noarch
 BuildRoot:       %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 %description
-rbbuild provides a simple way to compile and install 
+RBBuild provides a simple way to compile and install 
 different versions of Ruby on UNIX-like systems.
 
 ################################################################################
