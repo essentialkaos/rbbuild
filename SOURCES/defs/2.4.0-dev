@@ -10,12 +10,12 @@ CONFOPTS(openssl-1.0.1p): {os_name}-{os_arch} --openssldir={prefix}/openssl/ssl 
 MAKEOPTS(openssl-1.0.1p): -j 1
 PREFIX(openssl-1.0.1p): {prefix}/openssl
 
-CONFOPTS(ruby-2.3.0-dev): --with-openssl-dir={prefix}/openssl --disable-install-doc
+CONFOPTS(ruby-2.4.0-dev): --with-openssl-dir={prefix}/openssl --disable-install-doc
 
 [default]
   package: "openssl-1.0.1p" "https://www.openssl.org/source/openssl-1.0.1p.tar.gz" "9d1977cc89242cd11471269ece2ed4650947c046" openssl
-git: "ruby-2.3.0-dev" "https://github.com/ruby/ruby.git" "!" "trunk" "autoconf"
+  git: "ruby-2.4.0-dev" "https://github.com/ruby/ruby.git" "!" "trunk" "autoconf"
 
 [essentialkaos]
   package: "openssl-1.0.1p" "https://ruby.kaos.io/openssl-1.0.1p.7z" "474de9034ece7cc35774cb06ebd6ff841761137a" openssl
-git: "ruby-2.3.0-dev" "https://github.com/ruby/ruby.git" "!" "trunk" "autoconf"
+  git: "ruby-2.4.0-dev" "https://github.com/ruby/ruby.git" "!" "trunk" "autoconf"
