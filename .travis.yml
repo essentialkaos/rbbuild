@@ -1,0 +1,7 @@
+language: bash
+
+sudo: false
+
+script:
+  - bash SOURCES/rbdef -h
+  - bash SOURCES/rbbuild -h

@@ -52,6 +52,13 @@ Examples:
   rbbuild 1.9.3
 ```
 
+#### Build Status
+
+| Repository | Status |
+|------------|--------|
+| Stable | [![Build Status](https://travis-ci.org/essentialkaos/rbbuild.svg?branch=master)](https://travis-ci.org/essentialkaos/rbbuild) |
+| Unstable | [![Build Status](https://travis-ci.org/essentialkaos/rbbuild.svg?branch=develop)](https://travis-ci.org/essentialkaos/rbbuild) |
+
 #### License
 
 [EKOL](https://essentialkaos.com/ekol)
