@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
-###############################################################################
+########################################################################################
 
 APP="RBBuild"
 VER="1.5.2"
 
-###############################################################################
+########################################################################################
 
 NORM=0
 BOLD=1
@@ -52,43 +52,76 @@ CL_BG_GREY="\e[${GREY};7m"
 
 # OS NAMES ####################################################################
 
+# Name of Linux OS (String)
 OS_LINUX="linux"
-OS_SOLARIS="solaris"
-OS_BSD="bsd"
-OS_MACOSX="macosx"
 
+# Name of Solaris OS (String)
+OS_SOLARIS="solaris"
+
+# Name of BSD OS (String)
+OS_BSD="bsd"
+
+# Name of linux distr (String)
 DIST_ARCH="arch"
+
+# Name of linux distr (String)
 DIST_CENTOS="centos"
+
+# Name of linux distr (String)
 DIST_DEBIAN="debian"
+
+# Name of linux distr (String)
 DIST_FEDORA="fedora"
+
+# Name of linux distr (String)
 DIST_GENTOO="gentoo"
+
+# Name of linux distr (String)
 DIST_RHEL="rhel"
+
+# Name of linux distr (String)
 DIST_UBUNTU="ubuntu"
 
-# OS INFO #####################################################################
+# OS INFO ######################################################################
 
+# Current OS name (String)
 os_name=""
+
+# Current OS arch (String)
 os_arch=""
+
+# Current OS arch name (String)
 os_arnm=""
+
+# Current OS distr (String)
 os_dist=""
+
+# Current OS kernel version (String)
 os_kern=""
 
-# ARGS ########################################################################
+# ARGS #########################################################################
 
+# List of supported command line arguments (String)
 SUPPORTED_ARGS="dest_dir !help !usage mirror output prefix !quiet tmp threads 
  !verbose !ver !version !list cc_comp cxx_comp !mirror_list no_patch 
  !ignore_checksums dl_cache !rbenv !strict proxy svn_user svn_pass 
  !no_colors !debug name !yes"
 
+# List of supported short command line arguments (String)
 SHORT_ARGS="h:help d:!dest_dir m:mirror O:output p:prefix q:!quiet T:tmp 
  t:threads V:!verbose v:!version l:!list y:!yes P:proxy ml:!mirror_list 
  np:no_patch ic:!ignore_checksums dc:dl_cache r:!rbenv S:!strict su:svn_user 
  sp:svn_pass C:!no_colors D:!debug rn:name cc:cc_comp cxx:cxx_comp"
 
-###############################################################################
+################################################################################
 
+# Path to directory with def files and builders
 DATA_PATH="/usr/local/share/rbbuild"
+
+# Path to directory with def files
 DEF_PATH="${DATA_PATH}/defs"
+
+# Path to directory with builders
 BLD_PATH="${DATA_PATH}/blds"
 
 TEMP_TEMPLATE="rbbuild-XXXXXXXXXX"
@@ -111,7 +144,10 @@ ERROR_REPO=15
 ERROR_VERSION_MISMATCH=16
 ERROR_SECOND_PROC=17
 
+# Maximum lines from log for failed build (Number)
 LOG_TAIL_SIZE=30
+
+# Maximum redirects during download process (Number)
 MAX_REDIRS=10
 
 CCOPTS=""
@@ -128,10 +164,10 @@ PREFIX=""
 CWD=$(pwd)
 PID="$$"
 
-# Maximum load avearage
+# Maximum load avearage (Number)
 MAX_LA=5
 
-###############################################################################
+################################################################################
 
 output=/dev/tty
 verb_output=/dev/null
@@ -145,14 +181,14 @@ def_file=""
 
 declare -A plocat
 
-###############################################################################
+################################################################################
 
 # Main method
 #
 # *: All unparsed arguments
 #
-# Return: none
-# Echo: none
+# Code: No
+# Echo: No
 main() {
   if [[ ! -t 1 || -n "$no_colors" ]] ; then
     unset NORM BOLD UNLN RED GREEN BROWN BLUE MAG CYAN GREY
@@ -204,10 +240,10 @@ main() {
 
 # Prepare def file
 #
-# 1: Def file
+# 1: Path to local or remote def file (String)
 #
-# Return: none
-# Echo: none
+# Code: No
+# Echo: No
 prepDefFile() {
   if [[ $1 =~ http:|https:|ftp: ]] ; then
     fetchRemoteDefFile "$1"
@@ -227,16 +263,15 @@ prepDefFile() {
 
 # Download remote def file
 #
-# 1: URL
+# 1: URL (String)
 #
-# Return: none
-# Echo: none
+# Code: No
+# Echo: No
 fetchRemoteDefFile() {
   local url="$1"
+  local status=$(checkHTTPStatus "$url")
 
-  checkHTTPStatus "$url"
-
-  if [[ "$?" != "200" ]] ; then
+  if [[ "$status" != "200" ]] ; then
     show "Can't fetch remote definition file - server return error status <$status>." $RED
     show "" && doExit $ERROR_DEFFILE_NOT_FOUND
   fi
@@ -267,8 +302,8 @@ fetchRemoteDefFile() {
 
 # Main build method
 #
-# Return: none
-# Echo: none
+# Code: No
+# Echo: No
 doBuild() {
   if isRemoteDefFile "$def_file" ; then
     fetchRemoteDefFile
@@ -343,8 +378,8 @@ doBuild() {
 
 # Check build dependencies
 #
-# Return: none
-# Echo: none
+# Code: No
+# Echo: No
 checkBuildDeps() {
   local dep_list dep_pref dep
   local is_fail deb_list rpm_list bin_list lib_list pip_list gem_list
@@ -486,8 +521,8 @@ checkBuildDeps() {
 
 # Check EOL dates
 #
-# Return: none
-# Echo: none
+# Code: No
+# Echo: No
 checkEOLDates() {
   local normal=$(readDefProp "eol(normal)")
   local security=$(readDefProp "eol(security)")
@@ -543,8 +578,8 @@ checkEOLDates() {
 
 # Read and check def file
 #
-# Return: none
-# Echo: none
+# Code: No
+# Echo: No
 readDefinition() {
   if [[ -z $(grep "^\[$mirror\]" $def_file) ]] ; then
     show ""
@@ -572,10 +607,10 @@ readDefinition() {
 
 # Read and exec actions in def file
 #
-# 1: Check mode (Boolean)
+# 1: Check mode (don't mark build as failed) (Boolean)
 #
-# Return: none
-# Echo: none
+# Code: No
+# Echo: No
 execDefinition() {
   local check=$1
   local mirror_info=$(grep -n "^\[${mirror}\]" $def_file | cut -f1 -d":")
@@ -629,20 +664,18 @@ execDefinition() {
 
 # Check remote file availability
 #
-# 1: File name
-# 2: URL to file
+# 1: File name (String)
+# 2: URL to file (String) [Optional]
 #
-# Return: none
-# Echo: none
+# Code: No
+# Echo: No
 checkRemoteFile() {
   local url="$2"
   local file_name=$(basename $url)
 
   [[ -n "$dl_cache" && -f $dl_cache/$file_name ]] && return
 
-  checkHTTPStatus "$url"
-
-  local status="$?"
+  local status=$(checkHTTPStatus "$url")
 
   if [[ "$status" != "200" ]] ; then
     show "FAIL " $RED
@@ -656,11 +689,11 @@ checkRemoteFile() {
 
 # Download and install patch
 #
-# 1: URL to patch
-# 2: Checksum
+# 1: URL of patch (String)
+# 2: Checksum (String)
 #
-# Return: none
-# Echo: none
+# Code: No
+# Echo: No
 installPatch() {
   if [[ -n "$no_patch" ]] ; then
     show "Skipping patch $1..." $MAG
@@ -692,11 +725,11 @@ installPatch() {
 
 # Install patchset (set of patches)
 #
-# 1: URL to patch
-# 2: Checksum
+# 1: URL of patchset (String)
+# 2: Checksum (String)
 #
-# Return: none
-# Echo: none
+# Code: No
+# Echo: No
 installPatchset() {
   if [[ -n "$no_patch" ]] ; then
     show "Skipping patchset $1..." $MAG
@@ -729,12 +762,12 @@ installPatchset() {
 
 # Install binary file
 #
-# 1: URL to patch
-# 2: Checksum
+# 1: URL of package (String)
+# 2: Checksum (String)
 # *: Other arguments passed to builder
 #
-# Return: none
-# Echo: none
+# Code: No
+# Echo: No
 installPackage() {
   local pkg=$(basename $1)
   local url=$(parseArgsInString "$2")
@@ -773,12 +806,13 @@ installPackage() {
 
 # Install sources from git repository
 #
-# 1: Repository url
-# 2: Tag
-# 3: Branch
+# 1: Package name (String)
+# 2: Repository url (String)
+# 3: Tag (String) [Optional]
+# 4: Branch (String) [Optional]
 #
-# Return: none
-# Echo: none
+# Code: No
+# Echo: No
 installGitSource() {
   require "git"
 
@@ -838,12 +872,12 @@ installGitSource() {
 
 # Install sources from subversion repository
 #
-# 1: Repository url
-# 2: Tag
-# 3: Branch
+# 1: Repository url (String)
+# 2: Tag (String) [Optional]
+# 3: Branch (String) [Optional]
 #
-# Return: none
-# Echo: none
+# Code: No
+# Echo: No
 installSvnSource() {
   require "svn"
 
@@ -912,12 +946,12 @@ installSvnSource() {
 
 # Install sources from mercurial repository
 #
-# 1: Repository url
-# 2: Tag
-# 3: Branch
+# 1: Repository url (String)
+# 2: Tag (String) [Optional]
+# 3: Branch (String) [Optional]
 #
-# Return: none
-# Echo: none
+# Code: No
+# Echo: No
 installHgSource() {
   require "hg"
 
@@ -976,10 +1010,10 @@ installHgSource() {
 
 # Apply patches to sources
 #
-# 1: Package name
+# 1: Package name (String)
 #
-# Return: none
-# Echo: none
+# Code: No
+# Echo: No
 applyPatches() {
   local pkg="$1"
   local pkgdir=$(ls -1 -d -- */ 2> /dev/null | grep -v "patches" | head -1)
@@ -1013,8 +1047,8 @@ applyPatches() {
 
 # Create prefix directory
 #
-# Return: none
-# Echo: none
+# Code: No
+# Echo: No
 mkPrefixDir() {
   mkdir -p $prefix &> /dev/null
 
@@ -1024,10 +1058,10 @@ mkPrefixDir() {
   fi
 }
 
-# Reading build flags from def file
+# Read build flags from def file
 #
-# Return: none
-# Echo: none
+# Code: No
+# Echo: No
 defBuildFlags() {
   CCOPTS=$(readDefFlags   "CC($pkg)")
   CXXOPTS=$(readDefFlags  "CXX($pkg)")
@@ -1047,11 +1081,11 @@ defBuildFlags() {
 
 # Download remote file
 #
-# 1: URL
-# 2: File name
+# 1: URL (String)
+# 2: Output file name (String)
 #
-# Return: none
-# Echo: none
+# Code: No
+# Echo: No
 fetchRemoteFile() {
   local url="$1"
   local file_name="$2"
@@ -1075,11 +1109,11 @@ fetchRemoteFile() {
 
 # Check file checksum
 #
-# 1: File
-# 2: Checksum
+# 1: Path to file (String)
+# 2: Checksum (String)
 #
-# Return: none
-# Echo: none
+# Code: No
+# Echo: No
 checkCRC() {
   local filename="$1"
   local crc="$2"
@@ -1102,10 +1136,10 @@ checkCRC() {
 
 # Unpack archive
 #
-# 1: Archive
+# 1: Path to archive (String)
 #
-# Return: none
-# Echo: none
+# Code: No
+# Echo: No
 unpackArchive() {
   local arch="$1"
   local start_time=$(now)
@@ -1159,10 +1193,10 @@ unpackArchive() {
 
 # Read additional information from def file
 #
-# 1: Variable name
+# 1: Variable name (String)
 #
-# Return: none
-# Echo: Variable value
+# Code: No
+# Echo: Variable value (String)
 readDefFlags() {
   local name="$1"
   local value=$(readDefProp "$name")
@@ -1174,20 +1208,20 @@ readDefFlags() {
 
 # Read property from def file
 #
-# 1: Propery name
+# 1: Propery name (String)
 #
 # Return: Property value (String)
-# Echo: none
+# Echo: No
 readDefProp() {
   sed -n "s/$1://p" $def_file | sed -e 's/^[ \t]*//'
 }
 
 # Parse variables in text
 #
-# 1: Text
+# 1: Text with variables (String)
 #
-# Return: none
-# Echo: Text with parsed args
+# Code: No
+# Echo: Text with parsed vars (String)
 parseArgsInString() {
   local data="$@"
 
@@ -1205,14 +1239,14 @@ parseArgsInString() {
   fi
 }
 
-# Start build process
+# Start build process with some builder
 #
-# 1: Package name
-# 2: URL
-# 3: Builder name
+# 1: Package name (String)
+# 2: Package build dir (String)
+# 3: Builder name (String) [Optional]
 #
-# Return: none
-# Echo: none
+# Code: No
+# Echo: No
 buildPackage() {
   local pkg="$1"
   local pkg_dir="$2"
@@ -1233,13 +1267,13 @@ buildPackage() {
 
 # Run builder
 #
-# 1: Builder name
-# 2: Package name
-# 3: Package dir
+# 1: Builder name (String)
+# 2: Package name (String)
+# 3: Package dir (String)
 # *: Builder args
 #
-# Return: none
-# Echo: none
+# Code: Yes
+# Echo: No
 runBuilder() {
   local builder_func="${1}Builder"
 
@@ -1252,10 +1286,10 @@ runBuilder() {
 
 # Check that builder exist
 #
-# 1: Builder name
+# 1: Builder name (String)
 #
-# Return: none
-# Echo: none
+# Code: Yes
+# Echo: No
 hasBuilder() {
   local name="$1"
 
@@ -1269,10 +1303,10 @@ hasBuilder() {
 
 # Failed build handler
 #
-# 1: Prefix path
+# 1: Prefix path (String)
 #
-# Return: none
-# Echo: none
+# Code: No
+# Echo: No
 buildFailed() {
   show "FAILED" $RED
   show ""
@@ -1297,10 +1331,10 @@ buildFailed() {
 
 # Check builder compatibility
 #
-# 1: Supported raw version
+# 1: Supported raw version (String)
 #
-# Return: none
-# Echo: none
+# Code: No
+# Echo: No
 checkVersionCompatibility() {
   local requiredVersion="$1"
 
@@ -1314,10 +1348,10 @@ checkVersionCompatibility() {
 
 ###############################################################################
 
-# Show list of mirrors defined in def file
+# Show sorted list of mirrors defined in def file
 #
-# Return: none
-# Echo: none
+# Code: No
+# Echo: No
 showMirrorList() {
   local mirror
 
@@ -1328,8 +1362,8 @@ showMirrorList() {
 
 # Show list of all def files
 #
-# Return: none
-# Echo: none
+# Code: No
+# Echo: No
 listDefs() {
   local defs_dir="$DEF_PATH"
 
@@ -1409,8 +1443,8 @@ listDefs() {
 
 # Check current value of def_file is remote def file
 #
-# Return: Status (1 - Error 0 - Ok)
-# Echo: Status ("" - Error 1 - Ok)
+# Code: Yes
+# Echo: No
 isRemoteDefFile() {
   if [[ -n $(echo $def_file | grep -E "(http|ftp)") ]] ; then
     return 0
@@ -1419,10 +1453,10 @@ isRemoteDefFile() {
   fi
 }
 
-# Get rbenv path
+# Find RBEnv prefix path
 #
-# Return: none
-# Echo: none
+# Code: No
+# Echo: RBEnv prefix path (String)
 getRBEnvPrefix() {
   local upath=$(getAbsPath ~/.rbenv/versions)
 
@@ -1445,8 +1479,8 @@ getRBEnvPrefix() {
 
 # Get recomended number of threads for build
 #
-# Return: none
-# Echo: Number of threads
+# Code: No
+# Echo: Number of threads (Number)
 getThreadsNum() {
   local proc_num=$(nproc)
 
@@ -1458,12 +1492,12 @@ getThreadsNum() {
   fi
 }
 
-###############################################################################
+################################################################################
 
 # Check system info
 #
-# Return: none
-# Echo: none
+# Code: No
+# Echo: No
 detectOs() {
   os_name=$(uname -s)
 
@@ -1503,8 +1537,8 @@ detectOs() {
 #
 # 1: OS (String)
 #
-# Return: Boolean
-# Echo: none
+# Code: Yes
+# Echo: No
 isOS() {
   local target_os="$1"
 
@@ -1519,8 +1553,8 @@ isOS() {
 #
 # 1: Arch (String)
 #
-# Return: Boolean
-# Echo: none
+# Code: Yes
+# Echo: No
 isArch() {
   local target_arch="$1"
 
@@ -1533,8 +1567,8 @@ isArch() {
 
 # Check required apps
 #
-# Return: none
-# Echo: none
+# Code: No
+# Echo: No
 require() {
   local app
 
@@ -1549,8 +1583,8 @@ require() {
 
 # Check what compiler exist
 #
-# Return: none
-# Echo: none
+# Code: No
+# Echo: No
 requireCompiler() {
   if [[ -n "${cc_comp}${cxx_comp}${CCOPTS}${CXXOPTS}" ]] ; then
     local complrs=("${cc_comp} ${cxx_comp} ${CCOPTS} ${CXXOPTS}")
@@ -1578,8 +1612,8 @@ requireCompiler() {
 
 # Export compiler options
 #
-# Return: none
-# Echo: none
+# Code: No
+# Echo: No
 exportCompilerOpts() {
   local opts
 
@@ -1602,10 +1636,10 @@ exportCompilerOpts() {
 
 # Get remote file status
 #
-# 1: URL
+# 1: URL (String)
 #
-# Return: none
-# Echo: HTTP status code
+# Code: No
+# Echo: HTTP status code (Number)
 checkHTTPStatus() {
   local url status code nosniff location
 
@@ -1626,9 +1660,9 @@ checkHTTPStatus() {
   # Nosniff mode works on Google Code, if we simple try check status server return
   # code 404, but we can download this file
   if [[ -n "$nosniff" ]] ; then
-    return 200
+    echo "200"
   else
-    return $code
+    echo "$code"
   fi
 }
 
@@ -1637,8 +1671,8 @@ checkHTTPStatus() {
 # 1: Url (String)
 # 2: File name (String)
 #
-# Return: curl status (Boolean)
-# Echo: none
+# Code: Yes
+# Echo: No
 download() {
   local args="--max-redirs $MAX_REDIRS -L"
 
@@ -1659,8 +1693,8 @@ download() {
 #
 # 1: Default value (String)
 #
-# Return: 0 - Yes / 1 - No
-# Echo: none
+# Code: Yes
+# Echo: No
 readAnswer() {
   local defval="$1"
   local answer
@@ -1680,13 +1714,13 @@ readAnswer() {
   fi
 }
 
-# Cehck file permissions
+# Check file permissions
 #
-# 1: Permissions
-# 2: File
+# 1: Permissions (String)
+# 2: Path to file (String)
 #
-# Return: Status (0 - Ok, 1 - Error)
-# Echo: Status (1 - Ok, "" - Error)
+# Code: Yes
+# Echo: No
 checkPerms() {
   local perms=$(echo $1 | tr [a-z] [A-Z])
   local path="$2"
@@ -1712,8 +1746,8 @@ checkPerms() {
 #
 # *: List of apps
 #
-# Return: Status (0 - Ok, 1 - Error)
-# Echo: Status (1 - Ok, "" - Error)
+# Code: Yes
+# Echo: No
 checkDeps() {
   for app in $@ ; do
     type -P $app &> /dev/null
@@ -1725,31 +1759,31 @@ checkDeps() {
 
 # Sort version array
 #
-# 1: Data
+# 1: Data (String)
 #
-# Return: Sorted data
-# Echo: none
+# Code: Yes
+# Echo: Sorted array (String)
 sortVersionArray() {
   if [[ -n "$@" ]] ; then
     echo "$@" | tr " " "\n" | sort -V | tr "\n" " " && printf "\n"
   fi
 }
 
-# Get timestamp
+# Get current time as unix timestamp
 #
-# Return: none
-# Echo: Timestamp
+# Code: No
+# Echo: Timestamp (Number)
 now() {
   date '+%s'
 }
 
 # Get action time in grace format (3 min 32 sec)
 #
-# 1: Start timestamp
-# 2: End timestamp
+# 1: Start timestamp (Number)
+# 2: End timestamp (Number)
 #
-# Return: none
-# Echo: none
+# Code: No
+# Echo: No
 getGraceTime() {
   local start="$1"
   local end="$2"
@@ -1770,7 +1804,7 @@ getGraceTime() {
 
 # Get 1 min load average
 #
-# Return: none
+# Code: No
 # Echo: LA (Number)
 getLA() {
   cat /proc/loadavg | cut -f1 -d" " | sed 's/\..*//'
@@ -1778,26 +1812,26 @@ getLA() {
 
 # Get absolute path
 #
-# 1: Path
+# 1: Path (String)
 #
-# Return: none
-# Echo: Absolute path
+# Code: No
+# Echo: Absolute path (String)
 getAbsPath() {
   readlink -f $1
 }
 
 # Clean temporary data
 #
-# Return: none
-# Echo: none
+# Code: No
+# Echo: No
 clean() {
   [[ -z "$debug" ]] && rm -rf $tmp_dir &> /dev/null
 }
 
 # Signal handler
 #
-# Return: none
-# Echo: none
+# Code: No
+# Echo: No
 termExit() {
   trap - SIGTERM
 
@@ -1811,18 +1845,22 @@ termExit() {
 
 # Exit handler
 #
-# 1: Exit code
+# 1: Exit code (Number) [Optional]
 #
-# Return: none
-# Echo: none
+# Code: No
+# Echo: No
 doExit() {
   clean
   cd $CWD
   exit ${1:-0}
 }
 
-###############################################################################
+################################################################################
 
+# Enable spinner
+#
+# Code: No
+# Echo: No
 spinnerOn() {
   [[ -f $output || -n "$verbose" || -n "$quiet" ]] && return 0
 
@@ -1830,6 +1868,10 @@ spinnerOn() {
   spinner_pid=$!
 }
 
+# Disable spinner
+#
+# Code: No
+# Echo: No
 spinnerOff() {
   [[ -f $output || -n "$verbose" || -n "$quiet" ]] && return 0
 
@@ -1842,6 +1884,11 @@ spinnerOff() {
   printf "     \b\b\b\b\b" >> $output
 }
 
+# -
+# Spinner func 
+#
+# Code: No
+# Echo: No
 spinner() {
   while [[ -d /proc/$PID ]] ; do
     # If we don't use all this "if's", we will see spinner animation after termination script by Ctrl+C
@@ -1862,14 +1909,14 @@ spinner() {
   printf "     \b\b\b\b\b" >> $output
 }
 
-###############################################################################
+################################################################################
 
 # Show message about unsupported argument
 #
-# 1: Argument
+# 1: Argument (String)
 #
-# Return: none
-# Echo: none
+# Code: No
+# Echo: No
 showArgWarn() {
   show "Error! You used unsupport argument $1. Please check command syntax." $RED
   exit $ERROR_ARGUMENTS
@@ -1877,11 +1924,11 @@ showArgWarn() {
 
 # Show message
 #
-# 1: Message
-# 2: Color code
+# 1: Message (String)
+# 2: Color code (Number) [Optional]
 #
-# Return: none
-# Echo: none
+# Code: No
+# Echo: No
 show() {
   [[ -n "$quiet" ]] && return
 
@@ -1898,11 +1945,11 @@ show() {
 
 # Show message without newline symbol
 #
-# 1: Message
-# 2: Color
+# 1: Message (String)
+# 2: Color (Number) [Optional]
 #
-# Return: none
-# Echo: none
+# Code: No
+# Echo: No
 showm() {
   [[ -n "$quiet" ]] && return
 
@@ -1919,12 +1966,12 @@ showm() {
 
 # Show formated message with option info
 #
-# 1: Option
-# 2: Description
-# 3: Arguments
+# 1: Option (String)
+# 2: Description (String)
+# 3: Arguments (String) [Optional]
 #
-# Return: none
-# Echo: none
+# Code: No
+# Echo: No
 showo() {
   local optn="$1"
   local optd="$2"
@@ -1946,8 +1993,8 @@ showo() {
 
 # Show usage info
 #
-# Return: none
-# Echo: none
+# Code: No
+# Echo: No
 usage() {
   show ""
   show "${CL_BOLD}Usage:${CL_NORM} rbbuild ${CL_BROWN}<definition-file>${CL_NORM} ${CL_GREEN}<options>${CL_NORM}..."
@@ -1991,8 +2038,8 @@ usage() {
 
 # Show version and license info
 #
-# Return: none
-# Echo: none
+# Code: No
+# Echo: No
 about() {
   show ""
   show "${CL_BL_CYAN}$APP${CL_NORM} ${CL_CYAN}$VER${CL_NORM} - Utility for compiling and installing different ruby versions"
@@ -2002,7 +2049,7 @@ about() {
   show ""
 }
 
-## ARGUMENTS PARSING 2 #################################################################
+## ARGUMENTS PARSING 2 #########################################################
 
 [[ $# -eq 0 ]] && main && exit $?
 
@@ -2101,4 +2148,4 @@ unset arg argn argm argk
 
 [[ -n "$KEEP_ARGS" ]] && main $argv || main ${argt:1:9999}
 
-########################################################################################
+################################################################################
