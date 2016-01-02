@@ -1,3 +1,10 @@
+# Start Maglev builder
+#
+# 1: Package name (String)
+# 2: Package build dir (String)
+#
+# Code: No
+# Echo: No
 maglevBuilder() {
   checkVersionCompatibility "1.2.0"
 

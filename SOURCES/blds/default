@@ -1,3 +1,10 @@
+# Start default ruby builder
+#
+# 1: Package name (String)
+# 2: Package build dir (String)
+#
+# Code: No
+# Echo: No
 defaultBuilder() {
   checkVersionCompatibility "1.5.0"
 

@@ -1,3 +1,10 @@
+# Start topaz builder
+#
+# 1: Package name (String)
+# 2: Package build dir (String)
+#
+# Code: No
+# Echo: No
 topazBuilder() {
   checkVersionCompatibility "1.2.0"
 

@@ -1,3 +1,10 @@
+# Start rubinius builder
+#
+# 1: Package name (String)
+# 2: Package build dir (String)
+#
+# Code: No
+# Echo: No
 rbxBuilder() {
   checkVersionCompatibility "1.5.0"
 
