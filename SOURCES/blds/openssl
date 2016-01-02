@@ -1,3 +1,7 @@
+# Start OpenSSL builder
+#
+# Code: No
+# Echo: No
 opensslBuilder() {
   checkVersionCompatibility "1.2.0"
 
