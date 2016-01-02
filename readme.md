@@ -11,6 +11,25 @@ yum install -y http://release.yum.kaos.io/i386/kaos-repo-6.8-0.el6.noarch.rpm
 yum install rbbuild
 ```
 
+###### Using install.sh
+
+We provide simple bash script `script.sh` for installing app from the sources.
+
+```
+... install gcc, make and 7zip
+
+git clone https://github.com/essentialkaos/rbbuild.git
+cd rbbuild
+
+sudo ./install.sh
+```
+
+If you have some issues with installing, try to use script in debug mode:
+
+```
+sudo ./install.sh --debug
+```
+
 #### Usage
 
 ```
