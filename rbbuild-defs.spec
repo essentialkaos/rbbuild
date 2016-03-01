@@ -29,7 +29,7 @@
 
 Summary:         Def files for rbbuild utility 
 Name:            rbbuild-defs
-Version:         1.5.17
+Version:         1.5.18
 Release:         0%{?dist}
 License:         EKOL
 Vendor:          ESSENTIALKAOS
@@ -73,6 +73,15 @@ rm -rf %{buildroot}
 ################################################################################
 
 %changelog
+* Tue Mar 01 2016 Anton Novojilov <andy@essentialkaos.com> - 1.5.18-0
+- OpenSSL updated to 0.9.8w and 1.0.1r
+- Added EOL dates for 2.0.0
+- Added jruby-9.0.5.0
+- Added rubinius-3.16
+- Added rubinius-3.17
+- Added rubinius-3.18
+- Added rubinius-3.19
+
 * Fri Dec 25 2015 Anton Novojilov <andy@essentialkaos.com> - 1.5.17-0
 - Added 2.3.0-p0
 

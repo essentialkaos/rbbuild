@@ -29,7 +29,7 @@
 
 Summary:         Utility for compiling and installing different ruby versions 
 Name:            rbbuild
-Version:         1.5.2
+Version:         1.5.3
 Release:         0%{?dist}
 License:         EKOL
 Vendor:          ESSENTIALKAOS
@@ -82,6 +82,10 @@ rm -rf %{buildroot}
 ################################################################################
 
 %changelog
+* Tue Mar 01 2016 Anton Novojilov <andy@essentialkaos.com> - 1.5.3-0
+- Fixed bug with ignoring checksums
+- Fixed bug with showing error status codes
+
 * Thu Aug 20 2015 Anton Novojilov <andy@essentialkaos.com> - 1.5.2-0
 - Simple latest version install
 - Minor improvements

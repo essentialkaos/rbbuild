@@ -6,7 +6,7 @@
 APP="RBBuild"
 
 # App version (String)
-VER="1.5.2"
+VER="1.5.3"
 
 ################################################################################
 
@@ -1121,6 +1121,8 @@ checkCRC() {
   local filename="$1"
   local crc="$2"
 
+  [[ -n "$ignore_checksums" ]] && return
+
   showm "Checking sha1 checksum... "
 
   local file_crc=$(sha1sum $filename | cut -f1 -d" ")
@@ -1644,29 +1646,22 @@ exportCompilerOpts() {
 # Code: No
 # Echo: HTTP status code (Number)
 checkHTTPStatus() {
-  local url status code nosniff location
+  local url status code location
 
   url=$(parseArgsInString "$1")
 
   if [[ -z "$proxy" ]] ; then
-    status=$(curl --max-redirs $MAX_REDIRS -IsL $url)
+    status=$(curl --max-redirs $MAX_REDIRS -ILs "$url")
   else
-    status=$(curl --max-redirs $MAX_REDIRS -x $proxy -IsL $url)
+    status=$(curl --max-redirs $MAX_REDIRS -x $proxy -ILs "$url")
   fi
 
-  code=$(echo "$status" | grep "HTTP" | cut -f2 -d" " | tail -1 | tr -dc '[:print:]')
-  nosniff=$(echo "$status" | grep "X-Content-Type-Options: nosniff" | tr -dc '[:print:]')
-  location=$(echo "$status" | grep "Location" | cut -f2 -d" " | tail -1 | tr -dc '[:print:]')
+  code=$(echo "$status" | grep -Fi "HTTP" | cut -f2 -d" ")
+  location=$(echo "$status" | grep -Fi "Location" | cut -f2 -d" ")
 
   plocat[$url]="$location"
 
-  # Nosniff mode works on Google Code, if we simple try check status server return
-  # code 404, but we can download this file
-  if [[ -n "$nosniff" ]] ; then
-    echo "200"
-  else
-    echo "$code"
-  fi
+  echo "$code"
 }
 
 # Download remote file
