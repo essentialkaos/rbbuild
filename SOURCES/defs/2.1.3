@@ -1,1 +1,21 @@
-2.1.3-p0
+# RBBuild Def File
+# UPDATED 29/Feb/2016 19:20:20 by Anton Novojlov <andy@essentialkaos.com>
+
+deps(rpm): gcc make zlib-devel readline-devel tk-devel ca-certificates
+deps(rpm): autoconf glibc-devel ncurses-devel bison libffi-devel
+deps(deb): gcc make zlib1g-dev libreadline6-dev tk-dev ca-certificates
+deps(deb): autoconf libc6-dev libncurses5-dev bison libffi-dev
+
+CONFOPTS(openssl-1.0.1r): {os_name}-{os_arch} --openssldir={prefix}/openssl/ssl zlib-dynamic no-krb5 shared
+MAKEOPTS(openssl-1.0.1r): -j 1
+PREFIX(openssl-1.0.1r): {prefix}/openssl
+
+CONFOPTS(ruby-2.1.3-p0): --with-openssl-dir={prefix}/openssl --disable-install-doc
+
+[default]
+  package: "openssl-1.0.1r" "https://www.openssl.org/source/openssl-1.0.1r.tar.gz" "9d1977cc89242cd11471269ece2ed4650947c046" openssl
+  package: "ruby-2.1.3-p0" "https://ftp.ruby-lang.org/pub/ruby/2.1/ruby-2.1.3.tar.gz" "ca6e120e5a2ee7deb3a7493696b5bbc28bfc2236"
+
+[essentialkaos]
+  package: "openssl-1.0.1r" "https://ruby.kaos.io/openssl-1.0.1r.7z" "fa6a5a8dfe0f694136477c977a59708a993961e6" openssl
+  package: "ruby-2.1.3-p0" "https://ruby.kaos.io/ruby-2.1.3.7z" "7d0f49c5347cf2125c4ce5f5661d896d496cd671"
