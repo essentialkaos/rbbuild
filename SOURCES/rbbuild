@@ -6,7 +6,7 @@
 APP="RBBuild"
 
 # App version (String)
-VER="1.5.4"
+VER="1.5.5"
 
 ################################################################################
 
@@ -1393,9 +1393,9 @@ listDefs() {
   for def in $all_list ; do
     [[ -h $defs_dir/$def ]] && continue
 
-    if [[ $def =~ [0-9].[0-9].[0-9]-p[0-9]{1,} ]] ; then
+    if [[ $def =~ (1|2).[0-9]{1,}.[0-9]{1,}-p[0-9]{1,} ]] ; then
       ruby_list+=($def)
-    elif [[ $def =~ [0-9].[0-9].[0-9]-dev ]] ; then
+    elif [[ $def =~ (1|2).[0-9]{1,}.[0-9]{1,}-dev ]] ; then
       ruby_list+=($def)
     elif [[ $def =~ jruby-* ]] ; then
       jruby_list+=($def)
@@ -1418,7 +1418,7 @@ listDefs() {
   local ruby_count=0
   local ruby_next=0
 
-  printf "\n${CL_BG_BROWN} %-26s${CL_NORM} ${CL_BG_CYAN} %-26s${CL_NORM} ${CL_BG_GREEN} %-26s${CL_NORM} ${CL_BG_MAG} %-26s${CL_NORM} ${CL_BG_GREY} %-26s${CL_NORM}\n\n" "RUBY" "JRUBY" "REE" "RUBINIUS" "OTHER"
+  printf "\n${CL_BOLD}${CL_BG_BROWN} %-26s${CL_NORM} ${CL_BOLD}${CL_BG_CYAN} %-26s${CL_NORM} ${CL_BOLD}${CL_BG_GREEN} %-26s${CL_NORM} ${CL_BOLD}${CL_BG_MAG} %-26s${CL_NORM} ${CL_BOLD}${CL_BG_GREY} %-26s${CL_NORM}\n\n" "RUBY" "JRUBY" "REE" "RUBINIUS" "OTHER"
 
   while : ; do
     ruby_next=$(($ruby_count+1))
