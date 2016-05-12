@@ -29,7 +29,7 @@
 
 Summary:         Def files for rbbuild utility 
 Name:            rbbuild-defs
-Version:         1.5.19
+Version:         1.5.20
 Release:         0%{?dist}
 License:         EKOL
 Vendor:          ESSENTIALKAOS
@@ -75,6 +75,13 @@ rm -rf %{buildroot}
 ################################################################################
 
 %changelog
+* Thu May 12 2016 Anton Novojilov <andy@essentialkaos.com> - 1.5.20-0
+- Added 2.3.1-p0
+- Added 2.2.5-p0
+- Added 2.1.9-p0
+- Added 2.1.10-p0
+- Added jruby-9.1.0.0
+
 * Thu Apr 28 2016 Anton Novojilov <andy@essentialkaos.com> - 1.5.19-0
 - Added jruby-1.7.24
 - Added jruby-1.7.25
