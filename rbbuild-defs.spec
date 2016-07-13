@@ -81,6 +81,7 @@ rm -rf %{buildroot}
 - Added jruby-9.1.2.0
 - Added 2.0.0-p647-railsexpress
 - Added 2.0.0-p648-railsexpress
+- Added 2.1.7-p0-railsexpress
 - Added 2.1.8-p0-railsexpress
 - Added 2.2.3-p0-railsexpress
 - Added 2.2.4-p0-railsexpress
