@@ -80,6 +80,7 @@ rm -rf %{buildroot}
 - Added jruby-9.1.1.0
 - Added jruby-9.1.2.0
 - OpenSSL updated to 1.0.1t
+- Added EOL dates for 2.1.x
 
 * Thu May 12 2016 Anton Novojilov <andy@essentialkaos.com> - 1.5.20-0
 - Added 2.3.1-p0
