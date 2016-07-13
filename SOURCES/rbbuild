@@ -6,7 +6,7 @@
 APP="RBBuild"
 
 # App version (String)
-VER="1.5.5"
+VER="1.5.6"
 
 ################################################################################
 
@@ -1393,15 +1393,13 @@ listDefs() {
   for def in $all_list ; do
     [[ -h $defs_dir/$def ]] && continue
 
-    if [[ $def =~ (1|2).[0-9]{1,}.[0-9]{1,}-p[0-9]{1,} ]] ; then
+    if [[ $def =~ ^(1|2).[0-9]{1,}.[0-9]{1,}* ]] ; then
       ruby_list+=($def)
-    elif [[ $def =~ (1|2).[0-9]{1,}.[0-9]{1,}-dev ]] ; then
-      ruby_list+=($def)
-    elif [[ $def =~ jruby-* ]] ; then
+    elif [[ $def =~ ^jruby-* ]] ; then
       jruby_list+=($def)
-    elif [[ $def =~ ree-* ]] ; then
+    elif [[ $def =~ ^ree-* ]] ; then
       ree_list+=($def)
-    elif [[ $def =~ rubinius-* ]] ; then
+    elif [[ $def =~ ^rubinius-* ]] ; then
       rbx_list+=($def)
     else
       oth_list+=($def)
