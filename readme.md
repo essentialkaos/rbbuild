@@ -2,7 +2,7 @@
 
 `rbbuild` is utility for compiling and installing different ruby versions.
 
-[Installation](#installation) • [Build Status](#build-status) • [License](#license)
+[Installation](#installation) • [Usage](#usage) • [Build Status](#build-status) • [License](#license)
 
 ## Installation
 
@@ -32,7 +32,7 @@ If you have some issues with installing, try to use script in debug mode:
 sudo ./install.sh --debug
 ```
 
-#### Usage
+## Usage
 
 ```
 Usage: rbbuild <definition-file> <options>...
