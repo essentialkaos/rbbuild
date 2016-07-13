@@ -1,5 +1,5 @@
 # RBBuild Def File
-# UPDATED 13/Jul/2016 08:10:35 by Anton Novojlov <andy@essentialkaos.com>
+# UPDATED 13/Jul/2016 09:36:01 by Anton Novojlov <andy@essentialkaos.com>
 
 deps(rpm): gcc make zlib-devel readline-devel tk-devel ca-certificates
 deps(rpm): autoconf glibc-devel ncurses-devel bison libffi-devel
@@ -10,12 +10,12 @@ CONFOPTS(openssl-1.0.1t): {os_name}-{os_arch} --openssldir={prefix}/openssl/ssl 
 MAKEOPTS(openssl-1.0.1t): -j 1
 PREFIX(openssl-1.0.1t): {prefix}/openssl
 
-CONFOPTS(ruby-2.3.1-p0): --with-openssl-dir={prefix}/openssl --disable-install-doc
+CONFOPTS(ruby-2.4.0-preview1): --with-openssl-dir={prefix}/openssl --disable-install-doc
 
 [default]
   package: "openssl-1.0.1t" "https://www.openssl.org/source/openssl-1.0.1t.tar.gz" "a684ba59d6721a90f354b1953e19611646be7e7d" openssl
-  package: "ruby-2.3.1-p0" "https://ftp.ruby-lang.org/pub/ruby/ruby-2.4.0-preview1.tar.gz" "1003a1e57547d81f4bb979c0f40f242afc284cd5"
+  package: "ruby-2.4.0-preview1" "https://ftp.ruby-lang.org/pub/ruby/ruby-2.4.0-preview1.tar.gz" "1003a1e57547d81f4bb979c0f40f242afc284cd5"
 
 [essentialkaos]
   package: "openssl-1.0.1t" "https://ruby.kaos.io/openssl-1.0.1t.7z" "cb68a723e4663403dcea43aa49e4109bd791ba3f" openssl
-  package: "ruby-2.3.1-p0" "https://ruby.kaos.io/ruby-2.4.0-preview1.7z" "ed7df3cd98fe301726325189527c376175d197ce"
+  package: "ruby-2.4.0-preview1" "https://ruby.kaos.io/ruby-2.4.0-preview1.7z" "ed7df3cd98fe301726325189527c376175d197ce"
