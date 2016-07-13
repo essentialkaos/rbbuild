@@ -34,7 +34,7 @@ Release:         0%{?dist}
 License:         EKOL
 Vendor:          ESSENTIALKAOS
 Group:           Development/Tools
-URL:             http://essentialkaos.com
+URL:             https://github.com/essentialkaos/rbbuild
 
 Source0:         https://source.kaos.io/%{name}/%{name}-%{version}.tar.bz2
 
