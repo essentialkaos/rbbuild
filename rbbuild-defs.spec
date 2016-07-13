@@ -29,12 +29,12 @@
 
 Summary:         Def files for rbbuild utility 
 Name:            rbbuild-defs
-Version:         1.5.20
+Version:         1.5.21
 Release:         0%{?dist}
 License:         EKOL
 Vendor:          ESSENTIALKAOS
 Group:           Development/Tools
-URL:             http://essentialkaos.com
+URL:             https://github.com/essentialkaos/rbbuild
 
 Source0:         %{name}-%{version}.tar.bz2
 
@@ -75,6 +75,22 @@ rm -rf %{buildroot}
 ################################################################################
 
 %changelog
+* Wed Jul 13 2016 Anton Novojilov <andy@essentialkaos.com> - 1.5.21-0
+- Added 2.4.0-preview1
+- Added jruby-9.1.1.0
+- Added jruby-9.1.2.0
+- Added 2.0.0-p647-railsexpress
+- Added 2.0.0-p648-railsexpress
+- Added 2.1.7-p0-railsexpress
+- Added 2.1.8-p0-railsexpress
+- Added 2.2.3-p0-railsexpress
+- Added 2.2.4-p0-railsexpress
+- Added 2.2.5-p0-railsexpress
+- Added 2.3.0-p0-railsexpress
+- Added 2.3.1-p0-railsexpress
+- OpenSSL updated to 1.0.1t
+- Added EOL dates for 2.1.x
+
 * Thu May 12 2016 Anton Novojilov <andy@essentialkaos.com> - 1.5.20-0
 - Added 2.3.1-p0
 - Added 2.2.5-p0
