@@ -79,6 +79,14 @@ rm -rf %{buildroot}
 - Added 2.4.0-preview1
 - Added jruby-9.1.1.0
 - Added jruby-9.1.2.0
+- Added 2.0.0-p647-railsexpress
+- Added 2.0.0-p648-railsexpress
+- Added 2.1.8-p0-railsexpress
+- Added 2.2.3-p0-railsexpress
+- Added 2.2.4-p0-railsexpress
+- Added 2.2.5-p0-railsexpress
+- Added 2.3.0-p0-railsexpress
+- Added 2.3.1-p0-railsexpress
 - OpenSSL updated to 1.0.1t
 - Added EOL dates for 2.1.x
 
