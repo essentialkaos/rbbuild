@@ -1482,7 +1482,7 @@ getRBEnvPrefix() {
   fi
 }
 
-# Get recomended number of threads for build
+# Get recommended number of threads for build
 #
 # Code: No
 # Echo: Number of threads (Number)
