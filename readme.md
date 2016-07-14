@@ -1,8 +1,10 @@
-![RBBuild Logo](https://essentialkaos.com/github/rbbuild-v1.png)
+<p align="center"><a href="#installation">Installation</a> • <a href="#usage">Usage</a> • <a href="#build-status">Build Status</a> • <a href="#license">License</a></p>
+
+<p align="center">
+<img width="300" height="150" src="https://essentialkaos.com/github/rbbuild-v3.png"/>
+</p>
 
 `rbbuild` is utility for compiling and installing different ruby versions.
-
-[Installation](#installation) • [Usage](#usage) • [Build Status](#build-status) • [License](#license)
 
 ## Installation
 
