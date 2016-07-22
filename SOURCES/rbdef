@@ -362,7 +362,9 @@ proc() {
       fi
     done < <(awk 1 $file)
 
-    mv $tmp_file $file
+    cat $tmp_file > $file
+
+    rm -f $tmp_file
 
     show "DONE" $GREEN
   done
