@@ -6,7 +6,7 @@
 APP="RBBuild"
 
 # App version (String)
-VER="1.5.6"
+VER="1.5.7"
 
 ################################################################################
 
@@ -1422,7 +1422,7 @@ listDefs() {
     ruby_next=$(($ruby_count+1))
 
     if [[ "${ruby_list[$ruby_next]}" =~ "-railsexpress" ]] ; then
-      ruby_ver="${ruby_list[$ruby_count]}${CL_GREY}-railsexpress${CL_NORM}   "
+      ruby_ver=$(getAlignedColoredText "${ruby_list[$ruby_count]}${CL_GREY}-railsexpress${CL_NORM}" "${ruby_list[$ruby_count]}-railsexpress" 26)
       ruby_count=$(($ruby_count+2))
     else
       ruby_ver="${ruby_list[$ruby_count]}"
@@ -1796,6 +1796,31 @@ getGraceTime() {
   else
     echo "$min min $sec sec"
   fi
+}
+
+# Print colored text with align spaces
+#
+# 1: Colored text (String)
+# 2: Original text (String)
+# 3: Text size (Number)
+#
+# Code: No
+# Echo: Aligned text (String)
+getAlignedColoredText() {
+  local ctext="$1"
+  local text="$2"
+  local size="$3"
+
+  if [[ ${#text} -gt $size ]] ; then
+    echo -e "$ctext"
+    return
+  fi
+
+  local text_size=${#text}
+  local size_diff=$(($size - $text_size))
+  local align=$(printf "%${size_diff}s" " ")
+
+  echo -e "${ctext}${align}"
 }
 
 # Get 1 min load average
