@@ -2052,11 +2052,11 @@ showo() {
 
   if [[ -z "$optp" ]] ; then
     optt="$optn"
-    optf=$(( 25 - ${#optt} ))
+    optf=$(( 26 - ${#optt} ))
     echo -e "  ${CL_GREEN}${optn}${CL_NORM} ${CL_DARK}${breadcrumbs:0:$optf}${CL_NORM} $optd"
   else
     optt="$optn $optp"
-    optf=$(( 25 - ${#optt} ))
+    optf=$(( 26 - ${#optt} ))
     echo -e "  ${CL_GREEN}${optn}${CL_NORM} ${CL_GREY}${optp}${CL_NORM} ${CL_DARK}${breadcrumbs:0:$optf}${CL_NORM} $optd"
   fi
 }
