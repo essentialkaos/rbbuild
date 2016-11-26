@@ -19,7 +19,7 @@ reeBuilder() {
   copts="${CONFOPTS}"
   prfx="${XPREFIX:-${prefix}}"
 
-  if isOS $OS_MACOSX ; then
+  if isOS "$OS_MACOSX" ; then
     copts="${copts} --no-tcmalloc"
   fi
 
@@ -54,8 +54,8 @@ reeBuilder() {
       return 1
     fi
 
-    local end_time=$(now)
-    local grc_time=$(getGraceTime "$start_time" "$end_time")
+    end_time=$(now)
+    grc_time=$(getGraceTime "$start_time" "$end_time")
 
     show "${CL_GREEN}DONE${CL_NORM} ${CL_GREY}($grc_time)${CL_NORM}"
 

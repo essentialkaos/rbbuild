@@ -38,7 +38,7 @@ mrubyBuilder() {
         [[ $? -ne 0 ]] && fail=true
         cp -r build/host/* "$prfx"
         [[ $? -ne 0 ]] && fail=true
-      } &>> $output
+      } &>> "$output"
     else
       { mkdir -p "$prfx"
         [[ $? -ne 0 ]] && fail=true
@@ -46,7 +46,7 @@ mrubyBuilder() {
         [[ $? -ne 0 ]] && fail=true
         cp -r build/host/* "$prfx"
         [[ $? -ne 0 ]] && fail=true
-      } &>> $log
+      } &>> "$log"
     fi
 
     spinnerOff

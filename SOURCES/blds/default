@@ -42,7 +42,7 @@ defaultBuilder() {
 
     showm "Building... "
 
-    start_time=`now`
+    start_time=$(now)
 
     if checkPerms "FR" "configure" ; then
       conf_file="configure"
