@@ -423,7 +423,7 @@ checkBuildDeps() {
 
   dep_pref="deps(bin)"
 
-  if [[ -n $(grep "$dep_pref" $def_file) ]] ; then
+  if grep -q "$dep_pref" "$def_file" ; then
     dep_list=$(readDefProp "$dep_pref")
 
     for dep in $dep_list ; do
@@ -438,7 +438,7 @@ checkBuildDeps() {
 
   dep_pref="deps(lib)"
 
-  if [[ -n $(grep "$dep_pref" $def_file) ]] ; then
+  if grep -q "$dep_pref" $def_file ; then
     dep_list=$(readDefProp "$dep_pref")
 
     for dep in $dep_list ; do
@@ -455,7 +455,7 @@ checkBuildDeps() {
 
   dep_pref="deps(pip)"
 
-  if [[ -n $(grep "$dep_pref" $def_file) ]] ; then
+  if grep -q "$dep_pref" $def_file ; then
     require "pip"
 
     dep_list=$(readDefProp "$dep_pref")
@@ -471,11 +471,11 @@ checkBuildDeps() {
 
   dep_pref="deps(gem)"
 
-  if [[ -n $(grep "$dep_pref" $def_file) ]] ; then
+  if grep -q "$dep_pref" $def_file ; then
     require "gem"
 
     dep_list=$(readDefProp "$dep_pref")
-    local gems=$(gem list --local)
+    gems=$(gem list --local)
 
     for dep in $dep_list ; do
       if [[ ! $gems =~ $dep ]] ; then
