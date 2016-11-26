@@ -271,21 +271,23 @@ prepDefFile() {
 # Code: No
 # Echo: No
 fetchRemoteDefFile() {
-  local url="$1"
-  local status=$(checkHTTPStatus "$url")
+  local url status file_name start_time end_time grc_time
+
+  url="$1"
+  status=$(checkHTTPStatus "$url")
 
   if [[ "$status" != "200" ]] ; then
     show "Can't fetch remote definition file - server return error status <$status>." $RED
     show "" && doExit $ERROR_DEFFILE_NOT_FOUND
   fi
 
-  local file_name=$(basename $url)
+  file_name=$(basename "$url")
 
   showm "Fetching remote defenition file... "
 
-  pushd $tmp_dir &> /dev/null
+  pushd "$tmp_dir" &> /dev/null
 
-    local start_time=$(now)
+    start_time=$(now)
 
     spinnerOn
 
@@ -293,8 +295,8 @@ fetchRemoteDefFile() {
 
     spinnerOff
 
-    local end_time=$(now)
-    local grc_time=$(getGraceTime "$start_time" "$end_time")
+    end_time=$(now)
+    grc_time=$(getGraceTime "$start_time" "$end_time")
 
     show "${CL_GREEN}DONE${CL_NORM} ${CL_GREY}($grc_time)${CL_NORM}"
 
@@ -308,6 +310,8 @@ fetchRemoteDefFile() {
 # Code: No
 # Echo: No
 doBuild() {
+  local file_name rbenv_prefix loadavg status
+
   if isRemoteDefFile "$def_file" ; then
     fetchRemoteDefFile
   fi
@@ -320,8 +324,8 @@ doBuild() {
   if [[ -n "$rbenv" ]] ; then
     require "rbenv"
 
-    local file_name=$(basename $def_file)
-    local rbenv_prefix=$(getRBEnvPrefix)
+    file_name=$(basename "$def_file")
+    rbenv_prefix=$(getRBEnvPrefix)
 
     if [[ -z "$rbenv_prefix" ]] ; then
       show "RBEnv data directory not found. Please define --prefix (-p) manually." $RED
@@ -334,13 +338,13 @@ doBuild() {
       prefix="$rbenv_prefix/$name"
     fi
   else
-    prefix=$(getAbsPath $prefix)
+    prefix=$(getAbsPath "$prefix")
   fi
 
-  local la=$(getLA)
+  loadavg=$(getLA)
 
-  if [[ $la -gt $MAX_LA ]] ; then
-    show "Current LA ($la) is too high. We strongly don't recommend start build process at this moment." $BROWN
+  if [[ $loadavg -gt $MAX_LA ]] ; then
+    show "Current LA ($loadavg) is too high. We strongly don't recommend start build process at this moment." $BROWN
     show "\nContinue build anyway? (y/N)" $CYAN
 
     if ! readAnswer "N" ; then
@@ -348,7 +352,7 @@ doBuild() {
     fi
   fi
 
-  if [[ -d $prefix ]] ; then
+  if [[ -d "$prefix" ]] ; then
     show "Directory $prefix already exists." $BROWN
     show "\nYou really want to use this directory? (Y/n)" $CYAN
 
@@ -366,7 +370,7 @@ doBuild() {
 
   execDefinition
 
-  local status=$?
+  status=$?
 
   if [[ $status -eq 0 && -n "$rbenv" ]] ; then
     showm "\nRehashing... "
@@ -384,7 +388,7 @@ doBuild() {
 # Code: No
 # Echo: No
 checkBuildDeps() {
-  local dep_list dep_pref dep
+  local dep_list dep_pref dep has_lib pips gems
   local is_fail deb_list rpm_list bin_list lib_list pip_list gem_list
 
   showm "Checking build dependencies... "
@@ -394,7 +398,7 @@ checkBuildDeps() {
 
     if [[ -n "$dep_list" ]] ; then
       for dep in $dep_list ; do
-        dpkg -s $dep &> /dev/null
+        dpkg -s "$dep" &> /dev/null
 
         if [[ $? -ne 0 ]] ; then
           is_fail=true
@@ -407,7 +411,7 @@ checkBuildDeps() {
 
     if [[ -n "$dep_list" ]] ; then
       for dep in $dep_list ; do
-        rpm -q $dep &> /dev/null
+        rpm -q "$dep" &> /dev/null
 
         if [[ $? -ne 0 ]] ; then
           is_fail=true
@@ -423,7 +427,7 @@ checkBuildDeps() {
     dep_list=$(readDefProp "$dep_pref")
 
     for dep in $dep_list ; do
-      type -P $dep &> /dev/null
+      type -P "$dep" &> /dev/null
 
       if [[ $? -ne 0 ]] ; then
         is_fail=true
@@ -440,7 +444,7 @@ checkBuildDeps() {
     for dep in $dep_list ; do
       [[ ! $dep =~ lib ]] && dep="lib${dep}.so"
 
-      local has_lib=$(ldconfig -p | grep "$dep")
+      has_lib=$(ldconfig -p | grep "$dep")
 
       if [[ -z "$has_lib" ]] ; then
         is_fail=true
@@ -455,7 +459,7 @@ checkBuildDeps() {
     require "pip"
 
     dep_list=$(readDefProp "$dep_pref")
-    local pips=$(pip freeze)
+    pips=$(pip freeze)
 
     for dep in $dep_list ; do
       if [[ ! $pips =~ $dep ]] ; then

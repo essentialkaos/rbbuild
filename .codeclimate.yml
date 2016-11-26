@@ -11,6 +11,6 @@ engines:
 
 ratings:
    paths:
-     - SOURCES/blds/*
+     - SOURCES/blds/**
      - SOURCES/rbbuild
      - SOURCES/rbdef
