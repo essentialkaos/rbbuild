@@ -22,26 +22,26 @@ defaultBuilder() {
 
   exportCompilerOpts
 
-  if [[ ! $mopts =~ "-j " ]] ; then
+  if [[ ! $mopts =~ \-j\  ]] ; then
     if [[ -n "$threads" ]] ; then
       mopts="${mopts} -j $threads"
     else
-      local thr_num=`getThreadsNum`
+      local thr_num=$(getThreadsNum)
       mopts="${mopts} -j $thr_num"
     fi
   fi
 
-  if [[ -n "$dest_dir" && ! $iopts =~ "DESTDIR" ]] ; then
+  if [[ -n "$dest_dir" && ! $iopts =~ DESTDIR ]] ; then
     iopts="${iopts} DESTDIR=$dest_dir"
   fi
 
-  pushd $pkg_dir &> /dev/null
+  local start_time fail conf_file end_time grc_time
+
+  pushd "$pkg_dir" &> /dev/null
 
     showm "Building... "
 
-    local start_time=`now`
-    local fail
-    local conf_file
+    start_time=`now`
 
     if checkPerms "FR" "configure" ; then
       conf_file="configure"
@@ -62,7 +62,7 @@ defaultBuilder() {
 
     if [[ -n "$verbose" ]] ; then
       { show "./$conf_file --prefix=$prfx $copts"
-        ./$conf_file --prefix=$prfx $copts
+        ./$conf_file --prefix="$prfx" $copts
         [[ $? -ne 0 && -n "$strict" ]] && fail=true
         show "make $mopts"
         make $mopts
@@ -89,12 +89,12 @@ defaultBuilder() {
       return 1
     fi
 
-    local end_time=`now`
-    local grc_time=`getGraceTime "$start_time" "$end_time"`
+    end_time=$(now)
+    grc_time=$(getGraceTime "$start_time" "$end_time")
 
     show "${CL_GREEN}DONE${CL_NORM} ${CL_GREY}($grc_time)${CL_NORM}"
 
-    echo -n > $log
+    echo -n > "$log"
 
     unset exit_protect
 
