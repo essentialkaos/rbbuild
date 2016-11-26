@@ -343,7 +343,7 @@ proc() {
           echo "  $line" >> "$tmp_file" && continue
         fi
 
-        file_name=$(basename $url)
+        file_name=$(basename "$url")
 
         if ! checkPerms "FR" "$file_name" || [[ -n "$force" ]] ; then
           curl -k --max-redirs 10 -L -# "$url" -o "$file_name"
@@ -543,7 +543,7 @@ addHeader() {
 checkPerms() {
   local perms path
 
-  perms=$(echo "$1" | tr [:lower:] [:upper:])
+  perms=$(echo "$1" | tr "[:lower:]" "[:upper:]")
   path="$2"
 
   for perm in $(echo "$perms" | fold -w1) ; do
@@ -571,12 +571,13 @@ checkPerms() {
 # Code: No
 # Echo: No
 replaceLine() {
-  local linenum="$1"
-  local newline="$2"
-  local filename="$3"
+  local linenum newline filename curline temp
 
-  local curline=1
-  local temp=$(mktemp)
+  linenum="$1"
+  newline="$2"
+  filename="$3"
+  curline=1
+  temp=$(mktemp)
 
   if [[ $newline =~ patch:|patchset:|package: ]] ; then
     newline="  $newline"
@@ -584,14 +585,15 @@ replaceLine() {
 
   while IFS='' read -r line ; do
     if [[ $linenum -eq $curline ]] ; then
-      echo "$newline" >> $temp
+      echo "$newline" >> "$temp"
     else
-      echo "$line" >> $temp
+      echo "$line" >> "$temp"
     fi
+    
     ((curline++))
-  done < $filename
+  done < "$filename"
 
-  mv $temp $filename
+  mv "$temp" "$filename"
 }
 
 # Parse and evaluate variables in text
@@ -601,15 +603,20 @@ replaceLine() {
 # Return: none
 # Echo: Result (String)
 parseArgsInString() {
-  local data="$@"
+  local data="$*"
 
-  if [[ ! $data =~ "$" ]] ; then
+  if [[ ! $data =~ \$ ]] ; then
     echo "$data" && return 0
   else
     local prm_name
 
     while : ; do
-      [[ "$data" =~ \$\{([A-Za-z0-9_?]{3,})\} ]] && prm_name="${BASH_REMATCH[1]}" || break
+      if [[ "$data" =~ \$\{([A-Za-z0-9_?]{3,})\} ]] ; then
+        prm_name="${BASH_REMATCH[1]}"
+      else
+        break
+      fi
+      
       data="${data//$\{$prm_name\}/${!prm_name}}"
     done
 
