@@ -71,9 +71,9 @@ defaultBuilder() {
         show "make install $iopts"
         make install $iopts
         [[ $? -ne 0 ]] && fail=true
-      } &>> $output
+      } &>> "$output"
     else
-      { ./$conf_file --prefix=$prfx $copts
+      { ./$conf_file --prefix="$prfx" $copts
         [[ $? -ne 0 && -n "$strict" ]] && fail=true
         make $mopts
         [[ $? -ne 0 ]] && fail=true
