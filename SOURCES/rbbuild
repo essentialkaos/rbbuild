@@ -119,7 +119,7 @@ SUPPORTED_ARGS="dest_dir !help !usage mirror output prefix !quiet tmp threads
 SHORT_ARGS="h:help d:!dest_dir m:mirror O:output p:prefix q:!quiet T:tmp 
  t:threads V:!verbose v:!version l:!list y:!yes P:proxy ml:!mirror_list 
  np:no_patch ic:!ignore_checksums dc:dl_cache r:!rbenv S:!strict su:svn_user 
- sp:svn_pass C:!no_colors D:!debug rn:name cc:cc_comp cxx:cxx_comp"
+ sp:svn_pass nc:!no_colors D:!debug rn:name cc:cc_comp cxx:cxx_comp"
 
 ################################################################################
 
@@ -200,11 +200,11 @@ declare -A plocat
 # Echo: No
 main() {
   if [[ ! -t 1 || -n "$no_colors" ]] ; then
-    unset NORM BOLD UNLN RED GREEN BROWN BLUE MAG CYAN GREY
-    unset CL_NORM CL_BOLD CL_UNLN CL_RED CL_GREEN CL_BROWN CL_BLUE CL_MAG CL_CYAN CL_GREY
-    unset CL_BL_RED CL_BL_GREEN CL_BL_BROWN CL_BL_BLUE CL_BL_MAG CL_BL_CYAN CL_BL_GREY
-    unset CL_UL_RED CL_UL_GREEN CL_UL_BROWN CL_UL_BLUE CL_UL_MAG CL_UL_CYAN CL_UL_GREY
-    unset CL_BG_RED CL_BG_GREEN CL_BG_BROWN CL_BG_BLUE CL_BG_MAG CL_BG_CYAN CL_BG_GREY
+    unset NORM BOLD UNLN RED GREEN BROWN BLUE MAG CYAN GREY DARK
+    unset CL_NORM CL_BOLD CL_UNLN CL_RED CL_GREEN CL_BROWN CL_BLUE CL_MAG CL_CYAN CL_GREY CL_DARK
+    unset CL_BL_RED CL_BL_GREEN CL_BL_BROWN CL_BL_BLUE CL_BL_MAG CL_BL_CYAN CL_BL_GREY CL_BL_DARK
+    unset CL_UL_RED CL_UL_GREEN CL_UL_BROWN CL_UL_BLUE CL_UL_MAG CL_UL_CYAN CL_UL_GREY CL_UL_DARK
+    unset CL_BG_RED CL_BG_GREEN CL_BG_BROWN CL_BG_BLUE CL_BG_MAG CL_BG_CYAN CL_BG_GREY CL_BG_DARK
   fi
 
   [[ -n "$version" || -n "$ver" ]] && about && doExit
@@ -2038,22 +2038,26 @@ showm() {
 # Code: No
 # Echo: No
 showo() {
-  local optn optd optp optt optf spaces
+  local optn optd optp optt optf breadcrumbs
 
   optn="$1"
   optd="$2"
   optp="$3"
 
-  local spaces="                            "
+  if [[ -n "$DARK" ]] ; then
+    breadcrumbs="............................"
+  else
+    breadcrumbs="                            "
+  fi
 
   if [[ -z "$optp" ]] ; then
     optt="$optn"
-    optf=$(( 28 - ${#optt} ))
-    printf "  ${CL_GREEN}%s${CL_NORM} %s %s\n" "$optn" "${spaces:0:$optf}" "$optd"
+    optf=$(( 25 - ${#optt} ))
+    echo -e "  ${CL_GREEN}${optn}${CL_NORM} ${CL_DARK}${breadcrumbs:0:$optf}${CL_NORM} $optd"
   else
     optt="$optn $optp"
-    optf=$(( 28 - ${#optt} ))
-    printf "  ${CL_GREEN}%s${CL_NORM} ${CL_GREY}%s${CL_NORM} %s %s\n" "$optn" "$optp" "${spaces:0:$optf}" "$optd"
+    optf=$(( 25 - ${#optt} ))
+    echo -e "  ${CL_GREEN}${optn}${CL_NORM} ${CL_GREY}${optp}${CL_NORM} ${CL_DARK}${breadcrumbs:0:$optf}${CL_NORM} $optd"
   fi
 }
 
@@ -2063,7 +2067,7 @@ showo() {
 # Echo: No
 usage() {
   show ""
-  show "${CL_BOLD}Usage:${CL_NORM} rbbuild ${CL_BROWN}<definition-file>${CL_NORM} ${CL_GREEN}<options>${CL_NORM}..."
+  show "${CL_BOLD}Usage:${CL_NORM} rbbuild ${CL_BROWN}{definition-file}${CL_NORM} ${CL_GREEN}{options}${CL_NORM}..."
   show ""
   show "${CL_BOLD}Options:${CL_NORM}"
   show ""
@@ -2073,13 +2077,13 @@ usage() {
   showo "--no-patch, -np"         "Skip patch directives in definition file"
   showo "--cc-comp, -cc"          "Path to C compiler"                                                             "path/name"
   showo "--cxx-comp, -cxx"        "Path to C++ compiler" "path"                                                    "path/name"
-  showo "--ignore-checksums, -ic" "Skip checksum check (insecure!)"
+  showo "--ignore-checksums, -ic" "Skip checksum check (${CL_BROWN}insecure!${CL_NORM})"
   showo "--list, -l"              "List of all definition files"
   showo "--mirror, -m"            "Mirror name for downloading source archives from it"                            "name"
   showo "--mirror-list, -ml"      "Show list of all available mirrors"
   showo "--dl-cache, -dc"         "Path to download cache"                                                         "path"
-  showo "--rbenv, -r"             "Automatically install to rbenv (--prefix not required)"
-  showo "--name, -rn"             "Define name of ruby in rbenv (--rbenv required)"                                "name"
+  showo "--rbenv, -r"             "Automatically install to rbenv (${CL_GREEN}--prefix${CL_NORM} not required)"
+  showo "--name, -rn"             "Define name of ruby in rbenv (${CL_GREEN}--rbenv${CL_NORM} required)"           "name"
   showo "--strict, -S"            "Fail build if configure stage return non zero exit code"
   showo "--proxy, -P"             "Use HTTP proxy on given host and port"                                          "url"
   showo "--debug, -D"             "Don't remove build directory and other build data after installation"
@@ -2088,7 +2092,7 @@ usage() {
   showo "--verbose, -V"           "Verbose mode"
   showo "--tmp, -T"               "Path to temporary directory (used for unpacking files and build process)"       "path"
   showo "--yes, -y"               "Answer \"yes\" to all questions"
-  showo "--no-colors, -C"         "Don't use colors in output"
+  showo "--no-colors, -nc"        "Don't use colors in output"
   showo "--help, -h"              "Show this help message"
   showo "--version, -v"           "Show information about version"
   show ""
@@ -2108,10 +2112,10 @@ usage() {
 # Echo: No
 about() {
   show ""
-  show "${CL_BL_CYAN}$APP${CL_NORM} ${CL_CYAN}$VER${CL_NORM} - Utility for compiling and installing different ruby versions"
+  show "${CL_BL_CYAN}${APP}${CL_NORM} ${CL_CYAN}${VER}${CL_NORM} - Utility for compiling and installing different ruby versions"
   show ""
   show "Copyright (C) 2009-2016 ESSENTIAL KAOS" $DARK
-  show "Essential Kaos Open Source License <http://essentialkaos.com/ekol>" $DARK
+  show "Essential Kaos Open Source License <https://essentialkaos.com/ekol>" $DARK
   show ""
 }
 
