@@ -557,7 +557,7 @@ checkEOLDates() {
     if [[ $security_ts -lt $now ]] ; then
       expired=true
 
-      security_rd=$(date -d @$security_ts +'%d %B %Y')
+      security_rd=$(date -d "@$security_ts" +'%d %B %Y')
 
       if [[ -n $extended ]] ; then
         extended_ts=$(date +%s -d "$extended")
@@ -624,29 +624,30 @@ readDefinition() {
 # Code: No
 # Echo: No
 execDefinition() {
-  local check=$1
-  local mirror_info=$(grep -n "^\[${mirror}\]" $def_file | cut -f1 -d":")
+  local check mirror_info line line_num
+  local fmtd cmnd action args
 
-  local line
-  local line_num=0
+  check="$1"
+  mirror_info=$(grep -n "^\[${mirror}\]" "$def_file" | cut -f1 -d":")
 
-  while read line ; do
+  line_num=0
+
+  while read -r line ; do
     (( line_num++ ))
 
     [[ $line_num -le $mirror_info ]] && continue
+    [[ -z "$line" || $line =~ \[ ]] && break
 
-    [[ -z $line || $line =~ "[" ]] && break
-
-    local fmtd=$(echo ${line//\"/})
-    local cmnd=(${fmtd/: / })
-    local action="${cmnd[0]}"
-    local args="${cmnd[@]:1:999}"
+    fmtd="${line//\"/}"
+    cmnd=(${fmtd/: / })
+    action="${cmnd[0]}"
+    args=${cmnd[@]:1:999}
 
     if [[ -n "$check" ]] ; then
       case $action in
-        "patch")     checkRemoteFile "!" $args ;;
-        "patchset")  checkRemoteFile "!" $args ;;
-        "package")   checkRemoteFile $args ;;
+        "patch")     checkRemoteFile "!" ${args[@]} ;;
+        "patchset")  checkRemoteFile "!" ${args[@]} ;;
+        "package")   checkRemoteFile ${args[@]} ;;
         "git")       continue ;;
         "svn")       continue ;;
         "hg")        continue ;;
@@ -657,19 +658,19 @@ execDefinition() {
       mkPrefixDir
 
       case $action in
-        "patch")     installPatch     $args ;;
-        "patchset")  installPatchset  $args ;;
-        "package")   installPackage   $args ;;
-        "git")       installGitSource $args ;;
-        "svn")       installSvnSource $args ;;
-        "hg")        installHgSource  $args ;;
+        "patch")     installPatch     ${args[@]} ;;
+        "patchset")  installPatchset  ${args[@]} ;;
+        "package")   installPackage   ${args[@]} ;;
+        "git")       installGitSource ${args[@]} ;;
+        "svn")       installSvnSource ${args[@]} ;;
+        "hg")        installHgSource  ${args[@]} ;;
         *) show "Unknown action <$action>! Please check selected definition file." $RED
            show "" && doExit $ERROR_UNKNOWN_ACTION ;;
       esac
     fi
 
     [[ $? -ne 0 ]] && return $?
-  done < <(awk 1 $def_file)
+  done < <(awk 1 "$def_file")
 
   return 0
 }
