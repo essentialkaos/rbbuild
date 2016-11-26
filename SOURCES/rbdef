@@ -171,12 +171,12 @@ repack() {
   for file in "$@" ; do
     if [[ $file =~ http:|https:|ftp: ]] ; then
       url=$(parseArgsInString "$file")
-      file_name=$(basename $url)
+      file_name=$(basename "$url")
 
       show "Downloading ${CL_BOLD}$file_name${CL_NORM}... "
 
       curl -k --max-redirs 10 -L -# "$url" -o "$file_name"
-    elif checkPerms "FR" $file ; then
+    elif checkPerms "FR" "$file" ; then
       file_name="$file"
     else
       show "Can't find file for repack." $RED
@@ -216,16 +216,18 @@ repack() {
 # Code: No
 # Echo: rbdef data record (String)
 getRecord() {
-  local url=$(parseArgsInString "$1")
-  local file_name=$(basename $url)
-  local file_type=$(getFileType $file_name)
+  local url file_name file_type checksum
 
-  if [[ "$file_name" != "git" || "$file_name" != "hg" || "$file_name" != "svn" ]] ; then
+  url=$(parseArgsInString "$1")
+  file_name=$(basename "$url")
+  file_type=$(getFileType "$file_name")
+
+  if [[ "$file_name" != "git" && "$file_name" != "hg" && "$file_name" != "svn" ]] ; then
     show "Downloading ${CL_BOLD}$file_name${CL_NORM}... "
 
-    curl -k --max-redirs 10 -L -# $url -o $file_name
+    curl -k --max-redirs 10 -L -# "$url" -o "$file_name"
 
-    local checksum=$(makeCRC $file_name)
+    checksum=$(makeCRC "$file_name")
 
     show "Record:" $BOLD
 
@@ -235,7 +237,7 @@ getRecord() {
       show "  $file_type: \"$url\" \"$checksum\""
     fi
 
-    rm -rf $file_name &> /dev/null
+    rm -rf "$file_name" &> /dev/null
   else
     show "Can't generate record for repo." $RED
     doExit 1
@@ -249,22 +251,22 @@ getRecord() {
 # Code: No
 # Echo: No
 replace() {
-  local line_num tmp_file orig_file
+  local line_num tmp_file orig_file target_name
 
   show "Enter search pattern:" $CYAN
-  read -e -p "> " pattern_answer
+  read -r -e -p "> " pattern_answer
   show ""
 
   show "Enter replace string:" $CYAN
-  read -e -p "> " replace_answer
+  read -r -e -p "> " replace_answer
   show ""
 
-  for file in $@ ; do
-    local target_name=$(basename $file)
+  for file in "$@" ; do
+    target_name=$(basename "$file")
 
     showm "Processing file ${CL_BOLD}$target_name${CL_NORM}... "
 
-    if ! checkPerms "FRW" $file ; then
+    if ! checkPerms "FRW" "$file" ; then
       show "FAIL" $RED
       show "You don't have enough permissions for modify file $file" $RED
       continue
@@ -273,25 +275,26 @@ replace() {
     tmp_file=$(mktemp)
     orig_file=$(mktemp)
 
-    grep -v "#" $file >> $orig_file
-    grep -v "#" $file >> $tmp_file
+    grep -v "#" "$file" >> "$orig_file"
+    grep -v "#" "$file" >> "$tmp_file"
 
-    if [[ -n $(grep "$pattern_answer" $orig_file) ]] ; then
-      line_num=$(grep -n "$pattern_answer" $orig_file | head -1 | cut -f1 -d":")
+    if [[ -n $(grep "$pattern_answer" "$orig_file") ]] ; then
+      line_num=$(grep -n "$pattern_answer" "$orig_file" | head -1 | cut -f1 -d":")
 
       for line in $line_num ; do
         replaceLine "$line_num" "$replace_answer" "$tmp_file"
       done
 
-      echo -n > $file
-      addHeader $file
-      cat $tmp_file >> $file
-      rm -f $tmp_file $orig_file &> /dev/null
+      echo -n > "$file"
+      addHeader "$file"
+      
+      cat "$tmp_file" >> "$file"
+      rm -f "$tmp_file" "$orig_file" &> /dev/null
 
       show "DONE" $GREEN
     else
       show "NOT FOUND" $BROWN
-      rm -f $tmp_file $orig_file &> /dev/null
+      rm -f "$tmp_file" "$orig_file" &> /dev/null
     fi
   done
 }
