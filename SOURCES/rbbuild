@@ -1113,21 +1113,23 @@ defBuildFlags() {
 # Code: No
 # Echo: No
 fetchRemoteFile() {
-  local url="$1"
-  local file_name="$2"
+  local url file_name cache_dir
+
+  url="$1"
+  file_name="$2"
 
   if [[ -n "$dl_cache" ]] ; then
-    local cache_dir="$CWD/$dl_cache"
+    cache_dir="$CWD/$dl_cache"
 
-    [[ ! -d "$cache_dir" ]] && mkdir -p $cache_dir
+    [[ ! -d "$cache_dir" ]] && mkdir -p "$cache_dir"
 
     if [[ ! -f $cache_dir/$file_name ]] ; then
-      pushd $cache_dir &> /dev/null
+      pushd "$cache_dir" &> /dev/null
         download "$url" "$file_name"
       popd &> /dev/null
     fi
 
-    cp $cache_dir/$file_name $file_name
+    cp "$cache_dir/$file_name" "$file_name"
   else
     download "$url" "$file_name"
   fi
@@ -1141,14 +1143,16 @@ fetchRemoteFile() {
 # Code: No
 # Echo: No
 checkCRC() {
-  local filename="$1"
-  local crc="$2"
+  local filename crc file_crc
+
+  filename="$1"
+  crc="$2"
 
   [[ -n "$ignore_checksums" ]] && return
 
   showm "Checking sha1 checksum... "
 
-  local file_crc=$(sha1sum $filename | cut -f1 -d" ")
+  file_crc=$(sha1sum "$filename" | cut -f1 -d" ")
 
   if [[ "$file_crc" == "$crc" ]] ; then
     show "OK" $GREEN
@@ -1169,43 +1173,45 @@ checkCRC() {
 # Code: No
 # Echo: No
 unpackArchive() {
-  local arch="$1"
-  local start_time=$(now)
+  local arch start_time end_time grc_time
+
+  arch="$1"
+  start_time=$(now)
 
   spinnerOn
 
   if [[ $1 =~ .tar.gz$|.tgz$|.tar.gzip$ ]] ; then
     showm "Unpacking tar.gz archive... "
 
-    tar xzvf $arch &> $verb_output
+    tar xzvf "$arch" &> $verb_output
 
-    rm -f $arch
+    rm -f "$arch"
   elif [[ $1 =~ .tar.bz2$|.tbz2$|.tbz2$|.tb2$|.tbz$ ]] ; then
     showm "Unpacking tar.bz2 archive... "
 
-    tar xjvf $arch &> $verb_output
+    tar xjvf "$arch" &> $verb_output
 
-    rm -f $arch
+    rm -f "$arch"
   elif [[ $1 =~ .zip$ ]] ; then
     showm "Unpacking zip archive... "
 
-    unzip $arch &> $verb_output
+    unzip "$arch" &> $verb_output
 
-    rm -f $arch
+    rm -f "$arch"
   elif [[ $1 =~ .tar.xz$|.txz$ ]]; then
     showm "Unpacking xz archive... "
 
-    tar xJfv $arch &> $verb_output
+    tar xJfv "$arch" &> $verb_output
 
-    rm -f $arch
+    rm -f "$arch"
   elif [[ $1 =~ .7z$ ]] ; then
     showm "Unpacking 7z archive... "
 
     require "7za"
 
-    7za x $arch &> $verb_output
+    7za x "$arch" &> $verb_output
 
-    rm -f $arch
+    rm -f "$arch"
   else
     show "Can't unpack file $arch. Exiting..." $RED
     show "" && doExit $ERROR_CANT_UNPACK
@@ -1213,8 +1219,8 @@ unpackArchive() {
 
   spinnerOff
 
-  local end_time=$(now)
-  local grc_time=$(getGraceTime "$start_time" "$end_time")
+  end_time=$(now)
+  grc_time=$(getGraceTime "$start_time" "$end_time")
 
   show "${CL_GREEN}DONE${CL_NORM} ${CL_GREY}($grc_time)${CL_NORM}"
 }
@@ -1226,10 +1232,12 @@ unpackArchive() {
 # Code: No
 # Echo: Variable value (String)
 readDefFlags() {
-  local name="$1"
-  local value=$(readDefProp "$name")
+  local name value
 
-  [[ -z $value ]] && echo "" && return 1
+  name="$1"
+  value=$(readDefProp "$name")
+
+  [[ -z "$value" ]] && echo "" && return 1
 
   parseArgsInString "$value" | sed -e 's/^[ \t]*//'
 }
@@ -1241,7 +1249,7 @@ readDefFlags() {
 # Return: Property value (String)
 # Echo: No
 readDefProp() {
-  sed -n "s/$1://p" $def_file | sed -e 's/^[ \t]*//'
+  sed -n "s/$1://p" "$def_file" | sed -e 's/^[ \t]*//'
 }
 
 # Parse variables in text
@@ -1251,15 +1259,20 @@ readDefProp() {
 # Code: No
 # Echo: Text with parsed vars (String)
 parseArgsInString() {
-  local data="$@"
+  local data="$*"
 
-  if [[ ! $data =~ "{" ]] ; then
+  if [[ ! $data =~ \{ ]] ; then
     echo "$data" && return 0
   else
     local prm_name
 
     while : ; do
-      [[ "$data" =~ \{([A-Za-z0-9_?]{3,})\} ]] && prm_name="${BASH_REMATCH[1]}" || break
+      if [[ "$data" =~ \{([A-Za-z0-9_?]{3,})\} ]] ; then
+        prm_name="${BASH_REMATCH[1]}"
+      else 
+        break
+      fi
+
       data="${data//\{$prm_name\}/${!prm_name}}"
     done
 
