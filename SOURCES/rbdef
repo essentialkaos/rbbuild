@@ -300,7 +300,7 @@ replace() {
 
       echo -n > "$file"
       addHeader "$file"
-      
+
       cat "$tmp_file" >> "$file"
       rm -f "$tmp_file" "$orig_file" &> /dev/null
 
@@ -404,7 +404,7 @@ crc() {
     file_name=$(basename "$url")
 
     show "Downloading $file_name... "
-    
+
     curl -k --max-redirs 10 -L -# "$url" -o "$file_name"
     crc=$(makeCRC "$file_name")
 
@@ -442,7 +442,7 @@ unpack() {
   fi
 
   name=$(ls .tmp)
-  
+
   mv ".tmp/$name" .
   rm -rf .tmp &> /dev/null
 
@@ -602,7 +602,7 @@ replaceLine() {
     else
       echo "$line" >> "$temp"
     fi
-    
+
     ((curline++))
   done < "$filename"
 
@@ -629,7 +629,7 @@ parseArgsInString() {
       else
         break
       fi
-      
+
       data="${data//$\{$prm_name\}/${!prm_name}}"
     done
 

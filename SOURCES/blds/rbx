@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Start rubinius builder
 #
 # 1: Package name (String)

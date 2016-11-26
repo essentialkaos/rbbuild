@@ -1274,7 +1274,7 @@ parseArgsInString() {
     while : ; do
       if [[ "$data" =~ \{([A-Za-z0-9_?]{3,})\} ]] ; then
         prm_name="${BASH_REMATCH[1]}"
-      else 
+      else
         break
       fi
 
@@ -1454,7 +1454,7 @@ listDefs() {
   rbx_list=($(sortVersionArray "${rbx_list[@]}"))
 
   local ruby_ver jruby_ver ree_ver rbx_ver oth_ver all_ver count ruby_count ruby_next
-  
+
   count=0
   ruby_count=0
   ruby_next=0
@@ -1531,7 +1531,7 @@ getRBEnvPrefix() {
 # Echo: Number of threads (Number)
 getThreadsNum() {
   local proc_num rec_num
-  
+
   proc_num=$(nproc)
 
   if [[ $proc_num -eq 1 ]] ; then
@@ -1928,7 +1928,7 @@ termExit() {
 # Echo: No
 doExit() {
   clean
-  cd "$CWD"
+  cd "$CWD" || exit 1
   exit "${1:-0}"
 }
 
@@ -1962,7 +1962,7 @@ spinnerOff() {
 }
 
 # -
-# Spinner func 
+# Spinner func
 #
 # Code: No
 # Echo: No
@@ -1996,7 +1996,7 @@ spinner() {
 # Echo: No
 showArgWarn() {
   show "Error! You used unsupport argument $1. Please check command syntax." $RED
-  exit $ERROR_ARGUMENTS
+  exit "$ERROR_ARGUMENTS"
 }
 
 # Show message
