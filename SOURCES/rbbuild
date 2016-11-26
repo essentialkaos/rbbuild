@@ -748,6 +748,8 @@ installPatch() {
 # Code: No
 # Echo: No
 installPatchset() {
+  local url file_name crc
+
   if [[ -n "$no_patch" ]] ; then
     show "Skipping patchset $1..." $MAG
     return 0
@@ -755,16 +757,16 @@ installPatchset() {
 
   require "git"
 
-  local url=$(parseArgsInString "$1")
+  url=$(parseArgsInString "$1")
 
-  [[ ${plocat[$url]} ]] && url="${plocat[$url]}"
+  [[ -n "${plocat[$url]}" ]] && url="${plocat[$url]}"
 
-  local file_name=$(basename $url)
-  local crc="$2"
+  file_name=$(basename "$url")
+  crc="$2"
 
-  mkdir -p $tmp_dir/patches
+  mkdir -p "$tmp_dir/patches"
 
-  pushd $tmp_dir/patches &> /dev/nullt
+  pushd "$tmp_dir/patches" &> /dev/nullt
 
     show "\nFetching patchset ${file_name}... "
 
@@ -786,25 +788,26 @@ installPatchset() {
 # Code: No
 # Echo: No
 installPackage() {
-  local pkg=$(basename $1)
-  local url=$(parseArgsInString "$2")
+  local pkg url file_name crc
+  local pkg_dir dir_list_1 dir_list_2
 
-  [[ ${plocat[$url]} ]] && url="${plocat[$url]}"
+  pkg=$(basename "$1")
+  url=$(parseArgsInString "$2")
 
-  local file_name=$(basename $url)
-  local crc="$3"
+  [[ -n "${plocat[$url]}" ]] && url="${plocat[$url]}"
+
+  file_name=$(basename "$url")
+  crc="$3"
 
   shift 3
 
-  pushd $tmp_dir &> /dev/null
+  pushd "$tmp_dir" &> /dev/null
 
     show "\nInstalling ${CL_BOLD}${pkg}${CL_NORM}" $BROWN
     show "Fetching file ${file_name}... "
 
     fetchRemoteFile "$url" "$file_name"
     checkCRC "$file_name" "$crc"
-
-    local pkg_dir dir_list_1 dir_list_2
 
     dir_list_1=$(ls -1 -d -- */ 2> /dev/null)
     unpackArchive "$file_name"
@@ -816,7 +819,7 @@ installPackage() {
 
     defBuildFlags
 
-    buildPackage "$pkg" "$pkg_dir" $@
+    buildPackage "$pkg" "$pkg_dir" "$@"
 
   popd &> /dev/null
 }
@@ -833,10 +836,12 @@ installPackage() {
 installGitSource() {
   require "git"
 
-  local pkg="$1"
-  local url="$2"
-  local tag="$3"
-  local branch="$4"
+  local pkg url tag branch clone_dir start_time end_time grc_time
+
+  pkg="$1"
+  url="$2"
+  tag="$3"
+  branch="$4"
 
   shift 4
 
@@ -847,7 +852,7 @@ installGitSource() {
 
     spinnerOn
 
-    local start_time=$(now)
+    start_time=$(now)
 
     git clone $url &> $verb_output
 
@@ -857,7 +862,7 @@ installGitSource() {
       show "" && doExit $ERROR_REPO
     fi
 
-    local clone_dir=$(basename "$url" | sed 's/.git//')
+    clone_dir=$(basename "$url" | sed 's/.git//')
 
     pushd $clone_dir &> /dev/null
       if [[ -n "$tag" && $tag != "!" ]] ; then
@@ -869,8 +874,8 @@ installGitSource() {
 
     spinnerOff
 
-    local end_time=$(now)
-    local grc_time=$(getGraceTime "$start_time" "$end_time")
+    end_time=$(now)
+    grc_time=$(getGraceTime "$start_time" "$end_time")
 
     show "${CL_GREEN}DONE${CL_NORM} ${CL_GREY}($grc_time)${CL_NORM}"
 
