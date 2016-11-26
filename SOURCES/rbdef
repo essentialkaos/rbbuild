@@ -20,6 +20,7 @@ BLUE=34
 MAG=35
 CYAN=36
 GREY=37
+DARK=90
 
 CL_NORM="\e[${NORM}m"
 CL_BOLD="\e[${BOLD}m"
@@ -31,6 +32,7 @@ CL_BLUE="\e[${BLUE}m"
 CL_MAG="\e[${MAG}m"
 CL_CYAN="\e[${CYAN}m"
 CL_GREY="\e[${GREY}m"
+CL_DARK="\e[${DARK}m"
 CL_BL_RED="\e[${RED};1m"
 CL_BL_GREEN="\e[${GREEN};1m"
 CL_BL_BROWN="\e[${BROWN};1m"
@@ -38,6 +40,7 @@ CL_BL_BLUE="\e[${BLUE};1m"
 CL_BL_MAG="\e[${MAG};1m"
 CL_BL_CYAN="\e[${CYAN};1m"
 CL_BL_GREY="\e[${GREY};1m"
+CL_BL_DARK="\e[${DARK};1m"
 CL_UL_RED="\e[${RED};4m"
 CL_UL_GREEN="\e[${GREEN};4m"
 CL_UL_BROWN="\e[${BROWN};4m"
@@ -45,6 +48,7 @@ CL_UL_BLUE="\e[${BLUE};4m"
 CL_UL_MAG="\e[${MAG};4m"
 CL_UL_CYAN="\e[${CYAN};4m"
 CL_UL_GREY="\e[${GREY};4m"
+CL_UL_DARK="\e[${DARK};4m"
 CL_BG_RED="\e[${RED};7m"
 CL_BG_GREEN="\e[${GREEN};7m"
 CL_BG_BROWN="\e[${BROWN};7m"
@@ -52,6 +56,7 @@ CL_BG_BLUE="\e[${BLUE};7m"
 CL_BG_MAG="\e[${MAG};7m"
 CL_BG_CYAN="\e[${CYAN};7m"
 CL_BG_GREY="\e[${GREY};7m"
+CL_BG_DARK="\e[${DARK};7m"
 
 ## OS NAMES ####################################################################
 
@@ -107,11 +112,11 @@ os_kern=""
 
 # List of supported command line arguments (String)
 SUPPORTED_ARGS="!help !usage !version !ver !remove !force author bucket 
- !public_uploads !reduced_redundancy"
+ !public_uploads !reduced_redundancy !no_colors"
 
 # List of supported short command line arguments (String)
 SHORT_ARGS="h:!help v:!version r:!remove f:!force rr:!reduced_redundancy 
- pu:!public_uploads a:author b:bucket"
+ pu:!public_uploads a:author b:bucket nc:!no_colors"
 
 ARCH_TYPES=(".tar.gz" ".tgz" ".tar.bz2" ".tbz2" ".tb2" ".tbz" "tar.xz" ".txz" ".zip" ".7z")
 PATCH_TYPES=(".patch" ".diff")
@@ -137,6 +142,14 @@ reduced_redundancy=""
 # Code: No
 # Echo: No
 main() {
+  if [[ ! -t 1 || -n "$no_colors" ]] ; then
+    unset NORM BOLD UNLN RED GREEN BROWN BLUE MAG CYAN GREY DARK
+    unset CL_NORM CL_BOLD CL_UNLN CL_RED CL_GREEN CL_BROWN CL_BLUE CL_MAG CL_CYAN CL_GREY CL_DARK
+    unset CL_BL_RED CL_BL_GREEN CL_BL_BROWN CL_BL_BLUE CL_BL_MAG CL_BL_CYAN CL_BL_GREY CL_BL_DARK
+    unset CL_UL_RED CL_UL_GREEN CL_UL_BROWN CL_UL_BLUE CL_UL_MAG CL_UL_CYAN CL_UL_GREY CL_UL_DARK
+    unset CL_BG_RED CL_BG_GREEN CL_BG_BROWN CL_BG_BLUE CL_BG_MAG CL_BG_CYAN CL_BG_GREY CL_BG_DARK
+  fi
+
   [[ -n "$version" || -n "$ver" ]] && about && doExit
   [[ $# -eq 0 || -n "$help" || -n "$usage" ]] && usage && doExit
 
@@ -725,23 +738,43 @@ usage() {
   show ""
   show "Commands:" $BOLD
   show ""
-  show "  ${CL_BROWN}repack${CL_NORM}          Repack source archive to 7z"
-  show "  ${CL_BROWN}replace${CL_NORM}         Find and replace records in def files"
-  show "  ${CL_BROWN}proc${CL_NORM}            Add sha-1 checksum to records in def files"
-  show "  ${CL_BROWN}crc${CL_NORM}             Generate crc for given file or url"
-  show "  ${CL_BROWN}rec${CL_NORM}             Create record line from url"
-  show "  ${CL_BROWN}upload${CL_NORM}          Upload source archive to s3 mirror"
+  if [[ -n "$DARK" ]] ; then
+    show "  ${CL_BROWN}repack${CL_NORM} ${CL_DARK}...${CL_NORM} Repack source archive to 7z"
+    show "  ${CL_BROWN}replace${CL_NORM} ${CL_DARK}..${CL_NORM} Find and replace records in def files"
+    show "  ${CL_BROWN}proc${CL_NORM} ${CL_DARK}.....${CL_NORM} Add sha-1 checksum to records in def files"
+    show "  ${CL_BROWN}crc${CL_NORM} ${CL_DARK}......${CL_NORM} Generate crc for given file or url"
+    show "  ${CL_BROWN}rec${CL_NORM} ${CL_DARK}......${CL_NORM} Create record line from url"
+    show "  ${CL_BROWN}upload${CL_NORM} ${CL_DARK}...${CL_NORM} Upload source archive to s3 mirror"
+  else
+    show "  repack     Repack source archive to 7z"
+    show "  replace    Find and replace records in def files"
+    show "  proc       Add sha-1 checksum to records in def files"
+    show "  crc        Generate crc for given file or url"
+    show "  rec        Create record line from url"
+    show "  upload     Upload source archive to s3 mirror"
+  fi
   show ""
   show "Options:" $BOLD
   show ""
-  show "  ${CL_GREEN}--remove, -r${CL_NORM}               Remove downloaded sources (use with ${CL_BROWN}repack${CL_NORM} or ${CL_BROWN}proc${CL_NORM} commad)"
-  show "  ${CL_GREEN}--force, -f${CL_NORM}                Always download sources while def processing (use with ${CL_BROWN}proc${CL_NORM} commad)"
-  show "  ${CL_GREEN}--author, -a${CL_NORM}               Author of def file (use with ${CL_BROWN}proc${CL_NORM} commad)"
-  show "  ${CL_GREEN}--bucket, -b${CL_NORM}               Make sources readable by anyone (use with ${CL_BROWN}upload${CL_NORM} commad)"
-  show "  ${CL_GREEN}--public-uploads, -p${CL_NORM}       Change S3 acl to public for sources (use with ${CL_BROWN}upload${CL_NORM} commad)"
-  show "  ${CL_GREEN}--reduced-redundancy, -rr${CL_NORM}  Use reduced redundancy storage class (use with ${CL_BROWN}upload${CL_NORM} commad)"
-  show "  ${CL_GREEN}--help, -h${CL_NORM}                 Show this help message"
-  show "  ${CL_GREEN}--version, -v${CL_NORM}              Show information about version"
+  if [[ -n "$DARK" ]] ; then
+    show "  ${CL_GREEN}--remove, -r${CL_NORM} ${CL_DARK}...............${CL_NORM} Remove downloaded sources (use with ${CL_BROWN}repack${CL_NORM} or ${CL_BROWN}proc${CL_NORM} commad)"
+    show "  ${CL_GREEN}--force, -f${CL_NORM} ${CL_DARK}................${CL_NORM} Always download sources while def processing (use with ${CL_BROWN}proc${CL_NORM} commad)"
+    show "  ${CL_GREEN}--author, -a${CL_NORM} ${CL_DARK}...............${CL_NORM} Author of def file (use with ${CL_BROWN}proc${CL_NORM} commad)"
+    show "  ${CL_GREEN}--bucket, -b${CL_NORM} ${CL_DARK}...............${CL_NORM} Make sources readable by anyone (use with ${CL_BROWN}upload${CL_NORM} commad)"
+    show "  ${CL_GREEN}--public-uploads, -p${CL_NORM} ${CL_DARK}.......${CL_NORM} Change S3 acl to public for sources (use with ${CL_BROWN}upload${CL_NORM} commad)"
+    show "  ${CL_GREEN}--reduced-redundancy, -rr${CL_NORM} ${CL_DARK}..${CL_NORM} Use reduced redundancy storage class (use with ${CL_BROWN}upload${CL_NORM} commad)"
+    show "  ${CL_GREEN}--help, -h${CL_NORM} ${CL_DARK}.................${CL_NORM} Show this help message"
+    show "  ${CL_GREEN}--version, -v${CL_NORM} ${CL_DARK}..............${CL_NORM} Show information about version"
+  else
+    show "  --remove, -r                 Remove downloaded sources (use with repack or proc commad)"
+    show "  --force, -f                  Always download sources while def processing (use with proc commad)"
+    show "  --author, -a                 Author of def file (use with proc commad)"
+    show "  --bucket, -b                 Make sources readable by anyone (use with upload commad)"
+    show "  --public-uploads, -p         Change S3 acl to public for sources (use with upload commad)"
+    show "  --reduced-redundancy, -rr    Use reduced redundancy storage class (use with upload commad)"
+    show "  --help, -h                   Show this help message"
+    show "  --version, -v                Show information about version"
+  fi
   show ""
 }
 
