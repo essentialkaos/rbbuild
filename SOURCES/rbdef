@@ -116,7 +116,7 @@ SHORT_ARGS="h:!help v:!version r:!remove f:!force rr:!reduced_redundancy
 ARCH_TYPES=(".tar.gz" ".tgz" ".tar.bz2" ".tbz2" ".tb2" ".tbz" "tar.xz" ".txz" ".zip" ".7z")
 PATCH_TYPES=(".patch" ".diff")
 
-PREFS_FILE="~/.rbdef"
+PREFS_FILE="$HOME/.rbdef"
 
 # Current working dir (String)
 CWD=$(pwd)
@@ -147,12 +147,12 @@ main() {
   detectOs
 
   case $cmnd in
-    "repack")  repack $@ ;;
-    "replace") replace $@ ;;
-    "crc")     crc $@ ;;
-    "rec")     getRecord $@ ;;
-    "proc")    proc $@ ;;
-    "upload")  upload $@ ;;
+    "repack")  repack "$@" ;;
+    "replace") replace "$@" ;;
+    "crc")     crc "$@" ;;
+    "rec")     getRecord "$@" ;;
+    "proc")    proc "$@" ;;
+    "upload")  upload "$@" ;;
     *) show "Unknown command $cmnd" $RED ;;
   esac
 
@@ -166,18 +166,18 @@ main() {
 # Code: No
 # Echo: No
 repack() {
-  local file
+  local file url file_name arch_dir
 
-  for file in $@ ; do
+  for file in "$@" ; do
     if [[ $file =~ http:|https:|ftp: ]] ; then
-      local url=$(parseArgsInString "$file")
-      local file_name=$(basename $url)
+      url=$(parseArgsInString "$file")
+      file_name=$(basename $url)
 
       show "Downloading ${CL_BOLD}$file_name${CL_NORM}... "
 
-      curl -k --max-redirs 10 -L -# $url -o $file_name
+      curl -k --max-redirs 10 -L -# "$url" -o "$file_name"
     elif checkPerms "FR" $file ; then
-      local file_name="$file"
+      file_name="$file"
     else
       show "Can't find file for repack." $RED
       doExit 1
@@ -185,9 +185,9 @@ repack() {
 
     showm "Unpacking file ${CL_BOLD}$file_name${CL_NORM}... "
 
-    local arch_dir=$(unpack $file_name)
+    arch_dir=$(unpack "$file_name")
 
-    if [[ ! $arch_dir ]] ; then
+    if [[ -z "$arch_dir" ]] ; then
       show "FAIL" $RED
       show "Can't unpack file $file_name. Exiting..." $RED
       doExit 1
@@ -196,16 +196,16 @@ repack() {
     show "DONE" $GREEN
     showm "Packing to ${CL_BOLD}$arch_dir.7z${CL_NORM}... "
 
-    rm -rf $arch_dir.7z &> /dev/null
-    7za a -t7z -mx=9 $arch_dir.7z $arch_dir &> /dev/null
+    rm -rf "$arch_dir.7z" &> /dev/null
+    7za a -t7z -mx=9 "$arch_dir.7z" "$arch_dir" &> /dev/null
 
     show "DONE" $GREEN
 
-    [[ -n "$remove" ]] && rm -rf $file_name &> /dev/null
+    [[ -n "$remove" ]] && rm -rf "$file_name" &> /dev/null
 
-    rm -rf $arch_dir &> /dev/null
+    rm -rf "$arch_dir" &> /dev/null
 
-    crc $arch_dir.7z
+    crc "$arch_dir.7z"
   done
 }
 
