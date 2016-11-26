@@ -1617,7 +1617,7 @@ isArch() {
 require() {
   local app
 
-  for app in $@ ; do
+  for app in "$@" ; do
     if ! checkDeps "$app" ; then
       show ""
       show "Warning: This action required ${app}. Please install this application and try again." $BROWN
@@ -1631,12 +1631,13 @@ require() {
 # Code: No
 # Echo: No
 requireCompiler() {
-  if [[ -n "${cc_comp}${cxx_comp}${CCOPTS}${CXXOPTS}" ]] ; then
-    local complrs=("${cc_comp} ${cxx_comp} ${CCOPTS} ${CXXOPTS}")
-    local complr
+  local complrs complr
 
-    for complr in ${complrs[@]} ; do
-      type -P $complr &> /dev/null
+  if [[ -n "${cc_comp}${cxx_comp}${CCOPTS}${CXXOPTS}" ]] ; then
+    complrs=("${cc_comp} ${cxx_comp} ${CCOPTS} ${CXXOPTS}")
+
+    for complr in "${complrs[@]}" ; do
+      type -P "$complr" &> /dev/null
 
       if [[ $? -ne 0 ]] ; then
         show ""
@@ -1691,9 +1692,9 @@ checkHTTPStatus() {
   url=$(parseArgsInString "$1")
 
   if [[ -z "$proxy" ]] ; then
-    status=$(curl --max-redirs $MAX_REDIRS -ILs "$url")
+    status=$(curl --max-redirs "$MAX_REDIRS" -ILs "$url")
   else
-    status=$(curl --max-redirs $MAX_REDIRS -x $proxy -ILs "$url")
+    status=$(curl --max-redirs "$MAX_REDIRS" -x "$proxy" -ILs "$url")
   fi
 
   code=$(echo "$status" | grep -Fi "HTTP" | cut -f2 -d" ")
@@ -1712,16 +1713,16 @@ checkHTTPStatus() {
 # Code: Yes
 # Echo: No
 download() {
-  local args="--max-redirs $MAX_REDIRS -L"
+  local args="--max-redirs "$MAX_REDIRS" -L"
 
   if [[ -n "$proxy" ]] ; then
     args="$args -x $proxy"
   fi
 
   if [[ -n "$quiet" ]] ; then
-    curl $args -s $1 -o $2
+    curl $args -s "$1" -o "$2"
   else
-    curl $args -# $1 -o $2
+    curl $args -# "$1" -o "$2"
   fi
 
   return $?
@@ -1734,10 +1735,11 @@ download() {
 # Code: Yes
 # Echo: No
 readAnswer() {
-  local defval="$1"
-  local answer
+  local defval answer
 
-  read -e -p "> " answer
+  defval="$1"
+
+  read -r -e -p "> " answer
 
   show ""
 
@@ -1747,9 +1749,9 @@ readAnswer() {
 
   if [[ ${answer:0:1} == "Y" ]] ; then
     return 0
-  else
-    return 1
   fi
+
+  return 1
 }
 
 # Check file permissions
@@ -1760,19 +1762,21 @@ readAnswer() {
 # Code: Yes
 # Echo: No
 checkPerms() {
-  local perms=$(echo $1 | tr [a-z] [A-Z])
-  local path="$2"
+  local perms path
 
-  for perm in $(echo $perms | fold -w1) ; do
+  perms=$(echo "$1" | tr "[:lower:]" "[:upper:]")
+  path="$2"
+
+  for perm in $(echo "$perms" | fold -w1) ; do
     case $perm in
-      "R") [[ ! -r $path ]] && return 1 ;;
-      "W") [[ ! -w $path ]] && return 1 ;;
-      "E") [[ ! -e $path ]] && return 1 ;;
-      "D") [[ ! -d $path ]] && return 1 ;;
-      "F") [[ ! -f $path ]] && return 1 ;;
-      "S") [[ ! -s $path ]] && return 1 ;;
-      "H") [[ ! -h $path ]] && return 1 ;;
-      "X") [[ ! -x $path ]] && return 1 ;;
+      "R") [[ ! -r "$path" ]] && return 1 ;;
+      "W") [[ ! -w "$path" ]] && return 1 ;;
+      "E") [[ ! -e "$path" ]] && return 1 ;;
+      "D") [[ ! -d "$path" ]] && return 1 ;;
+      "F") [[ ! -f "$path" ]] && return 1 ;;
+      "S") [[ ! -s "$path" ]] && return 1 ;;
+      "H") [[ ! -h "$path" ]] && return 1 ;;
+      "X") [[ ! -x "$path" ]] && return 1 ;;
       *)                       return 1 ;;
     esac
   done
@@ -1787,8 +1791,10 @@ checkPerms() {
 # Code: Yes
 # Echo: No
 checkDeps() {
-  for app in $@ ; do
-    type -P $app &> /dev/null
+  local app
+
+  for app in "$@" ; do
+    type -P "$app" &> /dev/null
     [[ $? -eq 1 ]] && return 1
   done
 
@@ -1823,15 +1829,16 @@ now() {
 # Code: No
 # Echo: No
 getGraceTime() {
-  local start="$1"
-  local end="$2"
+  local start end tim sec min
 
-  local tim=$(($end - $start))
+  start="$1"
+  end="$2"
+  tim=$((end - start))
 
   [[ -z "$tim" || "$tim" == "0" ]] && echo "< 1 sec" && return 0
 
-  local sec=$(($tim % 60))
-  local min=$((($tim - $sec)/60))
+  sec=$((tim % 60))
+  min=$(((tim - sec)/60))
 
   if [[ $min -eq 0 ]] ; then
     echo "$sec sec"
