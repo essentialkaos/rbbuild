@@ -668,7 +668,7 @@ detectOs() {
 # Code: No
 # Echo: No
 doExit() {
-  exit ${1-0}
+  exit "${1-0}"
 }
 
 ################################################################################
@@ -692,15 +692,11 @@ showArgWarn() {
 # Code: No
 # Echo: No
 show() {
-  local message
-
-  if [[ -n "$2" ]] ; then
-    message=$(echo "\e[${2}m${1}\e[0m")
+  if [[ -n "$2" && -z "$no_colors" ]] ; then
+    echo -e "\e[${2}m${1}\e[0m"
   else
-    message="$@"
+    echo -e "$*"
   fi
-
-  echo -e "$message"
 }
 
 # Show message without newline symbol
@@ -711,15 +707,11 @@ show() {
 # Return: none
 # Echo: none
 showm() {
-  local message
-
-  if [[ -n "$2" ]] ; then
-    message=$(echo "\e[${2}m${1}\e[0m")
+  if [[ -n "$2" && -z "$no_colors" ]] ; then
+    echo -e -n "\e[${2}m${1}\e[0m"
   else
-    message="$@"
+    echo -e -n "$*"
   fi
-
-  printf "$message"
 }
 
 # -
@@ -729,7 +721,7 @@ showm() {
 # Code: No
 # Echo: No
 usage() {
-  show "${CL_BOLD}Usage:${CL_NORM} rbdef ${CL_GREEN}<options>${CL_NORM} ${CL_BROWN}<command>${CL_NORM} <args>"
+  show "${CL_BOLD}Usage:${CL_NORM} rbdef ${CL_GREEN}{options}${CL_NORM} ${CL_BROWN}{command}${CL_NORM} {args...}"
   show ""
   show "Commands:" $BOLD
   show ""
@@ -771,13 +763,13 @@ about() {
 
 unset arg argn argp
 
-PREFS_FILE=${PREFS_FILE//\~/$HOME}
+PREFS_FILE="${PREFS_FILE//\~/$HOME}"
 
-if [[ -n "$PREFS_FILE" && -r $PREFS_FILE ]] ; then
+if [[ -n "$PREFS_FILE" && -r "$PREFS_FILE" ]] ; then
   while read arg ; do
-    IFS=":" read argn argp <<< "${arg//: /:}"
-    [[ $SUPPORTED_ARGS\  =~ !?$argn\  ]] && declare $argn="$argp"
-  done < <(awk 1 $PREFS_FILE)
+    IFS=":" read -r argn argp <<< "${arg//: /:}"
+    [[ $SUPPORTED_ARGS\  =~ !?$argn\  ]] && declare "$argn=$argp"
+  done < <(awk 1 "$PREFS_FILE")
 
   unset arg argn argp
 fi
