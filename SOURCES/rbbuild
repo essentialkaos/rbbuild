@@ -1713,7 +1713,7 @@ checkHTTPStatus() {
 # Code: Yes
 # Echo: No
 download() {
-  local args="--max-redirs "$MAX_REDIRS" -L"
+  local args="--max-redirs $MAX_REDIRS -L"
 
   if [[ -n "$proxy" ]] ; then
     args="$args -x $proxy"
@@ -1856,18 +1856,20 @@ getGraceTime() {
 # Code: No
 # Echo: Aligned text (String)
 getAlignedColoredText() {
-  local ctext="$1"
-  local text="$2"
-  local size="$3"
+  local ctext text size text_size size_diff align
+
+  ctext="$1"
+  text="$2"
+  size="$3"
 
   if [[ ${#text} -gt $size ]] ; then
     echo -e "$ctext"
     return
   fi
 
-  local text_size=${#text}
-  local size_diff=$(($size - $text_size))
-  local align=$(printf "%${size_diff}s" " ")
+  text_size=${#text}
+  size_diff=$((size - text_size))
+  align=$(printf "%${size_diff}s" " ")
 
   echo -e "${ctext}${align}"
 }
@@ -1887,7 +1889,7 @@ getLA() {
 # Code: No
 # Echo: Absolute path (String)
 getAbsPath() {
-  readlink -f $1
+  readlink -f "$1"
 }
 
 # Clean temporary data
@@ -1895,7 +1897,7 @@ getAbsPath() {
 # Code: No
 # Echo: No
 clean() {
-  [[ -z "$debug" ]] && rm -rf $tmp_dir &> /dev/null
+  [[ -z "$debug" ]] && rm -rf "$tmp_dir" &> /dev/null
 }
 
 # Signal handler
@@ -1906,7 +1908,7 @@ termExit() {
   trap - SIGTERM
 
   if [[ -n "$exit_protect" ]] ; then
-    kill -TERM $PID &> /dev/null
+    kill -TERM "$PID" &> /dev/null
     unset exit_protect
   else
     show "" && doExit $ERROR_UNKNOWN
@@ -1921,8 +1923,8 @@ termExit() {
 # Echo: No
 doExit() {
   clean
-  cd $CWD
-  exit ${1:-0}
+  cd "$CWD"
+  exit "${1:-0}"
 }
 
 ################################################################################
@@ -1932,7 +1934,7 @@ doExit() {
 # Code: No
 # Echo: No
 spinnerOn() {
-  [[ -f $output || -n "$verbose" || -n "$quiet" ]] && return 0
+  [[ -f "$output" || -n "$verbose" || -n "$quiet" ]] && return 0
 
   spinner &
   spinner_pid=$!
@@ -1943,11 +1945,11 @@ spinnerOn() {
 # Code: No
 # Echo: No
 spinnerOff() {
-  [[ -f $output || -n "$verbose" || -n "$quiet" ]] && return 0
+  [[ -f "$output" || -n "$verbose" || -n "$quiet" ]] && return 0
 
   # Silently kill subshell with spinner
-  kill $spinner_pid
-  wait $spinner_pid &> /dev/null
+  kill "$spinner_pid"
+  wait "$spinner_pid" &> /dev/null
   unset spinner_pid
 
   # Screen cleaning
@@ -2000,17 +2002,11 @@ showArgWarn() {
 # Code: No
 # Echo: No
 show() {
-  [[ -n "$quiet" ]] && return
-
-  local message
-
   if [[ -n "$2" && -z "$no_colors" ]] ; then
-    message=$(echo "\e[${2}m${1}\e[0m")
+    echo -e "\e[${2}m${1}\e[0m"
   else
-    message="$@"
+    echo -e "$*"
   fi
-
-  echo -e "$message" >> $output
 }
 
 # Show message without newline symbol
@@ -2021,17 +2017,11 @@ show() {
 # Code: No
 # Echo: No
 showm() {
-  [[ -n "$quiet" ]] && return
-
-  local message
-
   if [[ -n "$2" && -z "$no_colors" ]] ; then
-    message=$(echo "\e[${2}m${1}\e[0m")
+    echo -e -n "\e[${2}m${1}\e[0m"
   else
-    message="$@"
+    echo -e -n "$*"
   fi
-
-  printf "$message" >> $output
 }
 
 # Show formated message with option info
@@ -2043,12 +2033,13 @@ showm() {
 # Code: No
 # Echo: No
 showo() {
-  local optn="$1"
-  local optd="$2"
-  local optp="$3"
+  local optn optd optp optt optf spaces
+
+  optn="$1"
+  optd="$2"
+  optp="$3"
 
   local spaces="                            "
-  local optt optf
 
   if [[ -z "$optp" ]] ; then
     optt="$optn"
