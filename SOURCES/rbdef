@@ -278,7 +278,7 @@ replace() {
     grep -v "#" "$file" >> "$orig_file"
     grep -v "#" "$file" >> "$tmp_file"
 
-    if [[ -n $(grep "$pattern_answer" "$orig_file") ]] ; then
+    if grep -q "$pattern_answer" "$orig_file" ; then
       line_num=$(grep -n "$pattern_answer" "$orig_file" | head -1 | cut -f1 -d":")
 
       for line in $line_num ; do
@@ -766,7 +766,7 @@ unset arg argn argp
 PREFS_FILE="${PREFS_FILE//\~/$HOME}"
 
 if [[ -n "$PREFS_FILE" && -r "$PREFS_FILE" ]] ; then
-  while read arg ; do
+  while read -r arg ; do
     IFS=":" read -r argn argp <<< "${arg//: /:}"
     [[ $SUPPORTED_ARGS\  =~ !?$argn\  ]] && declare "$argn=$argp"
   done < <(awk 1 "$PREFS_FILE")
