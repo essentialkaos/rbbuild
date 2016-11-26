@@ -845,7 +845,7 @@ installGitSource() {
 
   shift 4
 
-  pushd $tmp_dir &> /dev/null
+  pushd "$tmp_dir" &> /dev/null
 
     show "\nInstalling ${CL_BOLD}${pkg}${CL_NORM}" $BROWN
     showm "Fetching sources from ${url:0:62}... "
@@ -854,7 +854,7 @@ installGitSource() {
 
     start_time=$(now)
 
-    git clone $url &> $verb_output
+    git clone "$url" &> $verb_output
 
     if [[ $? -ne 0 ]] ; then
       show "FAIL" $RED
@@ -864,7 +864,7 @@ installGitSource() {
 
     clone_dir=$(basename "$url" | sed 's/.git//')
 
-    pushd $clone_dir &> /dev/null
+    pushd "$clone_dir" &> /dev/null
       if [[ -n "$tag" && $tag != "!" ]] ; then
         git checkout $tag &> $verb_output
       elif [[ -n "$branch" && $branch != "!" ]] ; then
@@ -879,7 +879,7 @@ installGitSource() {
 
     show "${CL_GREEN}DONE${CL_NORM} ${CL_GREY}($grc_time)${CL_NORM}"
 
-    pushd $clone_dir &> /dev/null
+    pushd "$clone_dir" &> /dev/null
 
       [[ -n "$need_patching" ]] && applyPatches "$pkg"
 
@@ -887,7 +887,7 @@ installGitSource() {
 
     defBuildFlags
 
-    buildPackage "$pkg" "$clone_dir" $@
+    buildPackage "$pkg" "$clone_dir" "$@"
 
   popd &> /dev/null
 }
@@ -903,26 +903,27 @@ installGitSource() {
 installSvnSource() {
   require "svn"
 
-  local url="$1"
-  local tag="$2"
-  local branch="$3"
+  local url tag branch start_time end_time grc_time
+  local svn_url svn_adds checkout_dir
+
+  url="$1"
+  tag="$2"
+  branch="$3"
 
   shift 3
 
-  pushd $tmp_dir &> /dev/null
+  pushd "$tmp_dir" &> /dev/null
     show "\nInstalling ${CL_BOLD}${pkg}${CL_NORM}" $BROWN
     showm "Fetching sources from ${url:0:62}... "
 
     spinnerOn
 
-    local start_time=$(now)
+    start_time=$(now)
 
-    local svn_adds="--non-interactive --no-auth-cache"
+    svn_adds="--non-interactive --no-auth-cache"
 
     [[ -n "$svn_user" ]] && svn_adds="$svn_adds --username $svn_user"
     [[ -n "$svn_pass" ]] && svn_adds="$svn_adds --password $svn_pass"
-
-    local svn_url
 
     if [[ "$svn" =~ (branches|tags|trunk) ]] ; then
       svn_url="$svn"
@@ -936,9 +937,9 @@ installSvnSource() {
       fi
     fi
 
-    local checkout_dir=$(mktemp -u XXXXXXXX)
+    checkout_dir=$(mktemp -u "XXXXXXXX")
 
-    svn checkout $svn_url $checkout_dir $svn_adds &> $verb_output
+    svn checkout "$svn_url" "$checkout_dir" $svn_adds &> $verb_output
 
     if [[ $? -ne 0 ]] ; then
       show "FAIL" $RED
@@ -948,12 +949,12 @@ installSvnSource() {
 
     spinnerOff
 
-    local end_time=$(now)
-    local grc_time=$(getGraceTime "$start_time" "$end_time")
+    end_time=$(now)
+    grc_time=$(getGraceTime "$start_time" "$end_time")
 
     show "${CL_GREEN}DONE${CL_NORM} ${CL_GREY}($grc_time)${CL_NORM}"
 
-    pushd $checkout_dir &> /dev/null
+    pushd "$checkout_dir" &> /dev/null
 
       [[ -n "$need_patching" ]] && applyPatches "$pkg"
 
@@ -961,7 +962,7 @@ installSvnSource() {
 
     defBuildFlags
 
-    buildPackage "$pkg" "$checkout_dir" $@
+    buildPackage "$pkg" "$checkout_dir" "$@"
 
   popd &> /dev/null
 }
@@ -977,22 +978,24 @@ installSvnSource() {
 installHgSource() {
   require "hg"
 
-  local url="$1"
-  local tag="$2"
-  local branch="$3"
+  local url tag branch start_time end_time grc_time clone_dir
+
+  url="$1"
+  tag="$2"
+  branch="$3"
 
   shift 3
 
-  pushd $tmp_dir &> /dev/null
+  pushd "$tmp_dir" &> /dev/null
 
     show "\nInstalling ${CL_BOLD}${pkg}${CL_NORM}" $BROWN
     showm "Fetching sources from ${url:0:62}... "
 
     spinnerOn
 
-    local start_time=$(now)
+    start_time=$(now)
 
-    hg clone $url &> $verb_output
+    hg clone "$url" &> $verb_output
 
     if [[ $? -ne 0 ]] ; then
       show "FAIL" $RED
@@ -1000,24 +1003,24 @@ installHgSource() {
       show "" && doExit $ERROR_REPO
     fi
 
-    local clone_dir=$(basename $url)
+    clone_dir=$(basename "$url")
 
-    pushd $clone_dir &> /dev/null
+    pushd "$clone_dir" &> /dev/null
       if [[ -n "$tag" && $tag != "!" ]] ; then
-        hg checkout $tag &> $verb_output
+        hg checkout "$tag" &> $verb_output
       elif [[ -n "$branch" && $branch != "!" ]] ; then
-        hg checkout $branch &> $verb_output
+        hg checkout "$branch" &> $verb_output
       fi
     popd &> /dev/null
 
     spinnerOff
 
-    local end_time=$(now)
-    local grc_time=$(getGraceTime "$start_time" "$end_time")
+    end_time=$(now)
+    grc_time=$(getGraceTime "$start_time" "$end_time")
 
     show "${CL_GREEN}DONE${CL_NORM} ${CL_GREY}($grc_time)${CL_NORM}"
 
-    pushd $clone_dir &> /dev/null
+    pushd "$clone_dir" &> /dev/null
 
       [[ -n "$need_patching" ]] && applyPatches "$pkg"
 
@@ -1025,7 +1028,7 @@ installHgSource() {
 
     defBuildFlags
 
-    buildPackage "$pkg" "$clone_dir" $@
+    buildPackage "$pkg" "$clone_dir" "$@"
 
   popd &> /dev/null
 }
@@ -1042,25 +1045,25 @@ applyPatches() {
 
   showm "Applying patches... "
 
-  pushd $tmp_dir/$pkgdir &> /dev/null
+  pushd "$tmp_dir/$pkgdir" &> /dev/null
 
     local patch
 
-    if [[ -n $(ls -1 $tmp_dir/patches | egrep ".patch") ]] ; then
+    if [[ -n $(ls -1 "$tmp_dir/patches" | egrep ".patch") ]] ; then
       for patch in $tmp_dir/patches/*.patch ; do
-        cat $patch | patch -p1 &> $verb_output
+        cat "$patch" | patch -p1 &> $verb_output
       done
     fi
 
-    if [[ -n $(ls -1 $tmp_dir/patches | egrep ".diff") ]] ; then
+    if [[ -n $(ls -1 "$tmp_dir/patches" | egrep ".diff") ]] ; then
       for patch in $tmp_dir/patches/*.diff ; do
-        cat $patch | git apply &> $verb_output
+        cat "$patch" | git apply &> $verb_output
       done
     fi
 
     unset need_patching
 
-    rm -rf $tmp_dir/patches &> /dev/null
+    rm -rf "$tmp_dir/patches" &> /dev/null
 
     show "DONE" $GREEN
 
