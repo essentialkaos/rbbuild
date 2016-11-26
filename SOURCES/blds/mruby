@@ -10,39 +10,41 @@
 mrubyBuilder() {
   checkVersionCompatibility "1.5.0"
 
-  local pkg="$1"
-  local pkg_dir="$2"
+  local pkg pkg_dir prfx fail
+  local start_time end_time grc_time
 
-  local prfx="${XPREFIX:-${prefix}}"
+  pkg="$1"
+  pkg_dir="$2"
+
+  prfx="${XPREFIX:-${prefix}}"
 
   exportCompilerOpts
 
-  pushd $pkg_dir &> /dev/null
+  pushd "$pkg_dir" &> /dev/null
 
     showm "Building... "
 
-    local start_time=`now`
-    local fail
+    start_time=$(now)
 
     exit_protect=true
 
     spinnerOn
 
     if [[ -n "$verbose" ]] ; then
-      { mkdir -p $prfx
+      { mkdir -p "$prfx"
         [[ $? -ne 0 ]] && fail=true
         show "ruby ./minirake"
         ruby ./minirake
         [[ $? -ne 0 ]] && fail=true
-        cp -r build/host/* $prfx
+        cp -r build/host/* "$prfx"
         [[ $? -ne 0 ]] && fail=true
       } &>> $output
     else
-      { mkdir -p $prfx
+      { mkdir -p "$prfx"
         [[ $? -ne 0 ]] && fail=true
         ruby ./minirake
         [[ $? -ne 0 ]] && fail=true
-        cp -r build/host/* $prfx
+        cp -r build/host/* "$prfx"
         [[ $? -ne 0 ]] && fail=true
       } &>> $log
     fi
@@ -55,19 +57,19 @@ mrubyBuilder() {
       return 1
     fi
 
-    pushd $prfx/bin &> /dev/null
+    pushd "$prfx/bin" &> /dev/null
 
       ln -fs mruby ruby
       ln -fs mirb irb
 
     popd &> /dev/null
 
-    local end_time=`now`
-    local grc_time=`getGraceTime "$start_time" "$end_time"`
+    end_time=$(now)
+    grc_time=$(getGraceTime "$start_time" "$end_time")
 
     show "${CL_GREEN}DONE${CL_NORM} ${CL_GREY}($grc_time)${CL_NORM}"
 
-    echo -n > $log
+    echo -n > "$log"
 
     unset exit_protect
 

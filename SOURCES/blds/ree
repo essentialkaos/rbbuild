@@ -10,11 +10,14 @@
 reeBuilder() {
   checkVersionCompatibility "1.5.0"
 
-  local pkg="$1"
-  local pkg_dir="$2"
+  local pkg pkg_dir copts prfx fail
+  local start_time end_time grc_time
 
-  local copts="${CONFOPTS}"
-  local prfx="${XPREFIX:-${prefix}}"
+  pkg="$1"
+  pkg_dir="$2"
+
+  copts="${CONFOPTS}"
+  prfx="${XPREFIX:-${prefix}}"
 
   if isOS $OS_MACOSX ; then
     copts="${copts} --no-tcmalloc"
@@ -24,8 +27,7 @@ reeBuilder() {
 
     showm "Building... "
 
-    local start_time=`now`
-    local fail
+    start_time=$(now)
 
     exit_protect=true
 
@@ -37,11 +39,11 @@ reeBuilder() {
       { show "./installer --auto \"$prfx\" --dont-install-useful-gems \"$copts\""
         ./installer --auto "$prfx" --dont-install-useful-gems "$copts"
         [[ $? -ne 0 ]] && fail=true
-      } &>> $output
+      } &>> "$output"
     else
       { ./installer --auto "$prfx" --dont-install-useful-gems "$copts"
         [[ $? -ne 0 ]] && fail=true
-      } &>> $log
+      } &>> "$log"
     fi
 
     spinnerOff
@@ -52,12 +54,12 @@ reeBuilder() {
       return 1
     fi
 
-    local end_time=`now`
-    local grc_time=`getGraceTime "$start_time" "$end_time"`
+    local end_time=$(now)
+    local grc_time=$(getGraceTime "$start_time" "$end_time")
 
     show "${CL_GREEN}DONE${CL_NORM} ${CL_GREY}($grc_time)${CL_NORM}"
 
-    echo -n > $log
+    echo -n > "$log"
 
     unset exit_protect
 

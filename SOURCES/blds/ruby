@@ -10,19 +10,20 @@
 rubyBuilder() {
   checkVersionCompatibility "1.2.0"
 
-  local pkg="$1"
-  local pkg_dir="$2"
+  local pkg pkg_dir prfx ruby_bin fail installer
+  local start_time end_time grc_time
 
-  local prfx="${XPREFIX:-${prefix}}"
-  local ruby_bin="$prfx/bin/ruby"
+  pkg="$1"
+  pkg_dir="$2"
 
-  pushd $pkg_dir &> /dev/null
+  prfx="${XPREFIX:-${prefix}}"
+  ruby_bin="$prfx/bin/ruby"
+
+  pushd "$pkg_dir" &> /dev/null
 
     showm "Building... "
 
-    local start_time=`now`
-    local fail
-    local installer
+    start_time=$(now)
 
     if checkPerms "FR" "setup.rb" ; then
       installer="setup.rb"
@@ -32,7 +33,7 @@ rubyBuilder() {
       show "FAIL" $RED
       show ""
       show "Can't find installer file."
-      doExit $ERROR_UNKNOWN
+      doExit "$ERROR_UNKNOWN"
     fi
 
     exit_protect=true
@@ -41,13 +42,13 @@ rubyBuilder() {
 
     if [[ -n "$verbose" ]] ; then
       { show "$ruby_bin $installer"
-        $ruby_bin $installer
+        $ruby_bin "$installer"
         [[ $? -ne 0 ]] && fail=true
-      } &>> $output
+      } &>> "$output"
     else
-      { $ruby_bin $installer
+      { $ruby_bin "$installer"
         [[ $? -ne 0 ]] && fail=true
-      } &>> $log
+      } &>> "$log"
     fi
 
     spinnerOff
@@ -58,12 +59,12 @@ rubyBuilder() {
       return 1
     fi
 
-    local end_time=`now`
-    local grc_time=`getGraceTime "$start_time" "$end_time"`
+    end_time=$(now)
+    grc_time=$(getGraceTime "$start_time" "$end_time")
 
     show "${CL_GREEN}DONE${CL_NORM} ${CL_GREY}($grc_time)${CL_NORM}"
 
-    echo -n > $log
+    echo -n > "$log"
 
     unset exit_protect
 

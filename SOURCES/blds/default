@@ -12,13 +12,16 @@ defaultBuilder() {
 
   requireCompiler
 
-  local pkg="$1"
-  local pkg_dir="$2"
+  local pkg pkg_dir mopts copts iopts prfx thr_num
+  local start_time fail conf_file end_time grc_time
 
-  local mopts="${MAKEOPTS}"
-  local copts="${CONFOPTS}"
-  local iopts="${INSTOPTS}"
-  local prfx="${XPREFIX:-${prefix}}"
+  pkg="$1"
+  pkg_dir="$2"
+
+  mopts="${MAKEOPTS}"
+  copts="${CONFOPTS}"
+  iopts="${INSTOPTS}"
+  prfx="${XPREFIX:-${prefix}}"
 
   exportCompilerOpts
 
@@ -26,7 +29,7 @@ defaultBuilder() {
     if [[ -n "$threads" ]] ; then
       mopts="${mopts} -j $threads"
     else
-      local thr_num=$(getThreadsNum)
+      thr_num=$(getThreadsNum)
       mopts="${mopts} -j $thr_num"
     fi
   fi
@@ -34,8 +37,6 @@ defaultBuilder() {
   if [[ -n "$dest_dir" && ! $iopts =~ DESTDIR ]] ; then
     iopts="${iopts} DESTDIR=$dest_dir"
   fi
-
-  local start_time fail conf_file end_time grc_time
 
   pushd "$pkg_dir" &> /dev/null
 
@@ -53,7 +54,7 @@ defaultBuilder() {
       show "FAIL" $RED
       show ""
       show "Can't find configure file."
-      doExit $ERROR_UNKNOWN
+      doExit "$ERROR_UNKNOWN"
     fi
 
     exit_protect=true
@@ -78,7 +79,7 @@ defaultBuilder() {
         [[ $? -ne 0 ]] && fail=true
         make install $iopts
         [[ $? -ne 0 ]] && fail=true
-      } &>> $log
+      } &>> "$log"
     fi
 
     spinnerOff

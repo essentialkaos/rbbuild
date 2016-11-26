@@ -10,19 +10,21 @@
 autoconfBuilder() {
   checkVersionCompatibility "1.5.0"
 
-  local pkg="$1"
-  local pkg_dir="$2"
+  local pkg pkg_dir fail
+  local start_time end_time grc_time
+
+  pkg="$1"
+  pkg_dir="$2"
 
   shift 2
 
   exportCompilerOpts
 
-  pushd $pkg_dir &> /dev/null
+  pushd "$pkg_dir" &> /dev/null
 
     showm "Autoconf... "
 
-    local start_time=`now`
-    local fail
+    start_time=$(now)
 
     exit_protect=true
 
@@ -32,11 +34,11 @@ autoconfBuilder() {
       { show "autoconf"
         autoconf
         [[ $? -ne 0 ]] && fail=true
-      } &>> $output
+      } &>> "$output"
     else
       { autoconf
         [[ $? -ne 0 ]] && fail=true
-      } &>> $log
+      } &>> "$log"
     fi
 
     spinnerOff
@@ -47,16 +49,16 @@ autoconfBuilder() {
       return 1
     fi
 
-    local end_time=`now`
-    local grc_time=`getGraceTime "$start_time" "$end_time"`
+    end_time=$(now)
+    grc_time=$(getGraceTime "$start_time" "$end_time")
 
     show "${CL_GREEN}DONE${CL_NORM} ${CL_GREY}($grc_time)${CL_NORM}"
 
-    echo -n > $log
+    echo -n > "$log"
 
     unset exit_protect
 
   popd &> /dev/null
 
-  buildPackage "$pkg" "$pkg_dir" "default" $@
+  buildPackage "$pkg" "$pkg_dir" "default" "$@"
 }

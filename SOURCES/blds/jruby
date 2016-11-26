@@ -10,7 +10,8 @@
 jrubyBuilder() {
   checkVersionCompatibility "1.5.0"
 
-  local pkg pkg_dir prfx start_time fail
+  local pkg pkg_dir prfx fail
+  local start_time end_time grc_time
 
   pkg="$1"
   pkg_dir="$2"
@@ -42,7 +43,7 @@ jrubyBuilder() {
           ./ruby gem install jruby-launcher
           [[ $? -ne 0 ]] && fail=true
         popd
-      } >> $output
+      } >> "$output"
     else
       { mkdir -p "$prfx"
         [[ $? -ne 0 ]] && fail=true
@@ -55,7 +56,7 @@ jrubyBuilder() {
           ./ruby gem install jruby-launcher &> $verb_output
           [[ $? -ne 0 ]] && fail=true
         popd
-      } > "$log" 2>>$output
+      } > "$log" 2>> "$output"
     fi
 
     spinnerOff
@@ -70,8 +71,8 @@ jrubyBuilder() {
     rm -f "$prfx"/bin/*.exe
     rm -f "$prfx"/bin/*.dll
 
-    local end_time=$(now)
-    local grc_time=$(getGraceTime "$start_time" "$end_time")
+    end_time=$(now)
+    grc_time=$(getGraceTime "$start_time" "$end_time")
 
     show "${CL_GREEN}DONE${CL_NORM} ${CL_GREY}($grc_time)${CL_NORM}"
 
