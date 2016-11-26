@@ -641,13 +641,13 @@ execDefinition() {
     fmtd="${line//\"/}"
     cmnd=(${fmtd/: / })
     action="${cmnd[0]}"
-    args=${cmnd[@]:1:999}
+    args=(${cmnd[@]:1:999})
 
     if [[ -n "$check" ]] ; then
       case $action in
-        "patch")     checkRemoteFile "!" ${args[@]} ;;
-        "patchset")  checkRemoteFile "!" ${args[@]} ;;
-        "package")   checkRemoteFile ${args[@]} ;;
+        "patch")     checkRemoteFile "!" "${args[@]}" ;;
+        "patchset")  checkRemoteFile "!" "${args[@]}" ;;
+        "package")   checkRemoteFile     "${args[@]}" ;;
         "git")       continue ;;
         "svn")       continue ;;
         "hg")        continue ;;
@@ -658,12 +658,12 @@ execDefinition() {
       mkPrefixDir
 
       case $action in
-        "patch")     installPatch     ${args[@]} ;;
-        "patchset")  installPatchset  ${args[@]} ;;
-        "package")   installPackage   ${args[@]} ;;
-        "git")       installGitSource ${args[@]} ;;
-        "svn")       installSvnSource ${args[@]} ;;
-        "hg")        installHgSource  ${args[@]} ;;
+        "patch")     installPatch     "${args[@]}" ;;
+        "patchset")  installPatchset  "${args[@]}" ;;
+        "package")   installPackage   "${args[@]}" ;;
+        "git")       installGitSource "${args[@]}" ;;
+        "svn")       installSvnSource "${args[@]}" ;;
+        "hg")        installHgSource  "${args[@]}" ;;
         *) show "Unknown action <$action>! Please check selected definition file." $RED
            show "" && doExit $ERROR_UNKNOWN_ACTION ;;
       esac
@@ -683,12 +683,14 @@ execDefinition() {
 # Code: No
 # Echo: No
 checkRemoteFile() {
-  local url="$2"
-  local file_name=$(basename $url)
+  local url file_name status
 
-  [[ -n "$dl_cache" && -f $dl_cache/$file_name ]] && return
+  url="$2"
+  file_name=$(basename "$url")
 
-  local status=$(checkHTTPStatus "$url")
+  [[ -n "$dl_cache" && -f "$dl_cache/$file_name" ]] && return
+
+  status=$(checkHTTPStatus "$url")
 
   if [[ "$status" != "200" ]] ; then
     show "FAIL " $RED
@@ -708,6 +710,8 @@ checkRemoteFile() {
 # Code: No
 # Echo: No
 installPatch() {
+  local url file_name crc
+
   if [[ -n "$no_patch" ]] ; then
     show "Skipping patch $1..." $MAG
     return 0
@@ -715,16 +719,16 @@ installPatch() {
 
   require "git"
 
-  local url=$(parseArgsInString "$1")
+  url=$(parseArgsInString "$1")
 
-  [[ ${plocat[$url]} ]] && url="${plocat[$url]}"
+  [[ -n "${plocat[$url]}" ]] && url="${plocat[$url]}"
 
-  local file_name=$(basename $url)
-  local crc="$2"
+  file_name=$(basename "$url")
+  crc="$2"
 
-  mkdir -p $tmp_dir/patches
+  mkdir -p "$tmp_dir/patches"
 
-  pushd $tmp_dir/patches &> /dev/null
+  pushd "$tmp_dir/patches" &> /dev/null
 
     show "\nFetching patch ${file_name}... "
 
