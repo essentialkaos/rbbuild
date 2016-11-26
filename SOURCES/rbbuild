@@ -1396,9 +1396,9 @@ checkVersionCompatibility() {
 showMirrorList() {
   local mirror
 
-  for mirror in $(cat "$def_file" | grep "\[" | sed 's/[][]//g') ; do
+  while read -r mirror ; do
     show "$mirror" $CYAN
-  done
+  done < (cat "$def_file" | grep "\[" | sed 's/[][]//g')
 }
 
 # Show list of all def files
@@ -1459,7 +1459,7 @@ listDefs() {
   while : ; do
     ruby_next=$(($ruby_count+1))
 
-    if [[ "${ruby_list[$ruby_next]}" =~ "-railsexpress" ]] ; then
+    if [[ "${ruby_list[$ruby_next]}" =~ \-railsexpress ]] ; then
       ruby_ver=$(getAlignedColoredText "${ruby_list[$ruby_count]}${CL_GREY}-railsexpress${CL_NORM}" "${ruby_list[$ruby_count]}-railsexpress" 26)
       ruby_count=$(($ruby_count+2))
     else
@@ -1487,11 +1487,11 @@ listDefs() {
 # Code: Yes
 # Echo: No
 isRemoteDefFile() {
-  if [[ -n $(echo $def_file | grep -E "(http|ftp)") ]] ; then
+  if grep -q -E "(http|ftp)" "$def_file" ; then
     return 0
-  else
-    return 1
   fi
+
+  return 1
 }
 
 # Find RBEnv prefix path
@@ -1499,16 +1499,18 @@ isRemoteDefFile() {
 # Code: No
 # Echo: RBEnv prefix path (String)
 getRBEnvPrefix() {
-  local upath=$(getAbsPath ~/.rbenv/versions)
+  local upath rbe_bin bin_dir ins_dir
+
+  upath=$(getAbsPath "$HOME/.rbenv/versions")
 
   if checkPerms "DRX" "$upath" ; then
     echo "$upath"
   elif checkPerms "DRX" "/usr/local/rbenv/versions" ; then
     echo "/usr/local/rbenv/versions"
   else
-    local rbe_bin=$(type -P rbenv)
-    local bin_dir=$(dirname $rbe_bin)
-    local ins_dir=$(dirname $bin_dir)
+    rbe_bin=$(type -P rbenv)
+    bin_dir=$(dirname "$rbe_bin")
+    ins_dir=$(dirname "$bin_dir")
 
     if checkPerms "DRX" "$ins_dir/versions" ; then
       echo "$ins_dir/versions"
@@ -1523,12 +1525,14 @@ getRBEnvPrefix() {
 # Code: No
 # Echo: Number of threads (Number)
 getThreadsNum() {
-  local proc_num=$(nproc)
+  local proc_num rec_num
+  
+  proc_num=$(nproc)
 
   if [[ $proc_num -eq 1 ]] ; then
     echo 1
   else
-    local rec_num=$(( $proc_num - 1 ))
+    rec_num=$(( proc_num - 1 ))
     echo $rec_num
   fi
 }
