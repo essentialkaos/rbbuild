@@ -443,7 +443,7 @@ unpack() {
 # Code: No
 # Echo: No
 upload() {
-  if [[ ! $bucket ]] ; then
+  if [[ -z "$bucket" ]] ; then
     show "Please define <bucket> property in preferencies file before upload." $BROWN
     doExit 1
   fi
@@ -453,9 +453,9 @@ upload() {
   [[ -n "$public_uploads" ]] && adds="--acl-public "
   [[ -n "$reduced_redundancy" ]] && adds="$adds --reduced-redundancy"
 
-  for file in $@ ; do
-    if [[ -r $file ]] ; then
-      s3cmd $adds put $file $bucket/
+  for file in "$@" ; do
+    if [[ -r "$file" ]] ; then
+      s3cmd "$adds" put "$file" "$bucket/"
     fi
   done
 }
@@ -467,7 +467,7 @@ upload() {
 # Code: No
 # Echo: SHA checksum (String)
 makeCRC() {
-  sha1sum $1 | cut -f1 -d" "
+  sha1sum "$1" | cut -f1 -d" "
 }
 
 # Get file type
@@ -502,12 +502,13 @@ getFileType() {
 # Code: No
 # Echo: Result (String)
 cleanName() {
-  local name="$1"
-  local rmv
+  local name rmv
+
+  name="$1"
 
   shift
 
-  for rmv in $@ ; do
+  for rmv in "$@" ; do
     name="${name//$rmv/}"
   done
 
@@ -521,11 +522,13 @@ cleanName() {
 # Code: No
 # Echo: No
 addHeader() {
-  local file="$1"
-  local date=$(date +"%d/%b/%Y %R:%S")
+  local file date
 
-  echo "# RBBuild Def File" >> $file
-  echo "# UPDATED $date by $author" >> $file
+  file="$1"
+  date=$(date +"%d/%b/%Y %R:%S")
+
+  echo "# RBBuild Def File" >> "$file"
+  echo "# UPDATED $date by $author" >> "$file"
 }
 
 ################################################################################
@@ -538,18 +541,20 @@ addHeader() {
 # Code: No
 # Echo: No
 checkPerms() {
-  local perms=$(echo $1 | tr [a-z] [A-Z])
-  local path="$2"
+  local perms path
 
-  for perm in $(echo $perms | fold -w1) ; do
+  perms=$(echo "$1" | tr [:lower:] [:upper:])
+  path="$2"
+
+  for perm in $(echo "$perms" | fold -w1) ; do
     case $perm in
-      "R") [[ ! -r $path ]] && return 1 ;;
-      "W") [[ ! -w $path ]] && return 1 ;;
-      "E") [[ ! -e $path ]] && return 1 ;;
-      "D") [[ ! -d $path ]] && return 1 ;;
-      "F") [[ ! -f $path ]] && return 1 ;;
-      "S") [[ ! -s $path ]] && return 1 ;;
-      "H") [[ ! -h $path ]] && return 1 ;;
+      "R") [[ ! -r "$path" ]] && return 1 ;;
+      "W") [[ ! -w "$path" ]] && return 1 ;;
+      "E") [[ ! -e "$path" ]] && return 1 ;;
+      "D") [[ ! -d "$path" ]] && return 1 ;;
+      "F") [[ ! -f "$path" ]] && return 1 ;;
+      "S") [[ ! -s "$path" ]] && return 1 ;;
+      "H") [[ ! -h "$path" ]] && return 1 ;;
       *) return 1
     esac
   done
