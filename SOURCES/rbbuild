@@ -438,7 +438,7 @@ checkBuildDeps() {
 
   dep_pref="deps(lib)"
 
-  if grep -q "$dep_pref" $def_file ; then
+  if grep -q "$dep_pref" "$def_file" ; then
     dep_list=$(readDefProp "$dep_pref")
 
     for dep in $dep_list ; do
@@ -455,7 +455,7 @@ checkBuildDeps() {
 
   dep_pref="deps(pip)"
 
-  if grep -q "$dep_pref" $def_file ; then
+  if grep -q "$dep_pref" "$def_file" ; then
     require "pip"
 
     dep_list=$(readDefProp "$dep_pref")
@@ -471,7 +471,7 @@ checkBuildDeps() {
 
   dep_pref="deps(gem)"
 
-  if grep -q "$dep_pref" $def_file ; then
+  if grep -q "$dep_pref" "$def_file" ; then
     require "gem"
 
     dep_list=$(readDefProp "$dep_pref")
@@ -531,38 +531,41 @@ checkBuildDeps() {
 # Code: No
 # Echo: No
 checkEOLDates() {
-  local normal=$(readDefProp "eol(normal)")
-  local security=$(readDefProp "eol(security)")
-  local extended=$(readDefProp "eol(extended)")
+  local normal security extended now expired
+  local normal_rd security_rd expired_rd
+  local normal_ts extended_ts security_ts
 
-  local now=$(date +%s)
-  local expired
+  normal=$(readDefProp "eol(normal)")
+  security=$(readDefProp "eol(security)")
+  extended=$(readDefProp "eol(extended)")
+
+  now=$(date +%s)
 
   if [[ -n $normal ]] ; then
-    local normal_ts=$(date +%s -d $normal)
+    normal_ts=$(date +%s -d "$normal")
 
     if [[ $normal_ts -lt $now ]] ; then
       expired=true
-      local normal_rd=$(date -d @$normal_ts +'%d %B %Y')
+      normal_rd=$(date -d "@$normal_ts" +'%d %B %Y')
       show "Normal maintenance finished $normal_rd." $BROWN
     fi
   fi
 
   if [[ -n $security ]] ; then
-    local security_ts=$(date +%s -d $security)
+    security_ts=$(date +%s -d "$security")
 
     if [[ $security_ts -lt $now ]] ; then
       expired=true
 
-      local security_rd=$(date -d @$security_ts +'%d %B %Y')
+      security_rd=$(date -d @$security_ts +'%d %B %Y')
 
       if [[ -n $extended ]] ; then
-        local extended_ts=$(date +%s -d $extended)
+        extended_ts=$(date +%s -d "$extended")
 
         if [[ $extended_ts -lt $now ]] ; then
           show "Security maintenance finished $security_rd." $RED
         else
-          local expired_rd=$(date -d @$expired_ts +'%d %B %Y')
+          expired_rd=$(date -d "@$expired_ts" +'%d %B %Y')
           show "Security maintenance finished $security_rd." $BROWN
           show "Extended maintenance will be finished $expired_rd." $BROWN
         fi
@@ -588,7 +591,9 @@ checkEOLDates() {
 # Code: No
 # Echo: No
 readDefinition() {
-  if [[ -z $(grep "^\[$mirror\]" $def_file) ]] ; then
+  local start_time end_time grc_time
+
+  if ! grep -q "^\[$mirror\]" "$def_file" ; then
     show ""
     show "Error! Can't find mirror with name <$mirror>. Please check selected definition file." $RED
     show "" && doExit $ERROR_UNKNOWN_MIRROR
@@ -600,14 +605,14 @@ readDefinition() {
 
   spinnerOn
 
-  local start_time=$(now)
+  start_time=$(now)
 
   execDefinition true
 
   spinnerOff
 
-  local end_time=$(now)
-  local grc_time=$(getGraceTime "$start_time" "$end_time")
+  end_time=$(now)
+  grc_time=$(getGraceTime "$start_time" "$end_time")
 
   show "${CL_GREEN}DONE${CL_NORM} ${CL_GREY}($grc_time)${CL_NORM}"
 }
