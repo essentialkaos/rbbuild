@@ -1298,7 +1298,7 @@ buildPackage() {
   [[ "$builder_name" == "none" ]] && return 0
 
   if hasBuilder "$builder_name" ; then
-    runBuilder "$builder_name" "$pkg" "$pkg_dir" $@
+    runBuilder "$builder_name" "$pkg" "$pkg_dir" "$@"
     return $?
   else
     show "Error building package — builder <$builder_name> is not found." $RED
@@ -1318,9 +1318,9 @@ buildPackage() {
 runBuilder() {
   local builder_func="${1}Builder"
 
-  source $BLD_PATH/$1
+  source "$BLD_PATH/$1"
 
-  eval $(echo $builder_func) "$pkg" "$pkg_dir" $@
+  eval $(echo "$builder_func") "$pkg" "$pkg_dir" "$@"
 
   return $?
 }
@@ -1355,14 +1355,14 @@ buildFailed() {
   local prfx="$1"
 
   if checkPerms "D" "$prfx" ; then
-    rm -rf $prfx &> $verb_output
+    rm -rf "$prfx" &> $verb_output
   fi
 
-  if [[ -f $log && -z "$verbose" ]] ; then
+  if [[ -f "$log" && -z "$verbose" ]] ; then
     show "Last ${LOG_TAIL_SIZE} lines from install log:\n" $CYAN
 
-    tail -${LOG_TAIL_SIZE} $log
-    mv $log /tmp/rbbuild.log
+    tail -${LOG_TAIL_SIZE} "$log"
+    mv "$log" /tmp/rbbuild.log
 
     show "\nLog saved to /tmp/rbbuild.log\n" $CYAN
   fi
@@ -1396,8 +1396,8 @@ checkVersionCompatibility() {
 showMirrorList() {
   local mirror
 
-  for mirror in $(cat $def_file | grep "\[" | sed 's/[][]//g') ; do
-    show $mirror $CYAN
+  for mirror in $(cat "$def_file" | grep "\[" | sed 's/[][]//g') ; do
+    show "$mirror" $CYAN
   done
 }
 
@@ -1406,13 +1406,16 @@ showMirrorList() {
 # Code: No
 # Echo: No
 listDefs() {
-  local defs_dir="$DEF_PATH"
+  local defs_dir bindir instdir shrdir
+  local def all_list ruby_list jruby_list ree_list rbx_list oth_list
 
-  if [[ ! -d $defs_dir ]] ; then
-    local bindir=$(dirname $0)
-    bindir=$(getAbsPath $bindir)
-    local instdir=$(dirname $bindir)
-    local shrdir="$instdir/share"
+  defs_dir="$DEF_PATH"
+
+  if [[ ! -d "$defs_dir" ]] ; then
+    bindir=$(dirname "$0")
+    bindir=$(getAbsPath "$bindir")
+    instdir=$(dirname "$bindir")
+    shrdir="$instdir/share"
 
     if [[ -d $shrdir/rbbuild ]] ; then
       defs_dir="$shrdir/rbbuild"
@@ -1422,12 +1425,10 @@ listDefs() {
     fi
   fi
 
-  local def all_list ruby_list jruby_list ree_list rbx_list oth_list
-
-  all_list=$(ls $defs_dir)
+  all_list=$(ls "$defs_dir")
 
   for def in $all_list ; do
-    [[ -h $defs_dir/$def ]] && continue
+    [[ -h "$defs_dir/$def" ]] && continue
 
     if [[ $def =~ ^(1|2).[0-9]{1,}.[0-9]{1,}* ]] ; then
       ruby_list+=($def)
@@ -1447,10 +1448,11 @@ listDefs() {
   ree_list=($(sortVersionArray "${ree_list[@]}"))
   rbx_list=($(sortVersionArray "${rbx_list[@]}"))
 
-  local ruby_ver jruby_ver ree_ver rbx_ver oth_ver all_ver
-  local count=0
-  local ruby_count=0
-  local ruby_next=0
+  local ruby_ver jruby_ver ree_ver rbx_ver oth_ver all_ver count ruby_count ruby_next
+  
+  count=0
+  ruby_count=0
+  ruby_next=0
 
   printf "\n${CL_BOLD}${CL_BG_BROWN} %-26s${CL_NORM} ${CL_BOLD}${CL_BG_CYAN} %-26s${CL_NORM} ${CL_BOLD}${CL_BG_GREEN} %-26s${CL_NORM} ${CL_BOLD}${CL_BG_MAG} %-26s${CL_NORM} ${CL_BOLD}${CL_BG_GREY} %-26s${CL_NORM}\n\n" "RUBY" "JRUBY" "REE" "RUBINIUS" "OTHER"
 
