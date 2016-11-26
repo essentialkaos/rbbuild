@@ -306,10 +306,10 @@ replace() {
 # Code: No
 # Echo: No
 proc() {
-  local line tmp_file
+  local line tmp_file target_name
 
-  for file in $@ ; do
-    local target_name=$(basename $file)
+  for file in "$@" ; do
+    target_name=$(basename "$file")
 
     show "Processing file ${CL_BOLD}$target_name${CL_NORM}... "
 
@@ -321,13 +321,13 @@ proc() {
 
     tmp_file=$(mktemp)
 
-    addHeader $tmp_file
+    addHeader "$tmp_file"
 
-    while read line ; do
+    local rec url crc file_name new_crc
+
+    while read -r line ; do
       if [[ $line =~ patch:|patchset:|package: ]] ; then
-        local rec=(${line//\"/})
-
-        local url crc
+        rec=(${line//\"/})
 
         if [[ $line =~ patch:|patchset: ]] ; then
           url="${rec[1]}"
@@ -339,35 +339,35 @@ proc() {
 
         url=$(parseArgsInString "$url")
 
-        if [[ ${#crc} -eq 40 && ! $force ]] ; then
-          echo "  $line" >> $tmp_file && continue
+        if [[ ${#crc} -eq 40 && -z "$force" ]] ; then
+          echo "  $line" >> "$tmp_file" && continue
         fi
 
-        local file_name=$(basename $url)
+        file_name=$(basename $url)
 
         if ! checkPerms "FR" "$file_name" || [[ -n "$force" ]] ; then
-          curl -k --max-redirs 10 -L -# $url -o $file_name
+          curl -k --max-redirs 10 -L -# "$url" -o "$file_name"
         fi
 
-        local new_crc=$(makeCRC $file_name)
+        new_crc=$(makeCRC "$file_name")
 
-        [[ -n "$remove" ]] && rm -rf $file_name &> /dev/null
+        [[ -n "$remove" ]] && rm -rf "$file_name" &> /dev/null
 
         if [[ -n "$crc" ]] ; then
-          echo "  ${line//\"${crc}\"/\"${new_crc}\"}" >> $tmp_file
+          echo "  ${line//\"${crc}\"/\"${new_crc}\"}" >> "$tmp_file"
         else
-          echo "  ${line} \"${new_crc}\"" >> $tmp_file
+          echo "  ${line} \"${new_crc}\"" >> "$tmp_file"
         fi
       else
         if [[ ${line:0:1} != "#" ]] ; then
-          echo "$line" >> $tmp_file
+          echo "$line" >> "$tmp_file"
         fi
       fi
-    done < <(awk 1 $file)
+    done < <(awk 1 "$file")
 
-    cat $tmp_file > $file
+    cat "$tmp_file" > "$file"
 
-    rm -f $tmp_file
+    rm -f "$tmp_file"
 
     show "DONE" $GREEN
   done
@@ -380,21 +380,24 @@ proc() {
 # Code: No
 # Echo: No
 crc() {
+  local file crc url file_name
+
   if checkPerms "FR" "$1" ; then
-    local file="$1"
-    local crc=$(makeCRC $file)
+    file="$1"
+    crc=$(makeCRC "$file")
     show "${CL_BOLD}SHA1:${CL_NORM} $crc"
   elif [[ $1 =~ http:|https:|ftp: ]]; then
-    local url=$(parseArgsInString "$1")
-    local file_name=$(basename $url)
+    url=$(parseArgsInString "$1")
+    file_name=$(basename "$url")
 
     show "Downloading $file_name... "
-    curl -k --max-redirs 10 -L -# $url -o $file_name
+    
+    curl -k --max-redirs 10 -L -# "$url" -o "$file_name"
+    crc=$(makeCRC "$file_name")
 
-    local crc=$(makeCRC $file_name)
     show "${CL_BOLD}SHA1:${CL_NORM} $crc"
 
-    [[ -n "$remove" ]] && rm -rf $file_name &> /dev/null
+    [[ -n "$remove" ]] && rm -rf "$file_name" &> /dev/null
   else
     show "Can't make CRC checksum for file $1. File is not exist or not readable." $RED
     doExit 1
@@ -408,26 +411,29 @@ crc() {
 # Code: No
 # Echo: Name of directory in archive (String)
 unpack() {
-  local arch="$1"
+  local name arch
+
+  arch="$1"
 
   rm -rf .tmp &> /dev/null
   mkdir .tmp &> /dev/null
 
   if [[ $arch =~ .tar.gz$|.tgz$ ]] ; then
-    tar xzvf $arch -C .tmp &> /dev/null
+    tar xzvf "$arch" -C .tmp &> /dev/null
   elif [[ $arch =~ .tar.bz2$|.tbz2$ ]] ; then
-    tar xjvf $arch -C .tmp &> /dev/null
+    tar xjvf "$arch" -C .tmp &> /dev/null
   elif [[ $arch =~ .zip$ ]] ; then
-    unzip $arch -d .tmp &> /dev/null
+    unzip "$arch" -d .tmp &> /dev/null
   else
     echo "" && return 1
   fi
 
-  local name=$(ls .tmp)
-  mv .tmp/$name .
+  name=$(ls .tmp)
+  
+  mv ".tmp/$name" .
   rm -rf .tmp &> /dev/null
 
-  echo $name && return 0
+  echo "$name" && return 0
 }
 
 # Upload files to s3 bucket
