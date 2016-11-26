@@ -1398,7 +1398,7 @@ showMirrorList() {
 
   while read -r mirror ; do
     show "$mirror" $CYAN
-  done < (cat "$def_file" | grep "\[" | sed 's/[][]//g')
+  done < <(cat "$def_file" | grep "\[" | sed 's/[][]//g')
 }
 
 # Show list of all def files
