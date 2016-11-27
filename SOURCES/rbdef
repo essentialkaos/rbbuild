@@ -461,6 +461,9 @@ upload() {
     doExit 1
   fi
 
+  show "Uploading files to $bucket..."
+  show ""
+
   local file adds
 
   [[ -n "$public_uploads" ]] && adds="--acl-public "
@@ -468,9 +471,11 @@ upload() {
 
   for file in "$@" ; do
     if [[ -r "$file" ]] ; then
-      s3cmd "$adds" put "$file" "$bucket/"
+      s3cmd --no-preserve $adds put "$file" "$bucket/"
     fi
   done
+
+  show ""
 }
 
 # Generate SHA-1 checksum

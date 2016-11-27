@@ -254,7 +254,7 @@ main() {
 # Code: No
 # Echo: No
 prepDefFile() {
-  if [[ $1 =~ http:|https:|ftp: ]] ; then
+  if isRemoteDefFile "$1" ; then
     fetchRemoteDefFile "$1"
   else
     if ! checkPerms "FR" "$1" ; then
@@ -1492,7 +1492,7 @@ listDefs() {
 # Code: Yes
 # Echo: No
 isRemoteDefFile() {
-  if grep -q -E "(http|ftp)" "$def_file" ; then
+  if [[ $1 =~ http:|https:|ftp: ]] ; then
     return 0
   fi
 

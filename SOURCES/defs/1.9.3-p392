@@ -9,18 +9,18 @@ deps(rpm): autoconf glibc-devel ncurses-devel bison libffi-devel
 deps(deb): gcc make zlib1g-dev libreadline6-dev tk-dev ca-certificates
 deps(deb): autoconf libc6-dev libncurses5-dev bison libffi-dev
 
-CONFOPTS(openssl-1.0.1t): gcc --openssldir={prefix}/openssl/ssl zlib-dynamic no-krb5 shared
-MAKEOPTS(openssl-1.0.1t): -j 1
-PREFIX(openssl-1.0.1t): {prefix}/openssl
+CONFOPTS(openssl-1.0.2j): gcc --openssldir={prefix}/openssl/ssl zlib-dynamic no-krb5 shared
+MAKEOPTS(openssl-1.0.2j): -j 1
+PREFIX(openssl-1.0.2j): {prefix}/openssl
 
 CONFOPTS(ruby-1.9.3-p392): --with-openssl-dir={prefix}/openssl --disable-install-doc
 
 [default]
   package: "yaml-0.1.6" "http://pyyaml.org/download/libyaml/yaml-0.1.6.tar.gz" "f3d404e11bec3c4efcddfd14c42d46f1aabe0b5d"
-  package: "openssl-1.0.1t" "https://www.openssl.org/source/openssl-1.0.1t.tar.gz" "a684ba59d6721a90f354b1953e19611646be7e7d" openssl
+  package: "openssl-1.0.2j" "https://www.openssl.org/source/openssl-1.0.2j.tar.gz" "bdfbdb416942f666865fa48fe13c2d0e588df54f" openssl
   package: "ruby-1.9.3-p392" "https://ftp.ruby-lang.org/pub/ruby/1.9/ruby-1.9.3-p392.tar.gz" "ec75fcbd3b6b46ce6ec997ee4c86145b4abd5748"
 
 [essentialkaos]
   package: "yaml-0.1.6" "https://ruby.kaos.io/yaml-0.1.6.7z" "f223c0c924e9f7d598d83d3127e7aac362c2589f"
-  package: "openssl-1.0.1t" "https://ruby.kaos.io/openssl-1.0.1t.7z" "cb68a723e4663403dcea43aa49e4109bd791ba3f" openssl
+  package: "openssl-1.0.2j" "https://ruby.kaos.io/openssl-1.0.2j.7z" "a62e68921d9960c229d831d3cd8dc716ff9cd7ca" openssl
   package: "ruby-1.9.3-p392" "https://ruby.kaos.io/ruby-1.9.3-p392.7z" "802fb0e66a5430f0bd69d0df8b635c466c2abc60"
