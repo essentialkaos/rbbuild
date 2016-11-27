@@ -8,7 +8,7 @@
 # Code: No
 # Echo: No
 jrubyBuilder() {
-  checkVersionCompatibility "1.5.0"
+  checkVersionCompatibility "1.6.0"
 
   local pkg pkg_dir prfx fail
   local start_time end_time grc_time
@@ -24,6 +24,8 @@ jrubyBuilder() {
 
     showm "Building... "
 
+    [[ -n "$verbose" ]] && show ""
+
     start_time=$(now)
 
     exit_protect=true
@@ -32,29 +34,29 @@ jrubyBuilder() {
 
     if [[ -n "$verbose" ]] ; then
       { mkdir -p "$prfx"
-        [[ $? -ne 0 ]] && fail=true
+        [[ $? -ne 0 ]] && fail=true && break
         cp -r . "$prfx"
-        [[ $? -ne 0 ]] && fail=true
+        [[ $? -ne 0 ]] && fail=true && break
 
         pushd "$prfx/bin"
           ln -fs jruby ruby
-          [[ $? -ne 0 ]] && fail=true
-          show "./ruby gem install jruby-launcher"
+          [[ $? -ne 0 ]] && fail=true && break
+          showe "./ruby gem install jruby-launcher"
           ./ruby gem install jruby-launcher
-          [[ $? -ne 0 ]] && fail=true
+          [[ $? -ne 0 ]] && fail=true && break
         popd
       } >> "$output"
     else
       { mkdir -p "$prfx"
-        [[ $? -ne 0 ]] && fail=true
+        [[ $? -ne 0 ]] && fail=true && break
         cp -r . "$prfx"
-        [[ $? -ne 0 ]] && fail=true
+        [[ $? -ne 0 ]] && fail=true && break
 
         pushd "$prfx/bin"
           ln -fs jruby ruby
-          [[ $? -ne 0 ]] && fail=true
+          [[ $? -ne 0 ]] && fail=true && break
           ./ruby gem install jruby-launcher &> $verb_output
-          [[ $? -ne 0 ]] && fail=true
+          [[ $? -ne 0 ]] && fail=true && break
         popd
       } > "$log" 2>> "$output"
     fi

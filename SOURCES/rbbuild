@@ -112,13 +112,13 @@ os_kern=""
 # List of supported command line arguments (String)
 SUPPORTED_ARGS="dest_dir !help !usage mirror output prefix !quiet tmp threads 
  !verbose !ver !version !list cc_comp cxx_comp !mirror_list no_patch 
- !ignore_checksums dl_cache !rbenv !strict proxy svn_user svn_pass 
+ !ignore_checksums dl_cache !rbenv proxy svn_user svn_pass 
  !no_colors !debug name !yes"
 
 # List of supported short command line arguments (String)
 SHORT_ARGS="h:help d:!dest_dir m:mirror O:output p:prefix q:!quiet T:tmp 
  t:threads V:!verbose v:!version l:!list y:!yes P:proxy ml:!mirror_list 
- np:no_patch ic:!ignore_checksums dc:dl_cache r:!rbenv S:!strict su:svn_user 
+ np:no_patch ic:!ignore_checksums dc:dl_cache r:!rbenv su:svn_user 
  sp:svn_pass nc:!no_colors D:!debug rn:name cc:cc_comp cxx:cxx_comp"
 
 ################################################################################
@@ -1222,6 +1222,9 @@ unpackArchive() {
     show "" && doExit $ERROR_CANT_UNPACK
   fi
 
+  # Fix problem with "modification time in the future"
+  find . -type f -exec touch {} +
+
   spinnerOff
 
   end_time=$(now)
@@ -2029,6 +2032,16 @@ showm() {
   fi
 }
 
+# Show message about executed build command
+#
+# *: Command with arguments
+#
+# Code: No
+# Echo: No
+showe() {
+  show "\n${CL_BL_MAG}EXEC → ${CL_NORM}${CL_MAG}$*${CL_NORM}\n"
+}
+
 # Show formated message with option info
 #
 # 1: Option (String)
@@ -2084,7 +2097,6 @@ usage() {
   showo "--dl-cache, -dc"         "Path to download cache"                                                         "path"
   showo "--rbenv, -r"             "Automatically install to rbenv (${CL_GREEN}--prefix${CL_NORM} not required)"
   showo "--name, -rn"             "Define name of ruby in rbenv (${CL_GREEN}--rbenv${CL_NORM} required)"           "name"
-  showo "--strict, -S"            "Fail build if configure stage return non zero exit code"
   showo "--proxy, -P"             "Use HTTP proxy on given host and port"                                          "url"
   showo "--debug, -D"             "Don't remove build directory and other build data after installation"
   showo "--output, -O"            "Output path (default /dev/stdout)"                                              "path"

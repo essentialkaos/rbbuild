@@ -8,7 +8,7 @@
 # Code: No
 # Echo: No
 reeBuilder() {
-  checkVersionCompatibility "1.5.0"
+  checkVersionCompatibility "1.6.0"
 
   local pkg pkg_dir copts prfx fail
   local start_time end_time grc_time
@@ -27,6 +27,8 @@ reeBuilder() {
 
     showm "Building... "
 
+    [[ -n "$verbose" ]] && show ""
+
     start_time=$(now)
 
     exit_protect=true
@@ -36,13 +38,13 @@ reeBuilder() {
     mkdir -p "$prfx/lib/ruby/gems/1.8/gems"
 
     if [[ -n "$verbose" ]] ; then
-      { show "./installer --auto \"$prfx\" --dont-install-useful-gems \"$copts\""
+      { showe "./installer --auto \"$prfx\" --dont-install-useful-gems \"$copts\""
         ./installer --auto "$prfx" --dont-install-useful-gems "$copts"
-        [[ $? -ne 0 ]] && fail=true
+        [[ $? -ne 0 ]] && fail=true && break
       } &>> "$output"
     else
       { ./installer --auto "$prfx" --dont-install-useful-gems "$copts"
-        [[ $? -ne 0 ]] && fail=true
+        [[ $? -ne 0 ]] && fail=true && break
       } &>> "$log"
     fi
 

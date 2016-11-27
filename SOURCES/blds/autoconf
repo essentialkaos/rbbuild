@@ -8,7 +8,7 @@
 # Code: No
 # Echo: No
 autoconfBuilder() {
-  checkVersionCompatibility "1.5.0"
+  checkVersionCompatibility "1.6.0"
 
   local pkg pkg_dir fail
   local start_time end_time grc_time
@@ -24,6 +24,8 @@ autoconfBuilder() {
 
     showm "Autoconf... "
 
+    [[ -n "$verbose" ]] && show ""
+
     start_time=$(now)
 
     exit_protect=true
@@ -31,13 +33,13 @@ autoconfBuilder() {
     spinnerOn
 
     if [[ -n "$verbose" ]] ; then
-      { show "autoconf"
+      { showe "autoconf"
         autoconf
-        [[ $? -ne 0 ]] && fail=true
+        [[ $? -ne 0 ]] && fail=true && break
       } &>> "$output"
     else
       { autoconf
-        [[ $? -ne 0 ]] && fail=true
+        [[ $? -ne 0 ]] && fail=true && break
       } &>> "$log"
     fi
 

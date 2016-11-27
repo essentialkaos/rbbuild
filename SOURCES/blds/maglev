@@ -8,7 +8,7 @@
 # Code: No
 # Echo: No
 maglevBuilder() {
-  checkVersionCompatibility "1.2.0"
+  checkVersionCompatibility "1.6.0"
 
   local pkg pkg_dir iopts prfx fail
   local start_time end_time grc_time
@@ -22,7 +22,10 @@ maglevBuilder() {
   exportCompilerOpts
 
   pushd "$pkg_dir" &> /dev/null
+
     showm "Building... "
+
+    [[ -n "$verbose" ]] && show ""
 
     start_time=$(now)
 
@@ -32,25 +35,25 @@ maglevBuilder() {
 
     if [[ -n "$verbose" ]] ; then
       { mkdir -p "$prfx"
-        [[ $? -ne 0 ]] && fail=true
+        [[ $? -ne 0 ]] && fail=true && break
         cp -r . "$prfx"
-        [[ $? -ne 0 ]] && fail=true
+        [[ $? -ne 0 ]] && fail=true && break
 
         pushd "$prfx"
-          show "./install.sh $iopts"
+          showe "./install.sh $iopts"
           ./install.sh $iopts
-          [[ $? -ne 0 ]] && fail=true
+          [[ $? -ne 0 ]] && fail=true && break
         popd
       } &>> "$output"
     else
       { mkdir -p "$prfx"
-        [[ $? -ne 0 ]] && fail=true
+        [[ $? -ne 0 ]] && fail=true && break
         cp -r . "$prfx"
-        [[ $? -ne 0 ]] && fail=true
+        [[ $? -ne 0 ]] && fail=true && break
 
         pushd "$prfx"
           ./install.sh $iopts
-          [[ $? -ne 0 ]] && fail=true
+          [[ $? -ne 0 ]] && fail=true && break
         popd
       } &>> "$log"
     fi

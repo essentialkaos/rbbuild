@@ -22,6 +22,8 @@ topazBuilder() {
 
     showm "Building... "
 
+    [[ -n "$verbose" ]] && show ""
+
     start_time=$(now)
 
     exit_protect=true
@@ -30,24 +32,24 @@ topazBuilder() {
 
     if [[ -n "$verbose" ]] ; then
       { mkdir -p "$prfx"
-        [[ $? -ne 0 ]] && fail=true
+        [[ $? -ne 0 ]] && fail=true && break
         cp -r . "$prfx"
-        [[ $? -ne 0 ]] && fail=true
+        [[ $? -ne 0 ]] && fail=true && break
 
         pushd "$prfx/bin"
           ln -fs topaz ruby
-          [[ $? -ne 0 ]] && fail=true
+          [[ $? -ne 0 ]] && fail=true && break
         popd
       } &>> "$output"
     else
       { mkdir -p "$prfx"
-        [[ $? -ne 0 ]] && fail=true
+        [[ $? -ne 0 ]] && fail=true && break
         cp -r . "$prfx"
-        [[ $? -ne 0 ]] && fail=true
+        [[ $? -ne 0 ]] && fail=true && break
 
         pushd "$prfx/bin"
           ln -fs topaz ruby
-          [[ $? -ne 0 ]] && fail=true
+          [[ $? -ne 0 ]] && fail=true && break
         popd
       } &>> "$log"
     fi

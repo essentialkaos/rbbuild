@@ -8,7 +8,7 @@
 # Code: No
 # Echo: No
 mrubyBuilder() {
-  checkVersionCompatibility "1.5.0"
+  checkVersionCompatibility "1.6.0"
 
   local pkg pkg_dir prfx fail
   local start_time end_time grc_time
@@ -24,6 +24,8 @@ mrubyBuilder() {
 
     showm "Building... "
 
+    [[ -n "$verbose" ]] && show ""
+
     start_time=$(now)
 
     exit_protect=true
@@ -32,20 +34,20 @@ mrubyBuilder() {
 
     if [[ -n "$verbose" ]] ; then
       { mkdir -p "$prfx"
-        [[ $? -ne 0 ]] && fail=true
-        show "ruby ./minirake"
+        [[ $? -ne 0 ]] && fail=true && break
+        showe "ruby ./minirake"
         ruby ./minirake
-        [[ $? -ne 0 ]] && fail=true
+        [[ $? -ne 0 ]] && fail=true && break
         cp -r build/host/* "$prfx"
-        [[ $? -ne 0 ]] && fail=true
+        [[ $? -ne 0 ]] && fail=true && break
       } &>> "$output"
     else
       { mkdir -p "$prfx"
-        [[ $? -ne 0 ]] && fail=true
+        [[ $? -ne 0 ]] && fail=true && break
         ruby ./minirake
-        [[ $? -ne 0 ]] && fail=true
+        [[ $? -ne 0 ]] && fail=true && break
         cp -r build/host/* "$prfx"
-        [[ $? -ne 0 ]] && fail=true
+        [[ $? -ne 0 ]] && fail=true && break
       } &>> "$log"
     fi
 

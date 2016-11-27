@@ -8,7 +8,7 @@
 # Code: No
 # Echo: No
 rbxBuilder() {
-  checkVersionCompatibility "1.5.0"
+  checkVersionCompatibility "1.6.0"
 
   requireCompiler
 
@@ -30,6 +30,8 @@ rbxBuilder() {
 
     showm "Building... "
 
+    [[ -n "$verbose" ]] && show ""
+
     start_time=$(now)
 
     exit_protect=true
@@ -37,22 +39,23 @@ rbxBuilder() {
     spinnerOn
 
     if [[ $verbose ]] ; then
-      { show "bundle install"
+      { showe "bundle install"
         bundle install
-        [[ $? -ne 0 ]] && fail=true
-        show "./configure --prefix=$prfx $copts"
+        [[ $? -ne 0 ]] && fail=true && break
+        showe "./configure --prefix=$prfx $copts"
         ./configure --prefix="$prfx" $copts
-        [[ $? -ne 0 && $strict ]] && fail=true
+        [[ $? -ne 0 ]] && fail=true && break
+        showe "rake install $iopts --trace"
         rake install $iopts --trace
-        [[ $? -ne 0 ]] && fail=true
+        [[ $? -ne 0 ]] && fail=true && break
       } &>> "$output"
     else
       { bundle install
-        [[ $? -ne 0 ]] && fail=true
+        [[ $? -ne 0 ]] && fail=true && break
         ./configure --prefix="$prfx" $copts
-        [[ $? -ne 0 && $strict ]] && fail=true
+        [[ $? -ne 0 ]] && fail=true && break
         rake install $iopts
-        [[ $? -ne 0 ]] && fail=true
+        [[ $? -ne 0 ]] && fail=true && break
       } &>> "$log"
     fi
 

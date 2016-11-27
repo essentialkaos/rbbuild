@@ -8,7 +8,7 @@
 # Code: No
 # Echo: No
 rubyBuilder() {
-  checkVersionCompatibility "1.2.0"
+  checkVersionCompatibility "1.6.0"
 
   local pkg pkg_dir prfx ruby_bin fail installer
   local start_time end_time grc_time
@@ -22,6 +22,8 @@ rubyBuilder() {
   pushd "$pkg_dir" &> /dev/null
 
     showm "Building... "
+
+    [[ -n "$verbose" ]] && show ""
 
     start_time=$(now)
 
@@ -41,13 +43,13 @@ rubyBuilder() {
     spinnerOn
 
     if [[ -n "$verbose" ]] ; then
-      { show "$ruby_bin $installer"
+      { showe "$ruby_bin $installer"
         $ruby_bin "$installer"
-        [[ $? -ne 0 ]] && fail=true
+        [[ $? -ne 0 ]] && fail=true && break
       } &>> "$output"
     else
       { $ruby_bin "$installer"
-        [[ $? -ne 0 ]] && fail=true
+        [[ $? -ne 0 ]] && fail=true && break
       } &>> "$log"
     fi
 
