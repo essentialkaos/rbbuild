@@ -304,7 +304,7 @@ fetchRemoteDefFile() {
     end_time=$(now)
     grc_time=$(getGraceTime "$start_time" "$end_time")
 
-    show "${CL_GREEN}DONE${CL_NORM} ${CL_GREY}($grc_time)${CL_NORM}"
+    show "${CL_GREEN}DONE${CL_NORM} ${CL_DARK}($grc_time)${CL_NORM}"
 
   popd &> /dev/null
 
@@ -620,7 +620,7 @@ readDefinition() {
   end_time=$(now)
   grc_time=$(getGraceTime "$start_time" "$end_time")
 
-  show "${CL_GREEN}DONE${CL_NORM} ${CL_GREY}($grc_time)${CL_NORM}"
+  show "${CL_GREEN}DONE${CL_NORM} ${CL_DARK}($grc_time)${CL_NORM}"
 }
 
 # Read and exec actions in def file
@@ -883,7 +883,7 @@ installGitSource() {
     end_time=$(now)
     grc_time=$(getGraceTime "$start_time" "$end_time")
 
-    show "${CL_GREEN}DONE${CL_NORM} ${CL_GREY}($grc_time)${CL_NORM}"
+    show "${CL_GREEN}DONE${CL_NORM} ${CL_DARK}($grc_time)${CL_NORM}"
 
     pushd "$clone_dir" &> /dev/null
 
@@ -958,7 +958,7 @@ installSvnSource() {
     end_time=$(now)
     grc_time=$(getGraceTime "$start_time" "$end_time")
 
-    show "${CL_GREEN}DONE${CL_NORM} ${CL_GREY}($grc_time)${CL_NORM}"
+    show "${CL_GREEN}DONE${CL_NORM} ${CL_DARK}($grc_time)${CL_NORM}"
 
     pushd "$checkout_dir" &> /dev/null
 
@@ -1024,7 +1024,7 @@ installHgSource() {
     end_time=$(now)
     grc_time=$(getGraceTime "$start_time" "$end_time")
 
-    show "${CL_GREEN}DONE${CL_NORM} ${CL_GREY}($grc_time)${CL_NORM}"
+    show "${CL_GREEN}DONE${CL_NORM} ${CL_DARK}($grc_time)${CL_NORM}"
 
     pushd "$clone_dir" &> /dev/null
 
@@ -1222,15 +1222,12 @@ unpackArchive() {
     show "" && doExit $ERROR_CANT_UNPACK
   fi
 
-  # Fix problem with "modification time in the future"
-  find . -type f -exec touch {} +
-
   spinnerOff
 
   end_time=$(now)
   grc_time=$(getGraceTime "$start_time" "$end_time")
 
-  show "${CL_GREEN}DONE${CL_NORM} ${CL_GREY}($grc_time)${CL_NORM}"
+  show "${CL_GREEN}DONE${CL_NORM} ${CL_DARK}($grc_time)${CL_NORM}"
 }
 
 # Read additional information from def file
@@ -1468,7 +1465,7 @@ listDefs() {
     ruby_next=$(($ruby_count+1))
 
     if [[ "${ruby_list[$ruby_next]}" =~ \-railsexpress ]] ; then
-      ruby_ver=$(getAlignedColoredText "${ruby_list[$ruby_count]}${CL_GREY}-railsexpress${CL_NORM}" "${ruby_list[$ruby_count]}-railsexpress" 26)
+      ruby_ver=$(getAlignedColoredText "${ruby_list[$ruby_count]}${CL_DARK}-railsexpress${CL_NORM}" "${ruby_list[$ruby_count]}-railsexpress" 26)
       ruby_count=$(($ruby_count+2))
     else
       ruby_ver="${ruby_list[$ruby_count]}"

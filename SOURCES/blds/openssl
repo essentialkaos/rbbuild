@@ -20,6 +20,6 @@ opensslBuilder() {
 
   rm -rf "$ssl_dir/certs"
 
-  ln -s /etc/pki/tls/cert.pem "$ssl_dir/cert.pem"
-  ln -s /etc/pki/tls/certs "$ssl_dir/certs"
+  ln -sf /etc/pki/tls/cert.pem "$ssl_dir/cert.pem" &> /dev/null
+  ln -sf /etc/pki/tls/certs "$ssl_dir/certs" &> /dev/null
 }
