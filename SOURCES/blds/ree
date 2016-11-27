@@ -38,13 +38,17 @@ reeBuilder() {
     mkdir -p "$prfx/lib/ruby/gems/1.8/gems"
 
     if [[ -n "$verbose" ]] ; then
-      { showe "./installer --auto \"$prfx\" --dont-install-useful-gems \"$copts\""
-        ./installer --auto "$prfx" --dont-install-useful-gems "$copts"
-        [[ $? -ne 0 ]] && fail=true && break
+      {
+
+        showe "./installer --auto \"$prfx\" --dont-install-useful-gems \"$copts\""
+        ./installer --auto "$prfx" --dont-install-useful-gems "$copts" || fail=true
+
       } &>> "$output"
     else
-      { ./installer --auto "$prfx" --dont-install-useful-gems "$copts"
-        [[ $? -ne 0 ]] && fail=true && break
+      {
+
+        ./installer --auto "$prfx" --dont-install-useful-gems "$copts" || fail=true
+
       } &>> "$log"
     fi
 
@@ -59,7 +63,7 @@ reeBuilder() {
     end_time=$(now)
     grc_time=$(getGraceTime "$start_time" "$end_time")
 
-    show "${CL_GREEN}DONE${CL_NORM} ${CL_GREY}($grc_time)${CL_NORM}"
+    show "${CL_GREEN}DONE${CL_NORM} ${CL_DARK}($grc_time)${CL_NORM}"
 
     echo -n > "$log"
 

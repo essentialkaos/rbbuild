@@ -39,23 +39,39 @@ rbxBuilder() {
     spinnerOn
 
     if [[ $verbose ]] ; then
-      { showe "bundle install"
-        bundle install
-        [[ $? -ne 0 ]] && fail=true && break
-        showe "./configure --prefix=$prfx $copts"
-        ./configure --prefix="$prfx" $copts
-        [[ $? -ne 0 ]] && fail=true && break
-        showe "rake install $iopts --trace"
-        rake install $iopts --trace
-        [[ $? -ne 0 ]] && fail=true && break
+      {
+
+        if [[ -z "$fail" ]] ; then
+          showe "bundle install"
+          bundle install || fail=true
+        fi
+
+        if [[ -z "$fail" ]] ; then
+          showe "./configure --prefix=$prfx $copts"
+          ./configure --prefix="$prfx" $copts || fail=true
+        fi
+
+        if [[ -z "$fail" ]] ; then
+          showe "rake install $iopts --trace"
+          rake install $iopts --trace || fail=true
+        fi
+
       } &>> "$output"
     else
-      { bundle install
-        [[ $? -ne 0 ]] && fail=true && break
-        ./configure --prefix="$prfx" $copts
-        [[ $? -ne 0 ]] && fail=true && break
-        rake install $iopts
-        [[ $? -ne 0 ]] && fail=true && break
+      {
+
+        if [[ -z "$fail" ]] ; then
+          bundle install || fail=true
+        fi
+
+        if [[ -z "$fail" ]] ; then
+          ./configure --prefix="$prfx" $copts || fail=true
+        fi
+
+        if [[ -z "$fail" ]] ; then
+          rake install $iopts || fail=true
+        fi
+
       } &>> "$log"
     fi
 
@@ -70,7 +86,7 @@ rbxBuilder() {
     end_time=$(now)
     grc_time=$(getGraceTime "$start_time" "$end_time")
 
-    show "${CL_GREEN}DONE${CL_NORM} ${CL_GREY}($grc_time)${CL_NORM}"
+    show "${CL_GREEN}DONE${CL_NORM} ${CL_DARK}($grc_time)${CL_NORM}"
 
     echo -n > "$log"
 

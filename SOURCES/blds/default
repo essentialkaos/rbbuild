@@ -64,23 +64,37 @@ defaultBuilder() {
     spinnerOn
 
     if [[ -n "$verbose" ]] ; then
-      { showe "./$conf_file --prefix=$prfx $copts"
-        ./$conf_file --prefix="$prfx" $copts
-        [[ $? -ne 0 ]] && fail=true && break
-        showe "make $mopts"
-        make $mopts
-        [[ $? -ne 0 ]] && fail=true && break
-        showe "make install $iopts"
-        make install $iopts
-        [[ $? -ne 0 ]] && fail=true && break
+      {
+        if [[ -z "$fail" ]] ; then
+          showe "./$conf_file --prefix=$prfx $copts"
+          ./$conf_file --prefix="$prfx" $copts || fail=true
+        fi
+
+        if [[ -z "$fail" ]] ; then
+          showe "make $mopts"
+          make $mopts || fail=true
+        fi
+
+        if [[ -z "$fail" ]] ; then
+          showe "make install $iopts"
+          make install $iopts || fail=true
+        fi
+
       } &>> "$output"
     else
-      { ./$conf_file --prefix="$prfx" $copts
-        [[ $? -ne 0 ]] && fail=true && break
-        make $mopts
-        [[ $? -ne 0 ]] && fail=true && break
-        make install $iopts
-        [[ $? -ne 0 ]] && fail=true && break
+      {
+        if [[ -z "$fail" ]] ; then
+          ./$conf_file --prefix="$prfx" $copts || fail=true
+        fi
+
+        if [[ -z "$fail" ]] ; then
+          make $mopts || fail=true
+        fi
+
+        if [[ -z "$fail" ]] ; then
+          make install $iopts || fail=true
+        fi
+
       } &>> "$log"
     fi
 
@@ -95,7 +109,7 @@ defaultBuilder() {
     end_time=$(now)
     grc_time=$(getGraceTime "$start_time" "$end_time")
 
-    show "${CL_GREEN}DONE${CL_NORM} ${CL_GREY}($grc_time)${CL_NORM}"
+    show "${CL_GREEN}DONE${CL_NORM} ${CL_DARK}($grc_time)${CL_NORM}"
 
     echo -n > "$log"
 

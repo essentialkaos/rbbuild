@@ -43,13 +43,17 @@ rubyBuilder() {
     spinnerOn
 
     if [[ -n "$verbose" ]] ; then
-      { showe "$ruby_bin $installer"
-        $ruby_bin "$installer"
-        [[ $? -ne 0 ]] && fail=true && break
+      {
+
+        showe "$ruby_bin $installer"
+        $ruby_bin "$installer" || fail=true
+
       } &>> "$output"
     else
-      { $ruby_bin "$installer"
-        [[ $? -ne 0 ]] && fail=true && break
+      {
+
+        $ruby_bin "$installer" || fail=true
+
       } &>> "$log"
     fi
 
@@ -64,7 +68,7 @@ rubyBuilder() {
     end_time=$(now)
     grc_time=$(getGraceTime "$start_time" "$end_time")
 
-    show "${CL_GREEN}DONE${CL_NORM} ${CL_GREY}($grc_time)${CL_NORM}"
+    show "${CL_GREEN}DONE${CL_NORM} ${CL_DARK}($grc_time)${CL_NORM}"
 
     echo -n > "$log"
 

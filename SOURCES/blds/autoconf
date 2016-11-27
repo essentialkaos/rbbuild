@@ -33,13 +33,16 @@ autoconfBuilder() {
     spinnerOn
 
     if [[ -n "$verbose" ]] ; then
-      { showe "autoconf"
-        autoconf
-        [[ $? -ne 0 ]] && fail=true && break
+      {
+        showe "autoconf"
+        autoconf || fail=true
+
       } &>> "$output"
     else
-      { autoconf
-        [[ $? -ne 0 ]] && fail=true && break
+      {
+
+        autoconf || fail=true
+
       } &>> "$log"
     fi
 
@@ -54,7 +57,7 @@ autoconfBuilder() {
     end_time=$(now)
     grc_time=$(getGraceTime "$start_time" "$end_time")
 
-    show "${CL_GREEN}DONE${CL_NORM} ${CL_GREY}($grc_time)${CL_NORM}"
+    show "${CL_GREEN}DONE${CL_NORM} ${CL_DARK}($grc_time)${CL_NORM}"
 
     echo -n > "$log"
 

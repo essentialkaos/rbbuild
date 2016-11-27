@@ -33,21 +33,37 @@ mrubyBuilder() {
     spinnerOn
 
     if [[ -n "$verbose" ]] ; then
-      { mkdir -p "$prfx"
-        [[ $? -ne 0 ]] && fail=true && break
-        showe "ruby ./minirake"
-        ruby ./minirake
-        [[ $? -ne 0 ]] && fail=true && break
-        cp -r build/host/* "$prfx"
-        [[ $? -ne 0 ]] && fail=true && break
+      { 
+        
+        if [[ -z "$fail" ]] ; then
+          mkdir -p "$prfx" || fail=true
+        fi
+        
+        if [[ -z "$fail" ]] ; then
+          showe "ruby ./minirake"
+          ruby ./minirake || fail=true
+        fi
+        
+        if [[ -z "$fail" ]] ; then
+          cp -r build/host/* "$prfx" || fail=true
+        fi
+
       } &>> "$output"
     else
-      { mkdir -p "$prfx"
-        [[ $? -ne 0 ]] && fail=true && break
-        ruby ./minirake
-        [[ $? -ne 0 ]] && fail=true && break
-        cp -r build/host/* "$prfx"
-        [[ $? -ne 0 ]] && fail=true && break
+      { 
+        
+        if [[ -z "$fail" ]] ; then
+          mkdir -p "$prfx" || fail=true
+        fi
+        
+        if [[ -z "$fail" ]] ; then
+          ruby ./minirake || fail=true
+        fi
+       
+        if [[ -z "$fail" ]] ; then
+          cp -r build/host/* "$prfx" || fail=true
+        fi
+
       } &>> "$log"
     fi
 
@@ -69,7 +85,7 @@ mrubyBuilder() {
     end_time=$(now)
     grc_time=$(getGraceTime "$start_time" "$end_time")
 
-    show "${CL_GREEN}DONE${CL_NORM} ${CL_GREY}($grc_time)${CL_NORM}"
+    show "${CL_GREEN}DONE${CL_NORM} ${CL_DARK}($grc_time)${CL_NORM}"
 
     echo -n > "$log"
 

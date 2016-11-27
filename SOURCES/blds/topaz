@@ -31,25 +31,41 @@ topazBuilder() {
     spinnerOn
 
     if [[ -n "$verbose" ]] ; then
-      { mkdir -p "$prfx"
-        [[ $? -ne 0 ]] && fail=true && break
-        cp -r . "$prfx"
-        [[ $? -ne 0 ]] && fail=true && break
+      {
+
+        if [[ -z "$fail" ]] ; then
+          mkdir -p "$prfx" || fail=true
+        fi
+
+        if [[ -z "$fail" ]] ; then
+          cp -r . "$prfx" || fail=true
+        fi
 
         pushd "$prfx/bin"
-          ln -fs topaz ruby
-          [[ $? -ne 0 ]] && fail=true && break
+
+          if [[ -z "$fail" ]] ; then
+            ln -fs topaz ruby || fail=true
+          fi
+
         popd
       } &>> "$output"
     else
-      { mkdir -p "$prfx"
-        [[ $? -ne 0 ]] && fail=true && break
-        cp -r . "$prfx"
-        [[ $? -ne 0 ]] && fail=true && break
+      {
+
+        if [[ -z "$fail" ]] ; then
+          mkdir -p "$prfx" || fail=true
+        fi
+
+        if [[ -z "$fail" ]] ; then
+          cp -r . "$prfx" || fail=true
+        fi
 
         pushd "$prfx/bin"
-          ln -fs topaz ruby
-          [[ $? -ne 0 ]] && fail=true && break
+
+          if [[ -z "$fail" ]] ; then
+            ln -fs topaz ruby || fail=true
+          fi
+
         popd
       } &>> "$log"
     fi
@@ -65,7 +81,7 @@ topazBuilder() {
     end_time=$(now)
     grc_time=$(getGraceTime "$start_time" "$end_time")
 
-    show "${CL_GREEN}DONE${CL_NORM} ${CL_GREY}($grc_time)${CL_NORM}"
+    show "${CL_GREEN}DONE${CL_NORM} ${CL_DARK}($grc_time)${CL_NORM}"
 
     echo -n > "$log"
 
