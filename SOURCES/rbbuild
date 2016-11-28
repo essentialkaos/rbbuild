@@ -1697,12 +1697,18 @@ checkHTTPStatus() {
   url=$(parseArgsInString "$1")
 
   if [[ -z "$proxy" ]] ; then
-    status=$(curl --max-redirs "$MAX_REDIRS" -ILs "$url")
+    status=$(curl --max-redirs "$MAX_REDIRS" -LIks "$url")
   else
-    status=$(curl --max-redirs "$MAX_REDIRS" -x "$proxy" -ILs "$url")
+    status=$(curl --max-redirs "$MAX_REDIRS" -x "$proxy" -LIks "$url")
   fi
 
   code=$(echo "$status" | grep -Fi "HTTP" | cut -f2 -d" ")
+
+  if [[ -z "$code" ]] ; then
+    echo "-1"
+    return 0
+  fi
+
   location=$(echo "$status" | grep -Fi "Location" | cut -f2 -d" ")
 
   plocat[$url]="$location"
