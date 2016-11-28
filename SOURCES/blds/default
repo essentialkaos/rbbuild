@@ -56,7 +56,7 @@ defaultBuilder() {
       show "FAIL" $RED
       show ""
       show "Can't find configure file."
-      doExit "$ERROR_UNKNOWN"
+      doExit 1
     fi
 
     exit_protect=true

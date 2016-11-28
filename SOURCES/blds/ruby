@@ -35,7 +35,7 @@ rubyBuilder() {
       show "FAIL" $RED
       show ""
       show "Can't find installer file."
-      doExit "$ERROR_UNKNOWN"
+      doExit 1
     fi
 
     exit_protect=true

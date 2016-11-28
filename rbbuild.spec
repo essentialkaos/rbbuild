@@ -39,7 +39,7 @@ URL:             https://github.com/essentialkaos/rbbuild
 Source0:         https://source.kaos.io/%{name}/%{name}-%{version}.tar.bz2
 
 Requires:        %{name}-defs
-Requires:        gcc make p7zip
+Requires:        bash p7zip gawk
 
 BuildArch:       noarch
 BuildRoot:       %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)

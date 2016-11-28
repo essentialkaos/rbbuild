@@ -134,24 +134,6 @@ BLD_PATH="${DATA_PATH}/blds"
 
 TEMP_TEMPLATE="rbbuild-XXXXXXXXXX"
 
-ERROR_UNKNOWN=1
-ERROR_NO_DEF_DIR=2
-ERROR_NOT_FOUND_COMPILER=3
-ERROR_CANT_CREATE_TEMP=4
-ERROR_DEFFILE_NOT_FOUND=5
-ERROR_UNKNOWN_MIRROR=6
-ERROR_UNKNOWN_ACTION=7
-ERROR_HTTP_WRONG_STATUS=8
-ERROR_WRONG_CHECKSUM=9
-ERROR_CANT_UNPACK=10
-ERROR_DEPENDENCIES=11
-ERROR_NO_PREFIX=12
-ERROR_RBENV_NOT_INSTALLED=13
-ERROR_NOT_ENOUGH_PERMS=14
-ERROR_REPO=15
-ERROR_VERSION_MISMATCH=16
-ERROR_SECOND_PROC=17
-
 # Maximum lines from log for failed build (Number)
 LOG_TAIL_SIZE=30
 
@@ -214,7 +196,7 @@ main() {
   if [[ -z "$mirror_list" ]] ; then
     if [[ -z $prefix && -z "$rbenv" ]] ; then
       show "You must use --prefix (-p) argument for define install location." $RED
-      show "" && doExit $ERROR_NO_PREFIX
+      show "" && doExit 1
     fi
   fi
 
@@ -224,7 +206,7 @@ main() {
   if [[ -d $tmp ]] ; then
     if ! checkPerms "DRW" "$tmp" ; then
       show "You don't have enough permissions to use directory $tmp" $RED
-      show "" && doExit $ERROR_NOT_ENOUGH_PERMS
+      show "" && doExit 1
     fi
   fi
 
@@ -240,11 +222,13 @@ main() {
   checkEOLDates
   doBuild
 
-  [[ $? -eq 0 ]] && show "\nBuild process complete!" $GREEN
+  if [[ $? -ne 0 ]] ; then
+    show "" && doExit 1
+  fi
 
-  show ""
+  show "\nBuild process complete!\n" $GREEN
 
-  doExit
+  doExit 0
 }
 
 # Prepare def file
@@ -260,7 +244,7 @@ prepDefFile() {
     if ! checkPerms "FR" "$1" ; then
       if ! checkPerms "FR" "$DEF_PATH/$1" ; then
         show "Error! Definition file is not found!" $RED
-        show "" && doExit $ERROR_DEFFILE_NOT_FOUND
+        show "" && doExit 1
       else
         def_file=$(getAbsPath "$DEF_PATH/$1")
       fi
@@ -284,7 +268,7 @@ fetchRemoteDefFile() {
 
   if [[ "$status" != "200" ]] ; then
     show "Can't fetch remote definition file - server return error status <$status>." $RED
-    show "" && doExit $ERROR_DEFFILE_NOT_FOUND
+    show "" && doExit 1
   fi
 
   file_name=$(basename "$url")
@@ -335,7 +319,7 @@ doBuild() {
 
     if [[ -z "$rbenv_prefix" ]] ; then
       show "RBEnv data directory not found. Please define --prefix (-p) manually." $RED
-      show "" && doExit $ERROR_NO_PREFIX
+      show "" && doExit 1
     fi
 
     if [[ -z "$name" ]] ; then
@@ -371,6 +355,10 @@ doBuild() {
 
   checkBuildDeps
   readDefinition
+
+  if [[ $? -ne 0 ]] ; then
+    return 1
+  fi
 
   show "Executing defenition file actions... "
 
@@ -497,36 +485,42 @@ checkBuildDeps() {
     show ""
 
     if [[ -n "$rpm_list" ]] ; then
+      rpm_list=$(sortList "$rpm_list")
       show "Necessary packages is not found. To install dependencies run this command:"
-      show "sudo yum install $rpm_list" $BOLD
+      show "${CL_DARK}[sudo]${CL_NORM} ${CL_BOLD}yum install ${rpm_list}${CL_NORM}"
     fi
 
     if [[ -n "$deb_list" ]] ; then
+      deb_list=$(sortList "$deb_list")
       show "Necessary packages is not found. To install dependencies run this command:"
-      show "sudo apt-get install $deb_list" $BOLD
+      show "${CL_DARK}[sudo]${CL_NORM} ${CL_BOLD}apt-get install ${deb_list}${CL_NORM}"
     fi
 
     if [[ -n "$bin_list" ]] ; then
+      bin_list=$(sortList "$bin_list")
       show "Necessary binaries is not found. Please install packages contains this files:"
       show "$bin_list" $BOLD
     fi
 
     if [[ -n "$lib_list" ]] ; then
+      lib_list=$(sortList "$lib_list")
       show "Necessary libraries is not found. Please install packages contains this libraries:"
       show "$lib_list" $BOLD
     fi
 
     if [[ -n "$pip_list" ]] ; then
+      pip_list=$(sortList "$pip_list")
       show "Necessary python packages is not found. To install dependencies run this command:"
-      show "sudo pip install $pip_list" $BOLD
+      show "${CL_DARK}[sudo]${CL_NORM} ${CL_BOLD}pip install ${pip_list}${CL_NORM}"
     fi
 
     if [[ -n "$gem_list" ]] ; then
+      gem_list=$(sortList "$gem_list")
       show "Necessary gems is not found. To install dependencies run this command:"
-      show "sudo gem install $gem_list" $BOLD
+      show "${CL_DARK}[sudo]${CL_NORM} ${CL_BOLD}gem install ${gem_list}${CL_NORM}"
     fi
 
-    show "" && doExit $ERROR_DEPENDENCIES
+    show "" && doExit 1
   else
     show "DONE" $GREEN
   fi
@@ -597,12 +591,12 @@ checkEOLDates() {
 # Code: No
 # Echo: No
 readDefinition() {
-  local start_time end_time grc_time
+  local start_time end_time grc_time failed
 
   if ! grep -q "^\[$mirror\]" "$def_file" ; then
     show ""
     show "Error! Can't find mirror with name <$mirror>. Please check selected definition file." $RED
-    show "" && doExit $ERROR_UNKNOWN_MIRROR
+    show "" && doExit 1
   fi
 
   [[ $mirror != "default" ]] && show "\nYou use mirror ${CL_BOLD}$mirror${CL_NORM}\n" $CYAN
@@ -613,14 +607,21 @@ readDefinition() {
 
   start_time=$(now)
 
-  execDefinition true
+  execDefinition true || failed=true
 
   spinnerOff
+
+  if [[ -n "$failed" ]] ; then
+    show "FAIL" $RED
+    return 1
+  fi
 
   end_time=$(now)
   grc_time=$(getGraceTime "$start_time" "$end_time")
 
   show "${CL_GREEN}DONE${CL_NORM} ${CL_DARK}($grc_time)${CL_NORM}"
+
+  return 0
 }
 
 # Read and exec actions in def file
@@ -631,7 +632,7 @@ readDefinition() {
 # Echo: No
 execDefinition() {
   local check mirror_info line line_num
-  local fmtd cmnd action args
+  local fmtd cmnd action args failed
 
   check="$1"
   mirror_info=$(grep -n "^\[${mirror}\]" "$def_file" | cut -f1 -d":")
@@ -651,31 +652,31 @@ execDefinition() {
 
     if [[ -n "$check" ]] ; then
       case $action in
-        "patch")     checkRemoteFile "!" "${args[@]}" ;;
-        "patchset")  checkRemoteFile "!" "${args[@]}" ;;
-        "package")   checkRemoteFile     "${args[@]}" ;;
+        "patch")     checkRemoteFile "!" "${args[@]}" || failed=true ;;
+        "patchset")  checkRemoteFile "!" "${args[@]}" || failed=true ;;
+        "package")   checkRemoteFile     "${args[@]}" || failed=true ;;
         "git")       continue ;;
         "svn")       continue ;;
         "hg")        continue ;;
         *) show "Unknown action <$action>! Please check selected definition file." $RED
-           show "" && doExit $ERROR_UNKNOWN_ACTION ;;
+           show "" && doExit 1 ;;
       esac
     else
       mkPrefixDir
 
       case $action in
-        "patch")     installPatch     "${args[@]}" ;;
-        "patchset")  installPatchset  "${args[@]}" ;;
-        "package")   installPackage   "${args[@]}" ;;
-        "git")       installGitSource "${args[@]}" ;;
-        "svn")       installSvnSource "${args[@]}" ;;
-        "hg")        installHgSource  "${args[@]}" ;;
+        "patch")     installPatch     "${args[@]}" || failed=true ;;
+        "patchset")  installPatchset  "${args[@]}" || failed=true ;;
+        "package")   installPackage   "${args[@]}" || failed=true ;;
+        "git")       installGitSource "${args[@]}" || failed=true ;;
+        "svn")       installSvnSource "${args[@]}" || failed=true ;;
+        "hg")        installHgSource  "${args[@]}" || failed=true ;;
         *) show "Unknown action <$action>! Please check selected definition file." $RED
-           show "" && doExit $ERROR_UNKNOWN_ACTION ;;
+           show "" && doExit 1 ;;
       esac
     fi
 
-    [[ $? -ne 0 ]] && return $?
+    [[ -n "$failed" ]] && return 1
   done < <(awk 1 "$def_file")
 
   return 0
@@ -704,7 +705,7 @@ checkRemoteFile() {
     show "Server return error status ${CL_BOLD}<$status>${CL_NORM} for file ${CL_BOLD}<$url>${CL_NORM}."
     show "Try another mirror (use -ml argument for view all available mirrors)."
 
-    show "" && doExit $ERROR_HTTP_WRONG_STATUS
+    show "" && doExit 1
   fi
 }
 
@@ -738,7 +739,10 @@ installPatch() {
 
     show "\nFetching patch ${file_name}... "
 
-    fetchRemoteFile "$url" "$file_name"
+    if ! fetchRemoteFile "$url" "$file_name" ; then
+      return 1
+    fi
+
     checkCRC "$file_name" "$crc"
 
     require_patching=true
@@ -776,7 +780,10 @@ installPatchset() {
 
     show "\nFetching patchset ${file_name}... "
 
-    fetchRemoteFile "$url" "$file_name"
+    if ! fetchRemoteFile "$url" "$file_name" ; then
+      return 1
+    fi
+
     checkCRC "$file_name" "$crc"
     unpackArchive "$file_name"
 
@@ -812,7 +819,10 @@ installPackage() {
     show "\nInstalling ${CL_BOLD}${pkg}${CL_NORM}" $BROWN
     show "Fetching file ${file_name}... "
 
-    fetchRemoteFile "$url" "$file_name"
+    if ! fetchRemoteFile "$url" "$file_name" ; then
+      return 1
+    fi
+
     checkCRC "$file_name" "$crc"
 
     dir_list_1=$(ls -1 -d -- */ 2> /dev/null)
@@ -828,6 +838,8 @@ installPackage() {
     buildPackage "$pkg" "$pkg_dir" "$@"
 
   popd &> /dev/null
+
+  return 0
 }
 
 # Install sources from git repository
@@ -865,7 +877,7 @@ installGitSource() {
     if [[ $? -ne 0 ]] ; then
       show "FAIL" $RED
       show "Can't checkout git repository $url"
-      show "" && doExit $ERROR_REPO
+      show "" && doExit 1
     fi
 
     clone_dir=$(basename "$url" | sed 's/.git//')
@@ -950,7 +962,7 @@ installSvnSource() {
     if [[ $? -ne 0 ]] ; then
       show "FAIL" $RED
       show "Can't checkout git repository $url"
-      show "" && doExit $ERROR_REPO
+      show "" && doExit 1
     fi
 
     spinnerOff
@@ -1006,7 +1018,7 @@ installHgSource() {
     if [[ $? -ne 0 ]] ; then
       show "FAIL" $RED
       show "Can't checkout mercurial repository $url"
-      show "" && doExit $ERROR_REPO
+      show "" && doExit 1
     fi
 
     clone_dir=$(basename "$url")
@@ -1085,7 +1097,7 @@ mkPrefixDir() {
 
   if ! checkPerms "DRW" "$prefix" ; then
     show "You don't have enough permissions (read & write) to use directory $prefix" $RED
-    show "" && doExit $ERROR_NOT_ENOUGH_PERMS
+    show "" && doExit 1
   fi
 }
 
@@ -1118,7 +1130,7 @@ defBuildFlags() {
 # Code: No
 # Echo: No
 fetchRemoteFile() {
-  local url file_name cache_dir
+  local url file_name cache_dir failed
 
   url="$1"
   file_name="$2"
@@ -1128,16 +1140,24 @@ fetchRemoteFile() {
 
     [[ ! -d "$cache_dir" ]] && mkdir -p "$cache_dir"
 
-    if [[ ! -f $cache_dir/$file_name ]] ; then
+    if [[ ! -f "$cache_dir/$file_name" ]] ; then
       pushd "$cache_dir" &> /dev/null
-        download "$url" "$file_name"
+
+        download "$url" "$file_name" || failed=true
+
       popd &> /dev/null
     fi
 
-    cp "$cache_dir/$file_name" "$file_name"
+    if [[ -z "$failed" ]] ; then
+      cp "$cache_dir/$file_name" "$file_name" || failed=true
+    fi
   else
-    download "$url" "$file_name"
+    download "$url" "$file_name" || failed=true
   fi
+
+  [[ -n "$failed" ]] && return 1
+
+  return 0
 }
 
 # Check file checksum
@@ -1167,7 +1187,7 @@ checkCRC() {
     show "Checksum of the file <$filename> not equals to checksum from the definition file. Maybe file was changed." $RED
     show "You can use argument --ignore-checksums (-ic) for skipping this check." $CYAN
 
-    show "" && doExit $ERROR_WRONG_CHECKSUM
+    show "" && doExit 1
   fi
 }
 
@@ -1219,7 +1239,7 @@ unpackArchive() {
     rm -f "$arch"
   else
     show "Can't unpack file $arch. Exiting..." $RED
-    show "" && doExit $ERROR_CANT_UNPACK
+    show "" && doExit 1
   fi
 
   spinnerOff
@@ -1307,7 +1327,7 @@ buildPackage() {
     return $?
   else
     show "Error building package — builder <$builder_name> is not found." $RED
-    show "" && doExit $ERROR_UNKNOWN
+    show "" && doExit 1
   fi
 }
 
@@ -1372,7 +1392,7 @@ buildFailed() {
     show "\nLog saved to /tmp/rbbuild.log\n" $CYAN
   fi
 
-  doExit $ERROR_UNKNOWN
+  doExit 1
 }
 
 # Check builder compatibility
@@ -1388,7 +1408,7 @@ checkVersionCompatibility() {
     show "Can't build package - builder not compatible with current version of $APP core." $RED
     show "Builder required version $requiredVersion or higher, you have version $VER." $RED
 
-    show "" && doExit $ERROR_VERSION_MISMATCH
+    show "" && doExit 1
   fi
 }
 
@@ -1426,7 +1446,7 @@ listDefs() {
       defs_dir="$shrdir/rbbuild"
     else
       show "Can't show list of definition files - definitions not found." $RED
-      show "" && doExit $ERROR_NO_DEF_DIR
+      show "" && doExit 1
     fi
   fi
 
@@ -1626,7 +1646,7 @@ require() {
     if ! checkDeps "$app" ; then
       show ""
       show "Warning: This action required ${app}. Please install this application and try again." $BROWN
-      show "" && doExit $ERROR_DEPENDENCIES
+      show "" && doExit 1
     fi
   done
 }
@@ -1647,7 +1667,7 @@ requireCompiler() {
       if [[ $? -ne 0 ]] ; then
         show ""
         show "Warning: Compiler $complr is not found." $BROWN
-        show "" && doExit $ERROR_DEPENDENCIES
+        show "" && doExit 1
       fi
     done
   else
@@ -1656,7 +1676,7 @@ requireCompiler() {
     if [[ $? -ne 0 ]] ; then
       show ""
       show "Warning: For this package require compiler. Please install compiler (gcc/clang) and try again." $BROWN
-      show "" && doExit $ERROR_DEPENDENCIES
+      show "" && doExit 1
     fi
   fi
 }
@@ -1885,6 +1905,16 @@ getAlignedColoredText() {
   echo -e "${ctext}${align}"
 }
 
+# Sort items list
+#
+# *: Items
+#
+# Code: No
+# Echo: Sorted data (String)
+sortList() {
+  echo "$*" | tr " " "\n" | sort -h | tr "\n" " " | sed 's/ $//' | sed 's/^ //'
+}
+
 # Get 1 min load average
 #
 # Code: No
@@ -1922,7 +1952,7 @@ termExit() {
     kill -TERM "$PID" &> /dev/null
     unset exit_protect
   else
-    show "" && doExit $ERROR_UNKNOWN
+    show "" && doExit 1
   fi
 }
 
@@ -2002,7 +2032,7 @@ spinner() {
 # Echo: No
 showArgWarn() {
   show "Error! You used unsupport argument $1. Please check command syntax." $RED
-  exit "$ERROR_ARGUMENTS"
+  exit 1
 }
 
 # Show message
