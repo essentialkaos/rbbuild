@@ -488,39 +488,45 @@ checkBuildDeps() {
       rpm_list=$(sortList "$rpm_list")
       show "Necessary packages is not found. To install dependencies run this command:"
       show "${CL_DARK}[sudo]${CL_NORM} ${CL_BOLD}yum install ${rpm_list}${CL_NORM}"
+      show ""
     fi
 
     if [[ -n "$deb_list" ]] ; then
       deb_list=$(sortList "$deb_list")
       show "Necessary packages is not found. To install dependencies run this command:"
       show "${CL_DARK}[sudo]${CL_NORM} ${CL_BOLD}apt-get install ${deb_list}${CL_NORM}"
+      show ""
     fi
 
     if [[ -n "$bin_list" ]] ; then
       bin_list=$(sortList "$bin_list")
       show "Necessary binaries is not found. Please install packages contains this files:"
       show "$bin_list" $BOLD
+      show ""
     fi
 
     if [[ -n "$lib_list" ]] ; then
       lib_list=$(sortList "$lib_list")
       show "Necessary libraries is not found. Please install packages contains this libraries:"
       show "$lib_list" $BOLD
+      show ""
     fi
 
     if [[ -n "$pip_list" ]] ; then
       pip_list=$(sortList "$pip_list")
       show "Necessary python packages is not found. To install dependencies run this command:"
       show "${CL_DARK}[sudo]${CL_NORM} ${CL_BOLD}pip install ${pip_list}${CL_NORM}"
+      show ""
     fi
 
     if [[ -n "$gem_list" ]] ; then
       gem_list=$(sortList "$gem_list")
       show "Necessary gems is not found. To install dependencies run this command:"
       show "${CL_DARK}[sudo]${CL_NORM} ${CL_BOLD}gem install ${gem_list}${CL_NORM}"
+      show ""
     fi
 
-    show "" && doExit 1
+    doExit 1
   else
     show "DONE" $GREEN
   fi
