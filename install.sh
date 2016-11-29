@@ -184,9 +184,9 @@ action() {
   shift 1
 
   if [[ $debug ]] ; then
-    "$@"
+    $@
   else
-    "$@" &> /dev/null
+    $@ &> /dev/null
   fi
 
   if [[ $? -ne 0 ]] ; then
