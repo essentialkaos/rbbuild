@@ -29,7 +29,7 @@
 We provide simple bash script `script.sh` for installing app from the sources.
 
 ```
-... install gcc, make and 7zip
+... install gcc, bash and gawk
 
 git clone https://github.com/essentialkaos/rbbuild.git
 cd rbbuild
