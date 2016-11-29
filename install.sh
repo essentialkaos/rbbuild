@@ -129,7 +129,7 @@ doInstall() {
 
   confirmInstall "RBBuild"
 
-  require "gcc"
+  require "p7zip"
   require "bash"
   require "gawk"
 
