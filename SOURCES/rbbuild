@@ -203,12 +203,14 @@ main() {
   [[ -n "$quiet" ]] && output=/dev/null
   [[ -n "$verbose" ]] && verb_output=$output
 
-  if [[ -d $tmp ]] ; then
+  if [[ -d "$tmp" ]] ; then
     if ! checkPerms "DRW" "$tmp" ; then
       show "You don't have enough permissions to use directory $tmp" $RED
       show "" && doExit 1
     fi
   fi
+
+  [[ -n "$rbenv" ]] && require "rbenv"
 
   tmp_dir=$(mktemp -d ${tmp}/$TEMP_TEMPLATE)
   log="${tmp_dir}/build.log"
@@ -312,8 +314,6 @@ doBuild() {
   fi
 
   if [[ -n "$rbenv" ]] ; then
-    require "rbenv"
-
     file_name=$(basename "$def_file")
     rbenv_prefix=$(getRBEnvPrefix)
 
@@ -1650,9 +1650,8 @@ require() {
 
   for app in "$@" ; do
     if ! checkDeps "$app" ; then
-      show ""
-      show "Warning: This action required ${app}. Please install this application and try again." $BROWN
-      show "" && doExit 1
+      show "\nWarning: This action required ${app}. Please install this application and try again.\n" $BROWN
+      doExit 1
     fi
   done
 }
