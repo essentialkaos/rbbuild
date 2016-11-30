@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Start rubinius builder
 #
 # 1: Package name (String)
@@ -6,50 +8,71 @@
 # Code: No
 # Echo: No
 rbxBuilder() {
-  checkVersionCompatibility "1.5.0"
+  checkVersionCompatibility "1.6.0"
 
   requireCompiler
 
-  local pkg="$1"
-  local pkg_dir="$2"
+  local pkg pkg_dir copts iopts prfx fail
+  local start_time end_time grc_time
 
-  local copts="${CONFOPTS}"
-  local iopts="${INSTOPTS}"
-  local prfx="${XPREFIX:-${prefix}}"
+  pkg="$1"
+  pkg_dir="$2"
+
+  copts="${CONFOPTS}"
+  iopts="${INSTOPTS}"
+  prfx="${XPREFIX:-${prefix}}"
 
   exportCompilerOpts
 
-  [[ -z $gem_prefix ]] && gem_prefix="$prfx"
+  [[ -z "$gem_prefix" ]] && gem_prefix="$prfx"
 
-  pushd $pkg_dir &> /dev/null
+  pushd "$pkg_dir" &> /dev/null
 
     showm "Building... "
 
-    local start_time=`now`
-    local fail
+    [[ -n "$verbose" ]] && show ""
+
+    start_time=$(now)
 
     exit_protect=true
 
     spinnerOn
 
     if [[ $verbose ]] ; then
-      { show "bundle install"
-        bundle install
-        [[ $? -ne 0 ]] && fail=true
-        show "./configure --prefix=$prfx $copts"
-        ./configure --prefix=$prfx $copts
-        [[ $? -ne 0 && $strict ]] && fail=true
-        rake install $iopts --trace
-        [[ $? -ne 0 ]] && fail=true
-      } &>> $output
+      {
+
+        if [[ -z "$fail" ]] ; then
+          showe "bundle install"
+          bundle install || fail=true
+        fi
+
+        if [[ -z "$fail" ]] ; then
+          showe "./configure --prefix=$prfx $copts"
+          ./configure --prefix="$prfx" $copts || fail=true
+        fi
+
+        if [[ -z "$fail" ]] ; then
+          showe "rake install $iopts --trace"
+          rake install $iopts --trace || fail=true
+        fi
+
+      } &>> "$output"
     else
-      { bundle install
-        [[ $? -ne 0 ]] && fail=true
-        ./configure --prefix=$prfx $copts
-        [[ $? -ne 0 && $strict ]] && fail=true
-        rake install $iopts
-        [[ $? -ne 0 ]] && fail=true
-      } &>> $log
+      {
+
+        if [[ -z "$fail" ]] ; then
+          bundle install || fail=true
+        fi
+
+        if [[ -z "$fail" ]] ; then
+          ./configure --prefix="$prfx" $copts || fail=true
+        fi
+
+        if [[ -z "$fail" ]] ; then
+          rake install $iopts || fail=true
+        fi
+
+      } &>> "$log"
     fi
 
     spinnerOff
@@ -60,12 +83,12 @@ rbxBuilder() {
       return 1
     fi
 
-    local end_time=`now`
-    local grc_time=`getGraceTime "$start_time" "$end_time"`
+    end_time=$(now)
+    grc_time=$(getGraceTime "$start_time" "$end_time")
 
-    show "${CL_GREEN}DONE${CL_NORM} ${CL_GREY}($grc_time)${CL_NORM}"
+    show "${CL_GREEN}DONE${CL_NORM} ${CL_DARK}($grc_time)${CL_NORM}"
 
-    echo -n > $log
+    echo -n > "$log"
 
     unset exit_protect
 

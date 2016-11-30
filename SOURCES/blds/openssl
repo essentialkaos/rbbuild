@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Start OpenSSL builder
 #
 # Code: No
@@ -7,17 +9,17 @@ opensslBuilder() {
 
   if ! hasBuilder "default" ; then
     show "This build process require default builder."
-    doExit $ERROR_UNKNOWN
+    doExit 1
   fi
 
-  runBuilder "default" $@
+  runBuilder "default" "$@"
 
   local ssl_dir="$prefix/openssl/ssl"
 
   [[ ! -f /etc/pki/tls/cert.pem ]] && return 0
 
-  rm -rf $ssl_dir/certs
+  rm -rf "$ssl_dir/certs"
 
-  ln -s /etc/pki/tls/cert.pem $ssl_dir/cert.pem
-  ln -s /etc/pki/tls/certs $ssl_dir/certs
+  ln -sf /etc/pki/tls/cert.pem "$ssl_dir/cert.pem" &> /dev/null
+  ln -sf /etc/pki/tls/certs "$ssl_dir/certs" &> /dev/null
 }

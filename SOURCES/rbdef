@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 
-########################################################################################
+################################################################################
 
 # App name (String)
 APP="RBBuild Def Utils"
 
 # App version (String)
-VER="1.3.0"
+VER="1.4.0"
 
-########################################################################################
+################################################################################
 
 NORM=0
 BOLD=1
@@ -20,6 +20,7 @@ BLUE=34
 MAG=35
 CYAN=36
 GREY=37
+DARK=90
 
 CL_NORM="\e[${NORM}m"
 CL_BOLD="\e[${BOLD}m"
@@ -31,6 +32,7 @@ CL_BLUE="\e[${BLUE}m"
 CL_MAG="\e[${MAG}m"
 CL_CYAN="\e[${CYAN}m"
 CL_GREY="\e[${GREY}m"
+CL_DARK="\e[${DARK}m"
 CL_BL_RED="\e[${RED};1m"
 CL_BL_GREEN="\e[${GREEN};1m"
 CL_BL_BROWN="\e[${BROWN};1m"
@@ -38,6 +40,7 @@ CL_BL_BLUE="\e[${BLUE};1m"
 CL_BL_MAG="\e[${MAG};1m"
 CL_BL_CYAN="\e[${CYAN};1m"
 CL_BL_GREY="\e[${GREY};1m"
+CL_BL_DARK="\e[${DARK};1m"
 CL_UL_RED="\e[${RED};4m"
 CL_UL_GREEN="\e[${GREEN};4m"
 CL_UL_BROWN="\e[${BROWN};4m"
@@ -45,6 +48,7 @@ CL_UL_BLUE="\e[${BLUE};4m"
 CL_UL_MAG="\e[${MAG};4m"
 CL_UL_CYAN="\e[${CYAN};4m"
 CL_UL_GREY="\e[${GREY};4m"
+CL_UL_DARK="\e[${DARK};4m"
 CL_BG_RED="\e[${RED};7m"
 CL_BG_GREEN="\e[${GREEN};7m"
 CL_BG_BROWN="\e[${BROWN};7m"
@@ -52,6 +56,7 @@ CL_BG_BLUE="\e[${BLUE};7m"
 CL_BG_MAG="\e[${MAG};7m"
 CL_BG_CYAN="\e[${CYAN};7m"
 CL_BG_GREY="\e[${GREY};7m"
+CL_BG_DARK="\e[${DARK};7m"
 
 ## OS NAMES ####################################################################
 
@@ -107,16 +112,16 @@ os_kern=""
 
 # List of supported command line arguments (String)
 SUPPORTED_ARGS="!help !usage !version !ver !remove !force author bucket 
- !public_uploads !reduced_redundancy"
+ !public_uploads !reduced_redundancy !no_colors"
 
 # List of supported short command line arguments (String)
 SHORT_ARGS="h:!help v:!version r:!remove f:!force rr:!reduced_redundancy 
- pu:!public_uploads a:author b:bucket"
+ pu:!public_uploads a:author b:bucket nc:!no_colors"
 
 ARCH_TYPES=(".tar.gz" ".tgz" ".tar.bz2" ".tbz2" ".tb2" ".tbz" "tar.xz" ".txz" ".zip" ".7z")
 PATCH_TYPES=(".patch" ".diff")
 
-PREFS_FILE="~/.rbdef"
+PREFS_FILE="$HOME/.rbdef"
 
 # Current working dir (String)
 CWD=$(pwd)
@@ -137,6 +142,14 @@ reduced_redundancy=""
 # Code: No
 # Echo: No
 main() {
+  if [[ ! -t 1 || -n "$no_colors" ]] ; then
+    unset NORM BOLD UNLN RED GREEN BROWN BLUE MAG CYAN GREY DARK
+    unset CL_NORM CL_BOLD CL_UNLN CL_RED CL_GREEN CL_BROWN CL_BLUE CL_MAG CL_CYAN CL_GREY CL_DARK
+    unset CL_BL_RED CL_BL_GREEN CL_BL_BROWN CL_BL_BLUE CL_BL_MAG CL_BL_CYAN CL_BL_GREY CL_BL_DARK
+    unset CL_UL_RED CL_UL_GREEN CL_UL_BROWN CL_UL_BLUE CL_UL_MAG CL_UL_CYAN CL_UL_GREY CL_UL_DARK
+    unset CL_BG_RED CL_BG_GREEN CL_BG_BROWN CL_BG_BLUE CL_BG_MAG CL_BG_CYAN CL_BG_GREY CL_BG_DARK
+  fi
+
   [[ -n "$version" || -n "$ver" ]] && about && doExit
   [[ $# -eq 0 || -n "$help" || -n "$usage" ]] && usage && doExit
 
@@ -147,12 +160,12 @@ main() {
   detectOs
 
   case $cmnd in
-    "repack")  repack $@ ;;
-    "replace") replace $@ ;;
-    "crc")     crc $@ ;;
-    "rec")     getRecord $@ ;;
-    "proc")    proc $@ ;;
-    "upload")  upload $@ ;;
+    "repack")  repack "$@" ;;
+    "replace") replace "$@" ;;
+    "crc")     crc "$@" ;;
+    "rec")     getRecord "$@" ;;
+    "proc")    proc "$@" ;;
+    "upload")  upload "$@" ;;
     *) show "Unknown command $cmnd" $RED ;;
   esac
 
@@ -166,18 +179,18 @@ main() {
 # Code: No
 # Echo: No
 repack() {
-  local file
+  local file url file_name arch_dir
 
-  for file in $@ ; do
+  for file in "$@" ; do
     if [[ $file =~ http:|https:|ftp: ]] ; then
-      local url=$(parseArgsInString "$file")
-      local file_name=$(basename $url)
+      url=$(parseArgsInString "$file")
+      file_name=$(basename "$url")
 
       show "Downloading ${CL_BOLD}$file_name${CL_NORM}... "
 
-      curl -k --max-redirs 10 -L -# $url -o $file_name
-    elif checkPerms "FR" $file ; then
-      local file_name="$file"
+      curl -k --max-redirs 10 -L -# "$url" -o "$file_name"
+    elif checkPerms "FR" "$file" ; then
+      file_name="$file"
     else
       show "Can't find file for repack." $RED
       doExit 1
@@ -185,9 +198,9 @@ repack() {
 
     showm "Unpacking file ${CL_BOLD}$file_name${CL_NORM}... "
 
-    local arch_dir=$(unpack $file_name)
+    arch_dir=$(unpack "$file_name")
 
-    if [[ ! $arch_dir ]] ; then
+    if [[ -z "$arch_dir" ]] ; then
       show "FAIL" $RED
       show "Can't unpack file $file_name. Exiting..." $RED
       doExit 1
@@ -196,16 +209,16 @@ repack() {
     show "DONE" $GREEN
     showm "Packing to ${CL_BOLD}$arch_dir.7z${CL_NORM}... "
 
-    rm -rf $arch_dir.7z &> /dev/null
-    7za a -t7z -mx=9 $arch_dir.7z $arch_dir &> /dev/null
+    rm -rf "$arch_dir.7z" &> /dev/null
+    7za a -t7z -mx=9 "$arch_dir.7z" "$arch_dir" &> /dev/null
 
     show "DONE" $GREEN
 
-    [[ -n "$remove" ]] && rm -rf $file_name &> /dev/null
+    [[ -n "$remove" ]] && rm -rf "$file_name" &> /dev/null
 
-    rm -rf $arch_dir &> /dev/null
+    rm -rf "$arch_dir" &> /dev/null
 
-    crc $arch_dir.7z
+    crc "$arch_dir.7z"
   done
 }
 
@@ -216,16 +229,18 @@ repack() {
 # Code: No
 # Echo: rbdef data record (String)
 getRecord() {
-  local url=$(parseArgsInString "$1")
-  local file_name=$(basename $url)
-  local file_type=$(getFileType $file_name)
+  local url file_name file_type checksum
 
-  if [[ "$file_name" != "git" || "$file_name" != "hg" || "$file_name" != "svn" ]] ; then
+  url=$(parseArgsInString "$1")
+  file_name=$(basename "$url")
+  file_type=$(getFileType "$file_name")
+
+  if [[ "$file_name" != "git" && "$file_name" != "hg" && "$file_name" != "svn" ]] ; then
     show "Downloading ${CL_BOLD}$file_name${CL_NORM}... "
 
-    curl -k --max-redirs 10 -L -# $url -o $file_name
+    curl -k --max-redirs 10 -L -# "$url" -o "$file_name"
 
-    local checksum=$(makeCRC $file_name)
+    checksum=$(makeCRC "$file_name")
 
     show "Record:" $BOLD
 
@@ -235,7 +250,7 @@ getRecord() {
       show "  $file_type: \"$url\" \"$checksum\""
     fi
 
-    rm -rf $file_name &> /dev/null
+    rm -rf "$file_name" &> /dev/null
   else
     show "Can't generate record for repo." $RED
     doExit 1
@@ -249,22 +264,22 @@ getRecord() {
 # Code: No
 # Echo: No
 replace() {
-  local line_num tmp_file orig_file
+  local line_num tmp_file orig_file target_name
 
   show "Enter search pattern:" $CYAN
-  read -e -p "> " pattern_answer
+  read -r -e -p "> " pattern_answer
   show ""
 
   show "Enter replace string:" $CYAN
-  read -e -p "> " replace_answer
+  read -r -e -p "> " replace_answer
   show ""
 
-  for file in $@ ; do
-    local target_name=$(basename $file)
+  for file in "$@" ; do
+    target_name=$(basename "$file")
 
     showm "Processing file ${CL_BOLD}$target_name${CL_NORM}... "
 
-    if ! checkPerms "FRW" $file ; then
+    if ! checkPerms "FRW" "$file" ; then
       show "FAIL" $RED
       show "You don't have enough permissions for modify file $file" $RED
       continue
@@ -273,25 +288,26 @@ replace() {
     tmp_file=$(mktemp)
     orig_file=$(mktemp)
 
-    grep -v "#" $file >> $orig_file
-    grep -v "#" $file >> $tmp_file
+    grep -v "#" "$file" >> "$orig_file"
+    grep -v "#" "$file" >> "$tmp_file"
 
-    if [[ -n $(grep "$pattern_answer" $orig_file) ]] ; then
-      line_num=$(grep -n "$pattern_answer" $orig_file | head -1 | cut -f1 -d":")
+    if grep -q "$pattern_answer" "$orig_file" ; then
+      line_num=$(grep -n "$pattern_answer" "$orig_file" | head -1 | cut -f1 -d":")
 
       for line in $line_num ; do
         replaceLine "$line_num" "$replace_answer" "$tmp_file"
       done
 
-      echo -n > $file
-      addHeader $file
-      cat $tmp_file >> $file
-      rm -f $tmp_file $orig_file &> /dev/null
+      echo -n > "$file"
+      addHeader "$file"
+
+      cat "$tmp_file" >> "$file"
+      rm -f "$tmp_file" "$orig_file" &> /dev/null
 
       show "DONE" $GREEN
     else
       show "NOT FOUND" $BROWN
-      rm -f $tmp_file $orig_file &> /dev/null
+      rm -f "$tmp_file" "$orig_file" &> /dev/null
     fi
   done
 }
@@ -303,10 +319,10 @@ replace() {
 # Code: No
 # Echo: No
 proc() {
-  local line tmp_file
+  local line tmp_file target_name
 
-  for file in $@ ; do
-    local target_name=$(basename $file)
+  for file in "$@" ; do
+    target_name=$(basename "$file")
 
     show "Processing file ${CL_BOLD}$target_name${CL_NORM}... "
 
@@ -318,13 +334,13 @@ proc() {
 
     tmp_file=$(mktemp)
 
-    addHeader $tmp_file
+    addHeader "$tmp_file"
 
-    while read line ; do
+    local rec url crc file_name new_crc
+
+    while read -r line ; do
       if [[ $line =~ patch:|patchset:|package: ]] ; then
-        local rec=(${line//\"/})
-
-        local url crc
+        rec=(${line//\"/})
 
         if [[ $line =~ patch:|patchset: ]] ; then
           url="${rec[1]}"
@@ -336,35 +352,35 @@ proc() {
 
         url=$(parseArgsInString "$url")
 
-        if [[ ${#crc} -eq 40 && ! $force ]] ; then
-          echo "  $line" >> $tmp_file && continue
+        if [[ ${#crc} -eq 40 && -z "$force" ]] ; then
+          echo "  $line" >> "$tmp_file" && continue
         fi
 
-        local file_name=$(basename $url)
+        file_name=$(basename "$url")
 
         if ! checkPerms "FR" "$file_name" || [[ -n "$force" ]] ; then
-          curl -k --max-redirs 10 -L -# $url -o $file_name
+          curl -k --max-redirs 10 -L -# "$url" -o "$file_name"
         fi
 
-        local new_crc=$(makeCRC $file_name)
+        new_crc=$(makeCRC "$file_name")
 
-        [[ -n "$remove" ]] && rm -rf $file_name &> /dev/null
+        [[ -n "$remove" ]] && rm -rf "$file_name" &> /dev/null
 
         if [[ -n "$crc" ]] ; then
-          echo "  ${line//\"${crc}\"/\"${new_crc}\"}" >> $tmp_file
+          echo "  ${line//\"${crc}\"/\"${new_crc}\"}" >> "$tmp_file"
         else
-          echo "  ${line} \"${new_crc}\"" >> $tmp_file
+          echo "  ${line} \"${new_crc}\"" >> "$tmp_file"
         fi
       else
         if [[ ${line:0:1} != "#" ]] ; then
-          echo "$line" >> $tmp_file
+          echo "$line" >> "$tmp_file"
         fi
       fi
-    done < <(awk 1 $file)
+    done < <(awk 1 "$file")
 
-    cat $tmp_file > $file
+    cat "$tmp_file" > "$file"
 
-    rm -f $tmp_file
+    rm -f "$tmp_file"
 
     show "DONE" $GREEN
   done
@@ -377,21 +393,24 @@ proc() {
 # Code: No
 # Echo: No
 crc() {
+  local file crc url file_name
+
   if checkPerms "FR" "$1" ; then
-    local file="$1"
-    local crc=$(makeCRC $file)
+    file="$1"
+    crc=$(makeCRC "$file")
     show "${CL_BOLD}SHA1:${CL_NORM} $crc"
   elif [[ $1 =~ http:|https:|ftp: ]]; then
-    local url=$(parseArgsInString "$1")
-    local file_name=$(basename $url)
+    url=$(parseArgsInString "$1")
+    file_name=$(basename "$url")
 
     show "Downloading $file_name... "
-    curl -k --max-redirs 10 -L -# $url -o $file_name
 
-    local crc=$(makeCRC $file_name)
+    curl -k --max-redirs 10 -L -# "$url" -o "$file_name"
+    crc=$(makeCRC "$file_name")
+
     show "${CL_BOLD}SHA1:${CL_NORM} $crc"
 
-    [[ -n "$remove" ]] && rm -rf $file_name &> /dev/null
+    [[ -n "$remove" ]] && rm -rf "$file_name" &> /dev/null
   else
     show "Can't make CRC checksum for file $1. File is not exist or not readable." $RED
     doExit 1
@@ -405,26 +424,29 @@ crc() {
 # Code: No
 # Echo: Name of directory in archive (String)
 unpack() {
-  local arch="$1"
+  local name arch
+
+  arch="$1"
 
   rm -rf .tmp &> /dev/null
   mkdir .tmp &> /dev/null
 
   if [[ $arch =~ .tar.gz$|.tgz$ ]] ; then
-    tar xzvf $arch -C .tmp &> /dev/null
+    tar xzvf "$arch" -C .tmp &> /dev/null
   elif [[ $arch =~ .tar.bz2$|.tbz2$ ]] ; then
-    tar xjvf $arch -C .tmp &> /dev/null
+    tar xjvf "$arch" -C .tmp &> /dev/null
   elif [[ $arch =~ .zip$ ]] ; then
-    unzip $arch -d .tmp &> /dev/null
+    unzip "$arch" -d .tmp &> /dev/null
   else
     echo "" && return 1
   fi
 
-  local name=$(ls .tmp)
-  mv .tmp/$name .
+  name=$(ls .tmp)
+
+  mv ".tmp/$name" .
   rm -rf .tmp &> /dev/null
 
-  echo $name && return 0
+  echo "$name" && return 0
 }
 
 # Upload files to s3 bucket
@@ -434,21 +456,26 @@ unpack() {
 # Code: No
 # Echo: No
 upload() {
-  if [[ ! $bucket ]] ; then
+  if [[ -z "$bucket" ]] ; then
     show "Please define <bucket> property in preferencies file before upload." $BROWN
     doExit 1
   fi
+
+  show "Uploading files to $bucket..."
+  show ""
 
   local file adds
 
   [[ -n "$public_uploads" ]] && adds="--acl-public "
   [[ -n "$reduced_redundancy" ]] && adds="$adds --reduced-redundancy"
 
-  for file in $@ ; do
-    if [[ -r $file ]] ; then
-      s3cmd $adds put $file $bucket/
+  for file in "$@" ; do
+    if [[ -r "$file" ]] ; then
+      s3cmd --no-preserve $adds put "$file" "$bucket/"
     fi
   done
+
+  show ""
 }
 
 # Generate SHA-1 checksum
@@ -458,7 +485,7 @@ upload() {
 # Code: No
 # Echo: SHA checksum (String)
 makeCRC() {
-  sha1sum $1 | cut -f1 -d" "
+  sha1sum "$1" | cut -f1 -d" "
 }
 
 # Get file type
@@ -493,12 +520,13 @@ getFileType() {
 # Code: No
 # Echo: Result (String)
 cleanName() {
-  local name="$1"
-  local rmv
+  local name rmv
+
+  name="$1"
 
   shift
 
-  for rmv in $@ ; do
+  for rmv in "$@" ; do
     name="${name//$rmv/}"
   done
 
@@ -512,11 +540,13 @@ cleanName() {
 # Code: No
 # Echo: No
 addHeader() {
-  local file="$1"
-  local date=$(date +"%d/%b/%Y %R:%S")
+  local file date
 
-  echo "# RBBuild Def File" >> $file
-  echo "# UPDATED $date by $author" >> $file
+  file="$1"
+  date=$(date +"%d/%b/%Y %R:%S")
+
+  echo "# RBBuild Def File" >> "$file"
+  echo "# UPDATED $date by $author" >> "$file"
 }
 
 ################################################################################
@@ -529,18 +559,20 @@ addHeader() {
 # Code: No
 # Echo: No
 checkPerms() {
-  local perms=$(echo $1 | tr [a-z] [A-Z])
-  local path="$2"
+  local perms path
 
-  for perm in $(echo $perms | fold -w1) ; do
+  perms=$(echo "$1" | tr "[:lower:]" "[:upper:]")
+  path="$2"
+
+  for perm in $(echo "$perms" | fold -w1) ; do
     case $perm in
-      "R") [[ ! -r $path ]] && return 1 ;;
-      "W") [[ ! -w $path ]] && return 1 ;;
-      "E") [[ ! -e $path ]] && return 1 ;;
-      "D") [[ ! -d $path ]] && return 1 ;;
-      "F") [[ ! -f $path ]] && return 1 ;;
-      "S") [[ ! -s $path ]] && return 1 ;;
-      "H") [[ ! -h $path ]] && return 1 ;;
+      "R") [[ ! -r "$path" ]] && return 1 ;;
+      "W") [[ ! -w "$path" ]] && return 1 ;;
+      "E") [[ ! -e "$path" ]] && return 1 ;;
+      "D") [[ ! -d "$path" ]] && return 1 ;;
+      "F") [[ ! -f "$path" ]] && return 1 ;;
+      "S") [[ ! -s "$path" ]] && return 1 ;;
+      "H") [[ ! -h "$path" ]] && return 1 ;;
       *) return 1
     esac
   done
@@ -557,12 +589,13 @@ checkPerms() {
 # Code: No
 # Echo: No
 replaceLine() {
-  local linenum="$1"
-  local newline="$2"
-  local filename="$3"
+  local linenum newline filename curline temp
 
-  local curline=1
-  local temp=$(mktemp)
+  linenum="$1"
+  newline="$2"
+  filename="$3"
+  curline=1
+  temp=$(mktemp)
 
   if [[ $newline =~ patch:|patchset:|package: ]] ; then
     newline="  $newline"
@@ -570,14 +603,15 @@ replaceLine() {
 
   while IFS='' read -r line ; do
     if [[ $linenum -eq $curline ]] ; then
-      echo "$newline" >> $temp
+      echo "$newline" >> "$temp"
     else
-      echo "$line" >> $temp
+      echo "$line" >> "$temp"
     fi
-    ((curline++))
-  done < $filename
 
-  mv $temp $filename
+    ((curline++))
+  done < "$filename"
+
+  mv "$temp" "$filename"
 }
 
 # Parse and evaluate variables in text
@@ -587,15 +621,20 @@ replaceLine() {
 # Return: none
 # Echo: Result (String)
 parseArgsInString() {
-  local data="$@"
+  local data="$*"
 
-  if [[ ! $data =~ "$" ]] ; then
+  if [[ ! $data =~ \$ ]] ; then
     echo "$data" && return 0
   else
     local prm_name
 
     while : ; do
-      [[ "$data" =~ \$\{([A-Za-z0-9_?]{3,})\} ]] && prm_name="${BASH_REMATCH[1]}" || break
+      if [[ "$data" =~ \$\{([A-Za-z0-9_?]{3,})\} ]] ; then
+        prm_name="${BASH_REMATCH[1]}"
+      else
+        break
+      fi
+
       data="${data//$\{$prm_name\}/${!prm_name}}"
     done
 
@@ -647,7 +686,7 @@ detectOs() {
 # Code: No
 # Echo: No
 doExit() {
-  exit ${1-0}
+  exit "${1-0}"
 }
 
 ################################################################################
@@ -671,15 +710,11 @@ showArgWarn() {
 # Code: No
 # Echo: No
 show() {
-  local message
-
-  if [[ -n "$2" ]] ; then
-    message=$(echo "\e[${2}m${1}\e[0m")
+  if [[ -n "$2" && -z "$no_colors" ]] ; then
+    echo -e "\e[${2}m${1}\e[0m"
   else
-    message="$@"
+    echo -e "$*"
   fi
-
-  echo -e "$message"
 }
 
 # Show message without newline symbol
@@ -690,50 +725,66 @@ show() {
 # Return: none
 # Echo: none
 showm() {
-  local message
-
-  if [[ -n "$2" ]] ; then
-    message=$(echo "\e[${2}m${1}\e[0m")
+  if [[ -n "$2" && -z "$no_colors" ]] ; then
+    echo -e -n "\e[${2}m${1}\e[0m"
   else
-    message="$@"
+    echo -e -n "$*"
   fi
-
-  printf "$message"
 }
 
 # -
-#rbinstall
+#
 # Show usage info
 #
 # Code: No
 # Echo: No
 usage() {
-  show "${CL_BOLD}Usage:${CL_NORM} rbdef ${CL_GREEN}<options>${CL_NORM} ${CL_BROWN}<command>${CL_NORM} <args>"
+  show "${CL_BOLD}Usage:${CL_NORM} rbdef ${CL_GREEN}{options}${CL_NORM} ${CL_BROWN}{command}${CL_NORM} {args...}"
   show ""
   show "Commands:" $BOLD
   show ""
-  show "  ${CL_BROWN}repack${CL_NORM}          Repack source archive to 7z"
-  show "  ${CL_BROWN}replace${CL_NORM}         Find and replace records in def files"
-  show "  ${CL_BROWN}proc${CL_NORM}            Add sha-1 checksum to records in def files"
-  show "  ${CL_BROWN}crc${CL_NORM}             Generate crc for given file or url"
-  show "  ${CL_BROWN}rec${CL_NORM}             Create record line from url"
-  show "  ${CL_BROWN}upload${CL_NORM}          Upload source archive to s3 mirror"
+  if [[ -n "$DARK" ]] ; then
+    show "  ${CL_BROWN}repack${CL_NORM} ${CL_DARK}...${CL_NORM} Repack source archive to 7z"
+    show "  ${CL_BROWN}replace${CL_NORM} ${CL_DARK}..${CL_NORM} Find and replace records in def files"
+    show "  ${CL_BROWN}proc${CL_NORM} ${CL_DARK}.....${CL_NORM} Add sha-1 checksum to records in def files"
+    show "  ${CL_BROWN}crc${CL_NORM} ${CL_DARK}......${CL_NORM} Generate crc for given file or url"
+    show "  ${CL_BROWN}rec${CL_NORM} ${CL_DARK}......${CL_NORM} Create record line from url"
+    show "  ${CL_BROWN}upload${CL_NORM} ${CL_DARK}...${CL_NORM} Upload source archive to s3 mirror"
+  else
+    show "  repack     Repack source archive to 7z"
+    show "  replace    Find and replace records in def files"
+    show "  proc       Add sha-1 checksum to records in def files"
+    show "  crc        Generate crc for given file or url"
+    show "  rec        Create record line from url"
+    show "  upload     Upload source archive to s3 mirror"
+  fi
   show ""
   show "Options:" $BOLD
   show ""
-  show "  ${CL_GREEN}--remove, -r${CL_NORM}               Remove downloaded sources (use with ${CL_BROWN}repack${CL_NORM} or ${CL_BROWN}proc${CL_NORM} commad)"
-  show "  ${CL_GREEN}--force, -f${CL_NORM}                Always download sources while def processing (use with ${CL_BROWN}proc${CL_NORM} commad)"
-  show "  ${CL_GREEN}--author, -a${CL_NORM}               Author of def file (use with ${CL_BROWN}proc${CL_NORM} commad)"
-  show "  ${CL_GREEN}--bucket, -b${CL_NORM}               Make sources readable by anyone (use with ${CL_BROWN}upload${CL_NORM} commad)"
-  show "  ${CL_GREEN}--public-uploads, -p${CL_NORM}       Change S3 acl to public for sources (use with ${CL_BROWN}upload${CL_NORM} commad)"
-  show "  ${CL_GREEN}--reduced-redundancy, -rr${CL_NORM}  Use reduced redundancy storage class (use with ${CL_BROWN}upload${CL_NORM} commad)"
-  show "  ${CL_GREEN}--help, -h${CL_NORM}                 Show this help message"
-  show "  ${CL_GREEN}--version, -v${CL_NORM}              Show information about version"
+  if [[ -n "$DARK" ]] ; then
+    show "  ${CL_GREEN}--remove, -r${CL_NORM} ${CL_DARK}...............${CL_NORM} Remove downloaded sources (use with ${CL_BROWN}repack${CL_NORM} or ${CL_BROWN}proc${CL_NORM} commad)"
+    show "  ${CL_GREEN}--force, -f${CL_NORM} ${CL_DARK}................${CL_NORM} Always download sources while def processing (use with ${CL_BROWN}proc${CL_NORM} commad)"
+    show "  ${CL_GREEN}--author, -a${CL_NORM} ${CL_DARK}...............${CL_NORM} Author of def file (use with ${CL_BROWN}proc${CL_NORM} commad)"
+    show "  ${CL_GREEN}--bucket, -b${CL_NORM} ${CL_DARK}...............${CL_NORM} Make sources readable by anyone (use with ${CL_BROWN}upload${CL_NORM} commad)"
+    show "  ${CL_GREEN}--public-uploads, -p${CL_NORM} ${CL_DARK}.......${CL_NORM} Change S3 acl to public for sources (use with ${CL_BROWN}upload${CL_NORM} commad)"
+    show "  ${CL_GREEN}--reduced-redundancy, -rr${CL_NORM} ${CL_DARK}..${CL_NORM} Use reduced redundancy storage class (use with ${CL_BROWN}upload${CL_NORM} commad)"
+    show "  ${CL_GREEN}--help, -h${CL_NORM} ${CL_DARK}.................${CL_NORM} Show this help message"
+    show "  ${CL_GREEN}--version, -v${CL_NORM} ${CL_DARK}..............${CL_NORM} Show information about version"
+  else
+    show "  --remove, -r                 Remove downloaded sources (use with repack or proc commad)"
+    show "  --force, -f                  Always download sources while def processing (use with proc commad)"
+    show "  --author, -a                 Author of def file (use with proc commad)"
+    show "  --bucket, -b                 Make sources readable by anyone (use with upload commad)"
+    show "  --public-uploads, -p         Change S3 acl to public for sources (use with upload commad)"
+    show "  --reduced-redundancy, -rr    Use reduced redundancy storage class (use with upload commad)"
+    show "  --help, -h                   Show this help message"
+    show "  --version, -v                Show information about version"
+  fi
   show ""
 }
 
 # -
-#rbinstall
+#
 # Show version and license info
 #
 # Code: No
@@ -750,13 +801,13 @@ about() {
 
 unset arg argn argp
 
-PREFS_FILE=${PREFS_FILE//\~/$HOME}
+PREFS_FILE="${PREFS_FILE//\~/$HOME}"
 
-if [[ -n "$PREFS_FILE" && -r $PREFS_FILE ]] ; then
-  while read arg ; do
-    IFS=":" read argn argp <<< "${arg//: /:}"
-    [[ $SUPPORTED_ARGS\  =~ !?$argn\  ]] && declare $argn="$argp"
-  done < <(awk 1 $PREFS_FILE)
+if [[ -n "$PREFS_FILE" && -r "$PREFS_FILE" ]] ; then
+  while read -r arg ; do
+    IFS=":" read -r argn argp <<< "${arg//: /:}"
+    [[ $SUPPORTED_ARGS\  =~ !?$argn\  ]] && declare "$argn=$argp"
+  done < <(awk 1 "$PREFS_FILE")
 
   unset arg argn argp
 fi
@@ -767,11 +818,11 @@ fi
 
 unset arg argn argm argv argt argk
 
-argv="$@" ; argt=""
+argv="$*" ; argt=""
 
 while [[ -n "$1" ]] ; do
   if [[ "$1" =~ \  && -n "$argn" ]] ; then
-    declare $argn="$1"
+    declare "$argn=$1"
 
     unset argn && shift && continue
   elif [[ $1 =~ ^-{1}[a-zA-Z0-9]{1,2}+.*$ ]] ; then
@@ -787,7 +838,7 @@ while [[ -n "$1" ]] ; do
     if [[ -z "$argn" ]] ; then
       argn=$arg
     else
-      [[ -z "$argk" ]] && ( showArgValWarn "--$argn" 2> /dev/null || : ) || declare $argn=true
+      [[ -z "$argk" ]] && ( showArgValWarn "--$argn" 2> /dev/null || : ) || declare "$argn=true"
       argn=$arg
     fi
 
@@ -797,7 +848,7 @@ while [[ -n "$1" ]] ; do
     fi
 
     if [[ ${BASH_REMATCH[0]:0:1} == "!" ]] ; then
-      declare $argn=true ; unset argn ; argk=true
+      declare "$argn=true" ; unset argn ; argk=true
     else
       unset argk
     fi
@@ -816,7 +867,7 @@ while [[ -n "$1" ]] ; do
         shift && continue
       fi
 
-      [[ -n "${!argm}" && $MERGEABLE_ARGS\  =~ $argm\  ]] && declare $argm="${!argm} ${arg[@]:1:99}" || declare $argm="${arg[@]:1:99}"
+      [[ -n "${!argm}" && $MERGEABLE_ARGS\  =~ $argm\  ]] && declare "$argm=${!argm} ${arg[@]:1:99}" || declare "$argm=${arg[@]:1:99}"
 
       unset argm && shift && continue
     else
@@ -825,7 +876,7 @@ while [[ -n "$1" ]] ; do
       if [[ -z "$argn" ]] ; then
         argn=$arg
       else
-        [[ -z "$argk" ]] && ( showArgValWarn "--$argn" 2> /dev/null || : ) || declare $argn=true
+        [[ -z "$argk" ]] && ( showArgValWarn "--$argn" 2> /dev/null || : ) || declare "$argn=true"
         argn=$arg
       fi
 
@@ -835,7 +886,7 @@ while [[ -n "$1" ]] ; do
       fi
 
       if [[ ${BASH_REMATCH[0]:0:1} == "!" ]] ; then
-        declare $argn=true ; unset argn ; argk=true
+        declare "$argn=true" ; unset argn ; argk=true
       else
         unset argk
       fi
@@ -844,7 +895,7 @@ while [[ -n "$1" ]] ; do
     fi
   else
     if [[ -n "$argn" ]] ; then
-      [[ -n "${!argn}" && $MERGEABLE_ARGS\  =~ $argn\  ]] && declare $argn="${!argn} $1" || declare $argn="$1"
+      [[ -n "${!argn}" && $MERGEABLE_ARGS\  =~ $argn\  ]] && declare "$argn=${!argn} $1" || declare "$argn=$1"
 
       unset argn && shift && continue
     fi
@@ -854,7 +905,7 @@ while [[ -n "$1" ]] ; do
 
 done
 
-[[ -n "$argn" ]] && declare $argn=true
+[[ -n "$argn" ]] && declare "$argn=true"
 
 unset arg argn argm argk
 

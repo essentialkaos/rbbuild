@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Start Maglev builder
 #
 # 1: Package name (String)
@@ -6,49 +8,70 @@
 # Code: No
 # Echo: No
 maglevBuilder() {
-  checkVersionCompatibility "1.2.0"
+  checkVersionCompatibility "1.6.0"
 
-  local pkg="$1"
-  local pkg_dir="$2"
+  local pkg pkg_dir iopts prfx fail
+  local start_time end_time grc_time
 
-  local iopts="${INSTOPTS}"
-  local prfx="${XPREFIX:-${prefix}}"
+  pkg="$1"
+  pkg_dir="$2"
+
+  iopts="${INSTOPTS}"
+  prfx="${XPREFIX:-${prefix}}"
 
   exportCompilerOpts
 
-  pushd $pkg_dir &> /dev/null
+  pushd "$pkg_dir" &> /dev/null
+
     showm "Building... "
 
-    local start_time=`now`
-    local fail
+    [[ -n "$verbose" ]] && show ""
+
+    start_time=$(now)
 
     exit_protect=true
 
     spinnerOn
 
     if [[ -n "$verbose" ]] ; then
-      { mkdir -p $prfx
-        [[ $? -ne 0 ]] && fail=true
-        cp -r . $prfx
-        [[ $? -ne 0 ]] && fail=true
+      {
 
-        pushd $prfx
-          show "./install.sh $iopts"
-          ./install.sh $iopts
-          [[ $? -ne 0 ]] && fail=true
+        if [[ -z "$fail" ]] ; then
+          mkdir -p "$prfx" || fail=true
+        fi
+
+        if [[ -z "$fail" ]] ; then
+          cp -r . "$prfx" || fail=true
+        fi
+
+        pushd "$prfx"
+
+          if [[ -z "$fail" ]] ; then
+            showe "./install.sh $iopts"
+            ./install.sh $iopts || fail=true
+          fi
+
         popd
-      } &>> $output
+      } &>> "$output"
     else
-      { mkdir -p $prfx
-        [[ $? -ne 0 ]] && fail=true
-        cp -r . $prfx
-        [[ $? -ne 0 ]] && fail=true
+      {
 
-        pushd $prfx
-          ./install.sh $iopts
-          [[ $? -ne 0 ]] && fail=true
+        if [[ -z "$fail" ]] ; then
+          mkdir -p "$prfx" || fail=true
+        fi
+
+        if [[ -z "$fail" ]] ; then
+          cp -r . "$prfx" || fail=true
+        fi
+
+        pushd "$prfx"
+
+          if [[ -z "$fail" ]] ; then
+            ./install.sh $iopts || fail=true
+          fi
+
         popd
-      } &>> $log
+      } &>> "$log"
     fi
 
     spinnerOff
@@ -59,19 +82,19 @@ maglevBuilder() {
       return 1
     fi
 
-    pushd $prfx/bin &> /dev/null
+    pushd "$prfx/bin" &> /dev/null
 
       ln -fs maglev-ruby ruby
       ln -fs maglev-irb irb
 
     popd &> /dev/null
 
-    local end_time=`now`
-    local grc_time=`getGraceTime "$start_time" "$end_time"`
+    end_time=$(now)
+    grc_time=$(getGraceTime "$start_time" "$end_time")
 
-    show "${CL_GREEN}DONE${CL_NORM} ${CL_GREY}($grc_time)${CL_NORM}"
+    show "${CL_GREEN}DONE${CL_NORM} ${CL_DARK}($grc_time)${CL_NORM}"
 
-    echo -n > $log
+    echo -n > "$log"
 
     unset exit_protect
 

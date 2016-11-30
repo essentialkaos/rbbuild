@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Start autoconf builder
 #
 # 1: Package name (String)
@@ -6,35 +8,42 @@
 # Code: No
 # Echo: No
 autoconfBuilder() {
-  checkVersionCompatibility "1.5.0"
+  checkVersionCompatibility "1.6.0"
 
-  local pkg="$1"
-  local pkg_dir="$2"
+  local pkg pkg_dir fail
+  local start_time end_time grc_time
+
+  pkg="$1"
+  pkg_dir="$2"
 
   shift 2
 
   exportCompilerOpts
 
-  pushd $pkg_dir &> /dev/null
+  pushd "$pkg_dir" &> /dev/null
 
     showm "Autoconf... "
 
-    local start_time=`now`
-    local fail
+    [[ -n "$verbose" ]] && show ""
+
+    start_time=$(now)
 
     exit_protect=true
 
     spinnerOn
 
     if [[ -n "$verbose" ]] ; then
-      { show "autoconf"
-        autoconf
-        [[ $? -ne 0 ]] && fail=true
-      } &>> $output
+      {
+        showe "autoconf"
+        autoconf || fail=true
+
+      } &>> "$output"
     else
-      { autoconf
-        [[ $? -ne 0 ]] && fail=true
-      } &>> $log
+      {
+
+        autoconf || fail=true
+
+      } &>> "$log"
     fi
 
     spinnerOff
@@ -45,16 +54,16 @@ autoconfBuilder() {
       return 1
     fi
 
-    local end_time=`now`
-    local grc_time=`getGraceTime "$start_time" "$end_time"`
+    end_time=$(now)
+    grc_time=$(getGraceTime "$start_time" "$end_time")
 
-    show "${CL_GREEN}DONE${CL_NORM} ${CL_GREY}($grc_time)${CL_NORM}"
+    show "${CL_GREEN}DONE${CL_NORM} ${CL_DARK}($grc_time)${CL_NORM}"
 
-    echo -n > $log
+    echo -n > "$log"
 
     unset exit_protect
 
   popd &> /dev/null
 
-  buildPackage "$pkg" "$pkg_dir" "default" $@
+  buildPackage "$pkg" "$pkg_dir" "default" "$@"
 }

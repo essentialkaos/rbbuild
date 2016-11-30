@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Start JRuby builder
 #
 # 1: Package name (String)
@@ -6,53 +8,75 @@
 # Code: No
 # Echo: No
 jrubyBuilder() {
-  checkVersionCompatibility "1.5.0"
+  checkVersionCompatibility "1.6.0"
 
-  local pkg="$1"
-  local pkg_dir="$2"
+  local pkg pkg_dir prfx fail
+  local start_time end_time grc_time
 
-  local prfx="${XPREFIX:-${prefix}}"
+  pkg="$1"
+  pkg_dir="$2"
+
+  prfx="${XPREFIX:-${prefix}}"
 
   exportCompilerOpts
 
-  pushd $pkg_dir &> /dev/null
+  pushd "$pkg_dir" &> /dev/null
 
     showm "Building... "
 
-    local start_time=`now`
-    local fail
+    [[ -n "$verbose" ]] && show ""
+
+    start_time=$(now)
 
     exit_protect=true
 
     spinnerOn
 
     if [[ -n "$verbose" ]] ; then
-      { mkdir -p $prfx
-        [[ $? -ne 0 ]] && fail=true
-        cp -r . $prfx
-        [[ $? -ne 0 ]] && fail=true
+      {
+        if [[ -z "$fail" ]] ; then
+          mkdir -p "$prfx" || fail=true
+        fi
 
-        pushd $prfx/bin
-          ln -fs jruby ruby
-          [[ $? -ne 0 ]] && fail=true
-          show "./ruby gem install jruby-launcher"
-          ./ruby gem install jruby-launcher
-          [[ $? -ne 0 ]] && fail=true
+        if [[ -z "$fail" ]] ; then
+          cp -r . "$prfx" || fail=true
+        fi
+
+        pushd "$prfx/bin"
+
+          if [[ -z "$fail" ]] ; then
+            ln -fs jruby ruby || fail=true
+          fi
+
+          if [[ -z "$fail" ]] ; then
+            showe "./ruby gem install jruby-launcher"
+            ./ruby gem install jruby-launcher || fail=true
+          fi
+
         popd
-      } >> $output
+      } >> "$output"
     else
-      { mkdir -p $prfx
-        [[ $? -ne 0 ]] && fail=true
-        cp -r . $prfx
-        [[ $? -ne 0 ]] && fail=true
+      {
+        if [[ -z "$fail" ]] ; then
+          mkdir -p "$prfx"
+        fi
 
-        pushd $prfx/bin
-          ln -fs jruby ruby
-          [[ $? -ne 0 ]] && fail=true
-          ./ruby gem install jruby-launcher &> $verb_output
-          [[ $? -ne 0 ]] && fail=true
+        if [[ -z "$fail" ]] ; then
+          cp -r . "$prfx"
+        fi
+
+        pushd "$prfx/bin"
+
+          if [[ -z "$fail" ]] ; then
+            ln -fs jruby ruby || fail=true
+          fi
+
+          if [[ -z "$fail" ]] ; then
+            ./ruby gem install jruby-launcher &> $verb_output || fail=true
+          fi
+
         popd
-      } > $log 2>>$output
+      } > "$log" 2>> "$output"
     fi
 
     spinnerOff
@@ -63,18 +87,18 @@ jrubyBuilder() {
       return 1
     fi
 
-    rm -f $prfx/bin/*.bat
-    rm -f $prfx/bin/*.exe
-    rm -f $prfx/bin/*.dll
+    rm -f "$prfx"/bin/*.bat
+    rm -f "$prfx"/bin/*.exe
+    rm -f "$prfx"/bin/*.dll
 
-    local end_time=`now`
-    local grc_time=`getGraceTime "$start_time" "$end_time"`
+    end_time=$(now)
+    grc_time=$(getGraceTime "$start_time" "$end_time")
 
-    show "${CL_GREEN}DONE${CL_NORM} ${CL_GREY}($grc_time)${CL_NORM}"
+    show "${CL_GREEN}DONE${CL_NORM} ${CL_DARK}($grc_time)${CL_NORM}"
 
   popd &> /dev/null
 
-  echo -n > $log
+  echo -n > "$log"
 
   unset exit_protect
 }

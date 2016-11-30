@@ -29,7 +29,7 @@
 
 Summary:         Utility for compiling and installing different ruby versions 
 Name:            rbbuild
-Version:         1.5.7
+Version:         1.6.0
 Release:         0%{?dist}
 License:         EKOL
 Vendor:          ESSENTIALKAOS
@@ -39,7 +39,7 @@ URL:             https://github.com/essentialkaos/rbbuild
 Source0:         https://source.kaos.io/%{name}/%{name}-%{version}.tar.bz2
 
 Requires:        %{name}-defs
-Requires:        gcc make p7zip
+Requires:        bash p7zip gawk
 
 BuildArch:       noarch
 BuildRoot:       %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
@@ -76,12 +76,17 @@ rm -rf %{buildroot}
 %defattr(-,root,root,-)
 %doc LICENSE.EN
 %doc LICENSE.RU
-%{_bindir}
+%{_bindir}/rbbuild
+%{_bindir}/rbdef
 %{blds_dir}
 
 ################################################################################
 
 %changelog
+* Sun Nov 27 2016 Anton Novojilov <andy@essentialkaos.com> - 1.6.0-0
+- Code refactoring
+- UI improvements
+
 * Mon Sep 05 2016 Anton Novojilov <andy@essentialkaos.com> - 1.5.7-0
 - Fixed ruby version output alignment
 

@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Start default ruby builder
 #
 # 1: Package name (String)
@@ -6,40 +8,43 @@
 # Code: No
 # Echo: No
 defaultBuilder() {
-  checkVersionCompatibility "1.5.0"
+  checkVersionCompatibility "1.6.0"
 
   requireCompiler
 
-  local pkg="$1"
-  local pkg_dir="$2"
+  local pkg pkg_dir mopts copts iopts prfx thr_num
+  local start_time fail conf_file end_time grc_time
 
-  local mopts="${MAKEOPTS}"
-  local copts="${CONFOPTS}"
-  local iopts="${INSTOPTS}"
-  local prfx="${XPREFIX:-${prefix}}"
+  pkg="$1"
+  pkg_dir="$2"
+
+  mopts="${MAKEOPTS}"
+  copts="${CONFOPTS}"
+  iopts="${INSTOPTS}"
+  prfx="${XPREFIX:-${prefix}}"
 
   exportCompilerOpts
 
-  if [[ ! $mopts =~ "-j " ]] ; then
+  if [[ ! $mopts =~ \-j\  ]] ; then
     if [[ -n "$threads" ]] ; then
       mopts="${mopts} -j $threads"
     else
-      local thr_num=`getThreadsNum`
+      thr_num=$(getThreadsNum)
       mopts="${mopts} -j $thr_num"
     fi
   fi
 
-  if [[ -n "$dest_dir" && ! $iopts =~ "DESTDIR" ]] ; then
+  if [[ -n "$dest_dir" && ! $iopts =~ DESTDIR ]] ; then
     iopts="${iopts} DESTDIR=$dest_dir"
   fi
 
-  pushd $pkg_dir &> /dev/null
+  pushd "$pkg_dir" &> /dev/null
 
     showm "Building... "
 
-    local start_time=`now`
-    local fail
-    local conf_file
+    [[ -n "$verbose" ]] && show ""
+
+    start_time=$(now)
 
     if checkPerms "FR" "configure" ; then
       conf_file="configure"
@@ -51,7 +56,7 @@ defaultBuilder() {
       show "FAIL" $RED
       show ""
       show "Can't find configure file."
-      doExit $ERROR_UNKNOWN
+      doExit 1
     fi
 
     exit_protect=true
@@ -59,24 +64,38 @@ defaultBuilder() {
     spinnerOn
 
     if [[ -n "$verbose" ]] ; then
-      { show "./$conf_file --prefix=$prfx $copts"
-        ./$conf_file --prefix=$prfx $copts
-        [[ $? -ne 0 && -n "$strict" ]] && fail=true
-        show "make $mopts"
-        make $mopts
-        [[ $? -ne 0 ]] && fail=true
-        show "make install $iopts"
-        make install $iopts
-        [[ $? -ne 0 ]] && fail=true
-      } &>> $output
+      {
+        if [[ -z "$fail" ]] ; then
+          showe "./$conf_file --prefix=$prfx $copts"
+          ./$conf_file --prefix="$prfx" $copts || fail=true
+        fi
+
+        if [[ -z "$fail" ]] ; then
+          showe "make $mopts"
+          make $mopts || fail=true
+        fi
+
+        if [[ -z "$fail" ]] ; then
+          showe "make install $iopts"
+          make install $iopts || fail=true
+        fi
+
+      } &>> "$output"
     else
-      { ./$conf_file --prefix=$prfx $copts
-        [[ $? -ne 0 && -n "$strict" ]] && fail=true
-        make $mopts
-        [[ $? -ne 0 ]] && fail=true
-        make install $iopts
-        [[ $? -ne 0 ]] && fail=true
-      } &>> $log
+      {
+        if [[ -z "$fail" ]] ; then
+          ./$conf_file --prefix="$prfx" $copts || fail=true
+        fi
+
+        if [[ -z "$fail" ]] ; then
+          make $mopts || fail=true
+        fi
+
+        if [[ -z "$fail" ]] ; then
+          make install $iopts || fail=true
+        fi
+
+      } &>> "$log"
     fi
 
     spinnerOff
@@ -87,12 +106,12 @@ defaultBuilder() {
       return 1
     fi
 
-    local end_time=`now`
-    local grc_time=`getGraceTime "$start_time" "$end_time"`
+    end_time=$(now)
+    grc_time=$(getGraceTime "$start_time" "$end_time")
 
-    show "${CL_GREEN}DONE${CL_NORM} ${CL_GREY}($grc_time)${CL_NORM}"
+    show "${CL_GREEN}DONE${CL_NORM} ${CL_DARK}($grc_time)${CL_NORM}"
 
-    echo -n > $log
+    echo -n > "$log"
 
     unset exit_protect
 

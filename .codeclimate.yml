@@ -1,0 +1,16 @@
+engines:
+  shellcheck:
+    enabled: true
+    checks:
+      SC2034:
+        enabled: false
+      SC2154:
+        enabled: false
+      SC2015:
+        enabled: false
+
+ratings:
+   paths:
+     - SOURCES/blds/**
+     - SOURCES/rbbuild
+     - SOURCES/rbdef
