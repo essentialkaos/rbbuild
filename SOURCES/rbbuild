@@ -194,9 +194,9 @@ main() {
   [[ $# -eq 0 || -n "$list" ]] && listDefs && doExit
 
   if [[ -z "$mirror_list" ]] ; then
-    if [[ -z $prefix && -z "$rbenv" ]] ; then
-      show "You must use --prefix (-p) argument for define install location." $RED
-      show "" && doExit 1
+    if [[ -z "$prefix" && -z "$rbenv" ]] ; then
+      show "\nYou must use --prefix (-p) argument for define install location.\n" $RED
+      doExit 1
     fi
   fi
 
@@ -205,8 +205,8 @@ main() {
 
   if [[ -d "$tmp" ]] ; then
     if ! checkPerms "DRW" "$tmp" ; then
-      show "You don't have enough permissions to use directory $tmp" $RED
-      show "" && doExit 1
+      show "\nYou don't have enough permissions to use directory $tmp\n" $RED
+      doExit 1
     fi
   fi
 
@@ -2011,17 +2011,17 @@ spinner() {
   while [[ -d /proc/$PID ]] ; do
     # If we don't use all this "if's", we will see spinner animation after termination script by Ctrl+C
     [[ ! -d /proc/$PID ]] && break
-    printf "[=  ]\b\b\b\b\b" >> $output ; sleep 0.08
+    printf "[•  ]\b\b\b\b\b" >> $output ; sleep 0.08
     [[ ! -d /proc/$PID ]] && break
-    printf "[== ]\b\b\b\b\b" >> $output ; sleep 0.08
+    printf "[•• ]\b\b\b\b\b" >> $output ; sleep 0.08
     [[ ! -d /proc/$PID ]] && break
-    printf "[===]\b\b\b\b\b" >> $output ; sleep 0.08
+    printf "[•••]\b\b\b\b\b" >> $output ; sleep 0.08
     [[ ! -d /proc/$PID ]] && break
-    printf "[ ==]\b\b\b\b\b" >> $output ; sleep 0.08
+    printf "[ ••]\b\b\b\b\b" >> $output ; sleep 0.08
     [[ ! -d /proc/$PID ]] && break
-    printf "[  =]\b\b\b\b\b" >> $output ; sleep 0.08
+    printf "[  •]\b\b\b\b\b" >> $output ; sleep 0.08
     [[ ! -d /proc/$PID ]] && break
-    printf "[   ]\b\b\b\b\b" >> $output ; sleep 0.08
+    printf "[   ]\b\b\b\b\b" >> $output ; sleep 0.24
   done
 
   printf "     \b\b\b\b\b" >> $output

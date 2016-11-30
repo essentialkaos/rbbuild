@@ -76,7 +76,8 @@ rm -rf %{buildroot}
 %defattr(-,root,root,-)
 %doc LICENSE.EN
 %doc LICENSE.RU
-%{_bindir}
+%{_bindir}/rbbuild
+%{_bindir}/rbdef
 %{blds_dir}
 
 ################################################################################
