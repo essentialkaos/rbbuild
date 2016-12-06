@@ -6,7 +6,7 @@
 APP="RBBuild"
 
 # App version (String)
-VER="1.6.0"
+VER="1.6.1"
 
 ################################################################################
 
@@ -243,15 +243,20 @@ prepDefFile() {
   if isRemoteDefFile "$1" ; then
     fetchRemoteDefFile "$1"
   else
-    if ! checkPerms "FR" "$1" ; then
+    if checkPerms "FR" "$1" ; then
+      if checkPerms "S" ; then
+        def_file=$(getAbsPath "$1")
+      else
+        show "Error! Definition file is empty.\n" $RED
+        doExit 1
+      fi
+    else
       if ! checkPerms "FR" "$DEF_PATH/$1" ; then
-        show "Error! Definition file is not found!" $RED
-        show "" && doExit 1
+        show "Error! Definition file is not found.\n" $RED
+        doExit 1
       else
         def_file=$(getAbsPath "$DEF_PATH/$1")
       fi
-    else
-      def_file=$(getAbsPath "$CWD/$1")
     fi
   fi
 }
@@ -333,7 +338,7 @@ doBuild() {
 
   loadavg=$(getLA)
 
-  if [[ $loadavg -gt $MAX_LA ]] ; then
+  if [[ $loadavg -gt $MAX_LA && -z "$yes" ]] ; then
     show "Current LA ($loadavg) is too high. We strongly don't recommend start build process at this moment." $BROWN
     show "\nContinue build anyway? (y/N)" $CYAN
 
@@ -342,7 +347,7 @@ doBuild() {
     fi
   fi
 
-  if [[ -d "$prefix" ]] ; then
+  if [[ -d "$prefix" && -z "$yes" ]] ; then
     show "Directory $prefix already exists." $BROWN
     show "\nYou really want to use this directory? (Y/n)" $CYAN
 
@@ -583,7 +588,6 @@ checkEOLDates() {
 
   [[ -z "$expired" ]] && return
   [[ -n "$yes" ]] && show "" && return
-
 
   show "\nYou really want build this version? (Y/n)" $CYAN
 
