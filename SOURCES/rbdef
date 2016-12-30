@@ -6,7 +6,7 @@
 APP="RBBuild Def Utils"
 
 # App version (String)
-VER="1.4.0"
+VER="1.4.1"
 
 ################################################################################
 
@@ -371,6 +371,8 @@ proc() {
         else
           echo "  ${line} \"${new_crc}\"" >> "$tmp_file"
         fi
+      elif [[ $line =~ git:|svn:|hg: ]] ; then
+        echo "  $line" >> "$tmp_file"
       else
         if [[ ${line:0:1} != "#" ]] ; then
           echo "$line" >> "$tmp_file"
