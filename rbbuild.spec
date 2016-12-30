@@ -30,7 +30,7 @@
 Summary:         Utility for compiling and installing different ruby versions 
 Name:            rbbuild
 Version:         1.6.1
-Release:         0%{?dist}
+Release:         1%{?dist}
 License:         EKOL
 Vendor:          ESSENTIALKAOS
 Group:           Development/Tools
@@ -38,11 +38,13 @@ URL:             https://github.com/essentialkaos/rbbuild
 
 Source0:         https://source.kaos.io/%{name}/%{name}-%{version}.tar.bz2
 
+BuildArch:       noarch
+BuildRoot:       %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+
 Requires:        %{name}-defs
 Requires:        bash p7zip gawk
 
-BuildArch:       noarch
-BuildRoot:       %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+################################################################################
 
 %description
 RBBuild provides a simple way to compile and install 
@@ -83,6 +85,9 @@ rm -rf %{buildroot}
 ################################################################################
 
 %changelog
+* Fri Dec 30 2016 Anton Novojilov <andy@essentialkaos.com> - 1.6.1-1
+- Minor fixes in rbdef
+
 * Mon Dec 05 2016 Anton Novojilov <andy@essentialkaos.com> - 1.6.1-0
 - Fixed bug with processing custom def files
 - Fixed bug with -y/--yes option usage

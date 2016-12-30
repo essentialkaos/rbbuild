@@ -29,20 +29,19 @@
 
 Summary:         Def files for rbbuild utility 
 Name:            rbbuild-defs
-Version:         1.6.0
-Release:         1%{?dist}
+Version:         1.6.1
+Release:         0%{?dist}
 License:         EKOL
 Vendor:          ESSENTIALKAOS
 Group:           Development/Tools
 URL:             https://github.com/essentialkaos/rbbuild
 
+BuildArch:       noarch
 BuildRoot:       %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 Source0:         %{name}-%{version}.tar.bz2
 
 Requires:        rbbuild
-
-BuildArch:       noarch
 
 ################################################################################
 
@@ -76,6 +75,11 @@ rm -rf %{buildroot}
 ################################################################################
 
 %changelog
+* Fri Dec 30 2016 Anton Novojilov <andy@essentialkaos.com> - 1.6.1-0
+- Added 2.4.0-p0
+- Removed 2.4.0-preview1, 2.4.0-preview2 and 2.4.0-preview3
+- Removed all jruby-9.0.0.0 prerelease versions
+
 * Sun Dec 04 2016 Anton Novojilov <andy@essentialkaos.com> - 1.6.0-1
 - Reverted OpenSSL to 1.0.1t for 1.9.1-pXXX
 
