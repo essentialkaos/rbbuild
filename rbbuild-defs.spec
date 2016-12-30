@@ -78,6 +78,7 @@ rm -rf %{buildroot}
 * Fri Dec 30 2016 Anton Novojilov <andy@essentialkaos.com> - 1.6.1-0
 - Added 2.4.0-p0
 - Removed 2.4.0-preview1, 2.4.0-preview2 and 2.4.0-preview3
+- Removed all jruby-9.0.0.0 prerelease versions
 
 * Sun Dec 04 2016 Anton Novojilov <andy@essentialkaos.com> - 1.6.0-1
 - Reverted OpenSSL to 1.0.1t for 1.9.1-pXXX
