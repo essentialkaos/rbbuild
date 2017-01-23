@@ -29,8 +29,8 @@
 
 Summary:         Utility for compiling and installing different ruby versions 
 Name:            rbbuild
-Version:         1.6.1
-Release:         1%{?dist}
+Version:         1.6.2
+Release:         0%{?dist}
 License:         EKOL
 Vendor:          ESSENTIALKAOS
 Group:           Development/Tools
@@ -85,6 +85,9 @@ rm -rf %{buildroot}
 ################################################################################
 
 %changelog
+* Mon Jan 23 2017 Anton Novojilov <andy@essentialkaos.com> - 1.6.2-0
+- Improved checking remote sources availability
+
 * Fri Dec 30 2016 Anton Novojilov <andy@essentialkaos.com> - 1.6.1-1
 - Minor fixes in rbdef
 
