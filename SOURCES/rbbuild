@@ -6,7 +6,7 @@
 APP="RBBuild"
 
 # App version (String)
-VER="1.6.1"
+VER="1.6.2"
 
 ################################################################################
 
@@ -1726,9 +1726,9 @@ checkHTTPStatus() {
   url=$(parseArgsInString "$1")
 
   if [[ -z "$proxy" ]] ; then
-    status=$(curl --max-redirs "$MAX_REDIRS" -LIks "$url")
+    status=$(curl --max-redirs "$MAX_REDIRS" -LIks -X GET "$url")
   else
-    status=$(curl --max-redirs "$MAX_REDIRS" -x "$proxy" -LIks "$url")
+    status=$(curl --max-redirs "$MAX_REDIRS" -x "$proxy" -LIks -X GET "$url")
   fi
 
   code=$(echo "$status" | grep -Fi "HTTP" | cut -f2 -d" ")
