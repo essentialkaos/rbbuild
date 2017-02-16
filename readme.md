@@ -6,6 +6,10 @@
 
 `rbbuild` is utility for compiling and installing different ruby versions.
 
+### Usage demo
+
+[![demo](https://gh.kaos.io/rbbuild-160.gif)](#usage-demo)
+
 ## Installation
 
 <details>
