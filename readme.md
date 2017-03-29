@@ -12,24 +12,21 @@
 
 ## Installation
 
-<details>
-<summary><strong>From ESSENTIAL KAOS Public repo for RHEL6/CentOS6</strong></summary>
+### From [ESSENTIAL KAOS Public Repository](https://yum.kaos.io) for RHEL6/CentOS6
+
 ```
-[sudo] yum install -y https://yum.kaos.io/6/release/i386/kaos-repo-7.2-0.el6.noarch.rpm
+[sudo] yum install -y https://yum.kaos.io/6/release/x86_64/kaos-repo-8.0-0.el6.noarch.rpm
 [sudo] yum install rbbuild
 ```
-</details>
 
-<details>
-<summary><strong>From ESSENTIAL KAOS Public repo for RHEL7/CentOS7</strong></summary>
+### From [ESSENTIAL KAOS Public Repository](https://yum.kaos.io) for RHEL7/CentOS7
+
 ```
-[sudo] yum install -y https://yum.kaos.io/7/release/x86_64/kaos-repo-7.2-0.el7.noarch.rpm
+[sudo] yum install -y https://yum.kaos.io/7/release/x86_64/kaos-repo-8.0-0.el7.noarch.rpm
 [sudo] yum install rbbuild
 ```
-</details>
 
-<details>
-<summary><strong>Using install.sh</strong></summary>
+### Using `install.sh`
 We provide simple bash script `script.sh` for installing app from the sources.
 
 ```
@@ -46,7 +43,6 @@ If you have some issues with installing, try to use script in debug mode:
 ```
 [sudo] ./install.sh --debug
 ```
-</details>
 
 ## Usage
 
