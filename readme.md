@@ -12,14 +12,14 @@
 
 ## Installation
 
-### From ESSENTIAL KAOS Public repo for RHEL6/CentOS6
+### From [ESSENTIAL KAOS Public Repository](https://yum.kaos.io) for RHEL6/CentOS6
 
 ```
 [sudo] yum install -y https://yum.kaos.io/6/release/x86_64/kaos-repo-8.0-0.el6.noarch.rpm
 [sudo] yum install rbbuild
 ```
 
-### From ESSENTIAL KAOS Public repo for RHEL7/CentOS7
+### From [ESSENTIAL KAOS Public Repository](https://yum.kaos.io) for RHEL7/CentOS7
 
 ```
 [sudo] yum install -y https://yum.kaos.io/7/release/x86_64/kaos-repo-8.0-0.el7.noarch.rpm
