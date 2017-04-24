@@ -29,7 +29,7 @@
 
 Summary:         Utility for compiling and installing different ruby versions 
 Name:            rbbuild
-Version:         1.6.3
+Version:         1.6.4
 Release:         0%{?dist}
 License:         EKOL
 Vendor:          ESSENTIALKAOS
@@ -85,6 +85,10 @@ rm -rf %{buildroot}
 ################################################################################
 
 %changelog
+* Mon Apr 24 2017 Anton Novojilov <andy@essentialkaos.com> - 1.6.4-0
+- Arguments parser updated to v3 with fixed stderr output redirection for
+  showArgWarn and showArgValWarn functions
+
 * Wed Jan 25 2017 Anton Novojilov <andy@essentialkaos.com> - 1.6.3-0
 - getThreadsNum now return 1 recommended thread if LA is too high
 
