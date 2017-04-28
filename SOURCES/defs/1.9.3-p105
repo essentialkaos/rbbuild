@@ -13,7 +13,7 @@ CONFOPTS(openssl-1.0.2j): gcc --openssldir={prefix}/openssl/ssl zlib-dynamic no-
 MAKEOPTS(openssl-1.0.2j): -j 1
 PREFIX(openssl-1.0.2j): {prefix}/openssl
 
-CONFOPTS(ruby-1.9.3-p105): --with-openssl-dir={prefix}/openssl --disable-install-doc
+CONFOPTS(ruby-1.9.3-p105): --with-openssl-dir={prefix}/openssl --with-opt-dir={prefix} --disable-install-doc
 
 [default]
   package: "openssl-1.0.2j" "https://www.openssl.org/source/openssl-1.0.2j.tar.gz" "bdfbdb416942f666865fa48fe13c2d0e588df54f" openssl
