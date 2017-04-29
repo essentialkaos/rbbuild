@@ -6,7 +6,7 @@
 APP="RBBuild Def Utils"
 
 # App version (String)
-VER="1.4.2"
+VER="1.4.3"
 
 ################################################################################
 
@@ -15,48 +15,31 @@ BOLD=1
 UNLN=4
 RED=31
 GREEN=32
-BROWN=33
+YELLOW=33
 BLUE=34
 MAG=35
 CYAN=36
 GREY=37
 DARK=90
 
-CL_NORM="\e[${NORM}m"
-CL_BOLD="\e[${BOLD}m"
-CL_UNLN="\e[${UNLN}m"
-CL_RED="\e[${RED}m"
-CL_GREEN="\e[${GREEN}m"
-CL_BROWN="\e[${BROWN}m"
-CL_BLUE="\e[${BLUE}m"
-CL_MAG="\e[${MAG}m"
-CL_CYAN="\e[${CYAN}m"
-CL_GREY="\e[${GREY}m"
-CL_DARK="\e[${DARK}m"
-CL_BL_RED="\e[${RED};1m"
-CL_BL_GREEN="\e[${GREEN};1m"
-CL_BL_BROWN="\e[${BROWN};1m"
-CL_BL_BLUE="\e[${BLUE};1m"
-CL_BL_MAG="\e[${MAG};1m"
-CL_BL_CYAN="\e[${CYAN};1m"
-CL_BL_GREY="\e[${GREY};1m"
-CL_BL_DARK="\e[${DARK};1m"
-CL_UL_RED="\e[${RED};4m"
-CL_UL_GREEN="\e[${GREEN};4m"
-CL_UL_BROWN="\e[${BROWN};4m"
-CL_UL_BLUE="\e[${BLUE};4m"
-CL_UL_MAG="\e[${MAG};4m"
-CL_UL_CYAN="\e[${CYAN};4m"
-CL_UL_GREY="\e[${GREY};4m"
-CL_UL_DARK="\e[${DARK};4m"
-CL_BG_RED="\e[${RED};7m"
-CL_BG_GREEN="\e[${GREEN};7m"
-CL_BG_BROWN="\e[${BROWN};7m"
-CL_BG_BLUE="\e[${BLUE};7m"
-CL_BG_MAG="\e[${MAG};7m"
-CL_BG_CYAN="\e[${CYAN};7m"
-CL_BG_GREY="\e[${GREY};7m"
-CL_BG_DARK="\e[${DARK};7m"
+CL_NORM="\e[0m"
+CL_BOLD="\e[0;${BOLD};49m"
+CL_UNLN="\e[0;${UNLN};49m"
+CL_RED="\e[0;${RED};49m"
+CL_GREEN="\e[0;${GREEN};49m"
+CL_YELLOW="\e[0;${YELLOW};49m"
+CL_BLUE="\e[0;${BLUE};49m"
+CL_MAG="\e[0;${MAG};49m"
+CL_CYAN="\e[0;${CYAN};49m"
+CL_GREY="\e[0;${GREY};49m"
+CL_DARK="\e[0;${DARK};49m"
+CL_BL_RED="\e[1;${RED};49m"
+CL_BL_GREEN="\e[1;${GREEN};49m"
+CL_BL_YELLOW="\e[1;${YELLOW};49m"
+CL_BL_BLUE="\e[1;${BLUE};49m"
+CL_BL_MAG="\e[1;${MAG};49m"
+CL_BL_CYAN="\e[1;${CYAN};49m"
+CL_BL_GREY="\e[1;${GREY};49m"
 
 ## OS NAMES ####################################################################
 
@@ -143,11 +126,9 @@ reduced_redundancy=""
 # Echo: No
 main() {
   if [[ ! -t 1 || -n "$no_colors" ]] ; then
-    unset NORM BOLD UNLN RED GREEN BROWN BLUE MAG CYAN GREY DARK
-    unset CL_NORM CL_BOLD CL_UNLN CL_RED CL_GREEN CL_BROWN CL_BLUE CL_MAG CL_CYAN CL_GREY CL_DARK
-    unset CL_BL_RED CL_BL_GREEN CL_BL_BROWN CL_BL_BLUE CL_BL_MAG CL_BL_CYAN CL_BL_GREY CL_BL_DARK
-    unset CL_UL_RED CL_UL_GREEN CL_UL_BROWN CL_UL_BLUE CL_UL_MAG CL_UL_CYAN CL_UL_GREY CL_UL_DARK
-    unset CL_BG_RED CL_BG_GREEN CL_BG_BROWN CL_BG_BLUE CL_BG_MAG CL_BG_CYAN CL_BG_GREY CL_BG_DARK
+    unset NORM BOLD UNLN RED GREEN YELLOW BLUE MAG CYAN GREY DARK
+    unset CL_NORM CL_BOLD CL_UNLN CL_RED CL_GREEN CL_YELLOW CL_BLUE CL_MAG CL_CYAN CL_GREY CL_DARK
+    unset CL_BL_RED CL_BL_GREEN CL_BL_YELLOW CL_BL_BLUE CL_BL_MAG CL_BL_CYAN CL_BL_GREY CL_BL_DARK
   fi
 
   [[ -n "$version" || -n "$ver" ]] && about && doExit
@@ -306,7 +287,7 @@ replace() {
 
       show "DONE" $GREEN
     else
-      show "NOT FOUND" $BROWN
+      show "NOT FOUND" $YELLOW
       rm -f "$tmp_file" "$orig_file" &> /dev/null
     fi
   done
@@ -459,7 +440,7 @@ unpack() {
 # Echo: No
 upload() {
   if [[ -z "$bucket" ]] ; then
-    show "Please define <bucket> property in preferencies file before upload." $BROWN
+    show "Please define <bucket> property in preferencies file before upload." $YELLOW
     doExit 1
   fi
 
@@ -734,6 +715,39 @@ showm() {
   fi
 }
 
+# Show formated message with option info
+#
+# 1: Option (String)
+# 2: Description (String)
+# 3: Arguments (String) [Optional]
+#
+# Code: No
+# Echo: No
+showo() {
+  local ent_name ent_desc optp optt optf breadcrumbs
+
+  ent_clr="$1"
+  ent_name="$2"
+  ent_desc="$3"
+  ent_args="$4"
+
+  if [[ -n "$DARK" ]] ; then
+    breadcrumbs="............................"
+  else
+    breadcrumbs="                            "
+  fi
+
+  if [[ -z "$ent_args" ]] ; then
+    optt="$ent_name"
+    optf=$(( 28 - ${#optt} ))
+    echo -e "  ${ent_clr}${ent_name}${CL_NORM} ${CL_DARK}${breadcrumbs:0:$optf}${CL_NORM} $ent_desc"
+  else
+    optt="$ent_name $ent_args"
+    optf=$(( 28 - ${#optt} ))
+    echo -e "  ${ent_clr}${ent_name}${CL_NORM} ${CL_GREY}${optp}${CL_NORM} ${CL_DARK}${breadcrumbs:0:$optf}${CL_NORM} $ent_desc"
+  fi
+}
+
 # -
 #
 # Show usage info
@@ -741,47 +755,29 @@ showm() {
 # Code: No
 # Echo: No
 usage() {
-  show "${CL_BOLD}Usage:${CL_NORM} rbdef ${CL_GREEN}{options}${CL_NORM} ${CL_BROWN}{command}${CL_NORM} {args...}"
+  show ""
+  show "${CL_BOLD}Usage:${CL_NORM} rbdef ${CL_GREEN}{options}${CL_NORM} ${CL_YELLOW}{command}${CL_NORM} arguments..."
   show ""
   show "Commands:" $BOLD
   show ""
-  if [[ -n "$DARK" ]] ; then
-    show "  ${CL_BROWN}repack${CL_NORM} ${CL_DARK}...${CL_NORM} Repack source archive to 7z"
-    show "  ${CL_BROWN}replace${CL_NORM} ${CL_DARK}..${CL_NORM} Find and replace records in def files"
-    show "  ${CL_BROWN}proc${CL_NORM} ${CL_DARK}.....${CL_NORM} Add sha-1 checksum to records in def files"
-    show "  ${CL_BROWN}crc${CL_NORM} ${CL_DARK}......${CL_NORM} Generate crc for given file or url"
-    show "  ${CL_BROWN}rec${CL_NORM} ${CL_DARK}......${CL_NORM} Create record line from url"
-    show "  ${CL_BROWN}upload${CL_NORM} ${CL_DARK}...${CL_NORM} Upload source archive to s3 mirror"
-  else
-    show "  repack     Repack source archive to 7z"
-    show "  replace    Find and replace records in def files"
-    show "  proc       Add sha-1 checksum to records in def files"
-    show "  crc        Generate crc for given file or url"
-    show "  rec        Create record line from url"
-    show "  upload     Upload source archive to s3 mirror"
-  fi
+  showo "$CL_YELLOW" "repack"  "Repack source archive to 7z"
+  showo "$CL_YELLOW" "replace" "Find and replace records in def files"
+  showo "$CL_YELLOW" "proc"    "Add SHA-1 checksum to records in def files"
+  showo "$CL_YELLOW" "crc"     "Generate CRC for given file or URL"
+  showo "$CL_YELLOW" "rec"     "Create record line from URL"
+  showo "$CL_YELLOW" "upload"  "Upload source archive to S3 mirror"
   show ""
   show "Options:" $BOLD
   show ""
-  if [[ -n "$DARK" ]] ; then
-    show "  ${CL_GREEN}--remove, -r${CL_NORM} ${CL_DARK}...............${CL_NORM} Remove downloaded sources (use with ${CL_BROWN}repack${CL_NORM} or ${CL_BROWN}proc${CL_NORM} commad)"
-    show "  ${CL_GREEN}--force, -f${CL_NORM} ${CL_DARK}................${CL_NORM} Always download sources while def processing (use with ${CL_BROWN}proc${CL_NORM} commad)"
-    show "  ${CL_GREEN}--author, -a${CL_NORM} ${CL_DARK}...............${CL_NORM} Author of def file (use with ${CL_BROWN}proc${CL_NORM} commad)"
-    show "  ${CL_GREEN}--bucket, -b${CL_NORM} ${CL_DARK}...............${CL_NORM} Make sources readable by anyone (use with ${CL_BROWN}upload${CL_NORM} commad)"
-    show "  ${CL_GREEN}--public-uploads, -p${CL_NORM} ${CL_DARK}.......${CL_NORM} Change S3 acl to public for sources (use with ${CL_BROWN}upload${CL_NORM} commad)"
-    show "  ${CL_GREEN}--reduced-redundancy, -rr${CL_NORM} ${CL_DARK}..${CL_NORM} Use reduced redundancy storage class (use with ${CL_BROWN}upload${CL_NORM} commad)"
-    show "  ${CL_GREEN}--help, -h${CL_NORM} ${CL_DARK}.................${CL_NORM} Show this help message"
-    show "  ${CL_GREEN}--version, -v${CL_NORM} ${CL_DARK}..............${CL_NORM} Show information about version"
-  else
-    show "  --remove, -r                 Remove downloaded sources (use with repack or proc commad)"
-    show "  --force, -f                  Always download sources while def processing (use with proc commad)"
-    show "  --author, -a                 Author of def file (use with proc commad)"
-    show "  --bucket, -b                 Make sources readable by anyone (use with upload commad)"
-    show "  --public-uploads, -p         Change S3 acl to public for sources (use with upload commad)"
-    show "  --reduced-redundancy, -rr    Use reduced redundancy storage class (use with upload commad)"
-    show "  --help, -h                   Show this help message"
-    show "  --version, -v                Show information about version"
-  fi
+  showo "$CL_GREEN" "--remove, -r"              "Remove downloaded sources (use with ${CL_YELLOW}repack${CL_NORM} or ${CL_YELLOW}proc${CL_NORM} command)"
+  showo "$CL_GREEN" "--force, -f"               "Always download sources while def processing (use with ${CL_YELLOW}proc${CL_NORM} command)"
+  showo "$CL_GREEN" "--author, -a"              "Author of def file (use with ${CL_YELLOW}proc${CL_NORM} command)"
+  showo "$CL_GREEN" "--bucket, -b"              "Make sources readable by anyone (use with ${CL_YELLOW}upload${CL_NORM} command)"
+  showo "$CL_GREEN" "--public-uploads, -p"      "Change S3 ACL to public for sources (use with ${CL_YELLOW}upload${CL_NORM} command)"
+  showo "$CL_GREEN" "--reduced-redundancy, -rr" "Use reduced redundancy storage class (use with ${CL_YELLOW}upload${CL_NORM} command)"
+  showo "$CL_GREEN" "--no-colors, -nc"          "Disable colors in output"
+  showo "$CL_GREEN" "--help"                    "Show this help message"
+  showo "$CL_GREEN" "--version, -v"             "Show information about version"
   show ""
 }
 
@@ -792,10 +788,11 @@ usage() {
 # Code: No
 # Echo: No
 about() {
-  show "${CL_BL_CYAN}$APP${CL_NORM} ${CL_CYAN}$VER${CL_NORM} - Helper for working with rbbuild def files"
   show ""
-  show "Copyright (C) 2009-2015 Essential Kaos" $GREY
-  show "Essential Kaos Open Source License <http://essentialkaos.com/ekol?en>" $GREY
+  show "${CL_BL_CYAN}$APP${CL_NORM} ${CL_CYAN}$VER${CL_NORM} - Utility for working with RBBuild def files"
+  show ""
+  show "Copyright (C) 2009-$(date +%Y) ESSENTIAL KAOS" $DARK
+  show "Essential Kaos Open Source License <https://essentialkaos.com/ekol>" $DARK
   show ""
 }
 
