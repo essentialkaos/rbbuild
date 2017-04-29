@@ -1,23 +1,23 @@
 # RBBuild Def File
-# UPDATED 26/Nov/2016 19:21:17 by Anton Novojlov <andy@essentialkaos.com>
+# UPDATED 28/Apr/2017 20:53:17 by Anton Novojlov <andy@essentialkaos.com>
 
 deps(rpm): gcc git make zlib-devel readline-devel tk-devel ca-certificates
 deps(rpm): autoconf glibc-devel ncurses-devel bison libffi-devel
 deps(deb): gcc git make zlib1g-dev libreadline6-dev tk-dev ca-certificates
 deps(deb): autoconf libc6-dev libncurses5-dev bison libffi-dev
 
-CONFOPTS(openssl-1.0.2j): gcc --openssldir={prefix}/openssl/ssl zlib-dynamic no-krb5 shared -fPIC
-MAKEOPTS(openssl-1.0.2j): -j 1
-PREFIX(openssl-1.0.2j): {prefix}/openssl
+CONFOPTS(openssl-1.0.2k): gcc --openssldir={prefix}/openssl/ssl zlib-dynamic no-krb5 shared -fPIC
+MAKEOPTS(openssl-1.0.2k): -j 1
+PREFIX(openssl-1.0.2k): {prefix}/openssl
 
 CONFOPTS(ruby-2.2.3-p0): --with-openssl-dir={prefix}/openssl --disable-install-doc
 
 [default]
-  package: "openssl-1.0.2j" "https://www.openssl.org/source/openssl-1.0.2j.tar.gz" "bdfbdb416942f666865fa48fe13c2d0e588df54f" openssl
+  package: "openssl-1.0.2k" "https://www.openssl.org/source/openssl-1.0.2k.tar.gz" "5f26a624479c51847ebd2f22bb9f84b3b44dcb44" openssl
   patchset: "https://ruby.kaos.io/patches/2.2.3-p0.7z" "5c07e5ecfbda876cf5dba4c5e17e85957f21eb42"
   package: "ruby-2.2.3-p0" "https://ftp.ruby-lang.org/pub/ruby/2.2/ruby-2.2.3.tar.gz" "0d9e158534cb31e72740138b8f697b57b448e5c3"
 
 [essentialkaos]
-  package: "openssl-1.0.2j" "https://ruby.kaos.io/openssl-1.0.2j.7z" "a62e68921d9960c229d831d3cd8dc716ff9cd7ca" openssl
+  package: "openssl-1.0.2k" "https://ruby.kaos.io/openssl-1.0.2k.7z" "1c23f9626f598371c5810fbdeed35da44e1fbf24" openssl
   patchset: "https://ruby.kaos.io/patches/2.2.3-p0.7z" "5c07e5ecfbda876cf5dba4c5e17e85957f21eb42"
   package: "ruby-2.2.3-p0" "https://ruby.kaos.io/ruby-2.2.3.7z" "d4d3fae33cc3384e0c50a11c0d1df37426063e87"

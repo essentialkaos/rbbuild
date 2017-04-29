@@ -77,6 +77,7 @@ rm -rf %{buildroot}
 %changelog
 * Sat Apr 29 2017 Anton Novojilov <andy@essentialkaos.com> - 1.6.5-0
 - OpenSSL updated to 1.1.0d for 2.3.x, 2.4.x, 2.5.0-dev
+- OpenSSL updated to 1.0.2k for 1.9.2-pXXX, 1.9.3-pXXX, 2.0.x, 2.1.x, 2.2.x
 
 * Fri Apr 28 2017 Anton Novojilov <andy@essentialkaos.com> - 1.6.4-0
 - Fixed libyaml linking for 1.9.x
