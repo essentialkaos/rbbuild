@@ -6,7 +6,7 @@
 APP="RBBuild"
 
 # App version (String)
-VER="1.6.4"
+VER="1.6.5"
 
 ################################################################################
 
@@ -15,48 +15,31 @@ BOLD=1
 UNLN=4
 RED=31
 GREEN=32
-BROWN=33
+YELLOW=33
 BLUE=34
 MAG=35
 CYAN=36
 GREY=37
 DARK=90
 
-CL_NORM="\e[${NORM}m"
-CL_BOLD="\e[${BOLD}m"
-CL_UNLN="\e[${UNLN}m"
-CL_RED="\e[${RED}m"
-CL_GREEN="\e[${GREEN}m"
-CL_BROWN="\e[${BROWN}m"
-CL_BLUE="\e[${BLUE}m"
-CL_MAG="\e[${MAG}m"
-CL_CYAN="\e[${CYAN}m"
-CL_GREY="\e[${GREY}m"
-CL_DARK="\e[${DARK}m"
-CL_BL_RED="\e[${RED};1m"
-CL_BL_GREEN="\e[${GREEN};1m"
-CL_BL_BROWN="\e[${BROWN};1m"
-CL_BL_BLUE="\e[${BLUE};1m"
-CL_BL_MAG="\e[${MAG};1m"
-CL_BL_CYAN="\e[${CYAN};1m"
-CL_BL_GREY="\e[${GREY};1m"
-CL_BL_DARK="\e[${DARK};1m"
-CL_UL_RED="\e[${RED};4m"
-CL_UL_GREEN="\e[${GREEN};4m"
-CL_UL_BROWN="\e[${BROWN};4m"
-CL_UL_BLUE="\e[${BLUE};4m"
-CL_UL_MAG="\e[${MAG};4m"
-CL_UL_CYAN="\e[${CYAN};4m"
-CL_UL_GREY="\e[${GREY};4m"
-CL_UL_DARK="\e[${DARK};4m"
-CL_BG_RED="\e[${RED};7m"
-CL_BG_GREEN="\e[${GREEN};7m"
-CL_BG_BROWN="\e[${BROWN};7m"
-CL_BG_BLUE="\e[${BLUE};7m"
-CL_BG_MAG="\e[${MAG};7m"
-CL_BG_CYAN="\e[${CYAN};7m"
-CL_BG_GREY="\e[${GREY};7m"
-CL_BG_DARK="\e[${DARK};7m"
+CL_NORM="\e[0m"
+CL_BOLD="\e[0;${BOLD};49m"
+CL_UNLN="\e[0;${UNLN};49m"
+CL_RED="\e[0;${RED};49m"
+CL_GREEN="\e[0;${GREEN};49m"
+CL_YELLOW="\e[0;${YELLOW};49m"
+CL_BLUE="\e[0;${BLUE};49m"
+CL_MAG="\e[0;${MAG};49m"
+CL_CYAN="\e[0;${CYAN};49m"
+CL_GREY="\e[0;${GREY};49m"
+CL_DARK="\e[0;${DARK};49m"
+CL_BL_RED="\e[1;${RED};49m"
+CL_BL_GREEN="\e[1;${GREEN};49m"
+CL_BL_YELLOW="\e[1;${YELLOW};49m"
+CL_BL_BLUE="\e[1;${BLUE};49m"
+CL_BL_MAG="\e[1;${MAG};49m"
+CL_BL_CYAN="\e[1;${CYAN};49m"
+CL_BL_GREY="\e[1;${GREY};49m"
 
 ################################################################################
 
@@ -182,11 +165,9 @@ declare -A plocat
 # Echo: No
 main() {
   if [[ ! -t 1 || -n "$no_colors" ]] ; then
-    unset NORM BOLD UNLN RED GREEN BROWN BLUE MAG CYAN GREY DARK
-    unset CL_NORM CL_BOLD CL_UNLN CL_RED CL_GREEN CL_BROWN CL_BLUE CL_MAG CL_CYAN CL_GREY CL_DARK
-    unset CL_BL_RED CL_BL_GREEN CL_BL_BROWN CL_BL_BLUE CL_BL_MAG CL_BL_CYAN CL_BL_GREY CL_BL_DARK
-    unset CL_UL_RED CL_UL_GREEN CL_UL_BROWN CL_UL_BLUE CL_UL_MAG CL_UL_CYAN CL_UL_GREY CL_UL_DARK
-    unset CL_BG_RED CL_BG_GREEN CL_BG_BROWN CL_BG_BLUE CL_BG_MAG CL_BG_CYAN CL_BG_GREY CL_BG_DARK
+    unset NORM BOLD UNLN RED GREEN YELLOW BLUE MAG CYAN GREY DARK
+    unset CL_NORM CL_BOLD CL_UNLN CL_RED CL_GREEN CL_YELLOW CL_BLUE CL_MAG CL_CYAN CL_GREY CL_DARK
+    unset CL_BL_RED CL_BL_GREEN CL_BL_YELLOW CL_BL_BLUE CL_BL_MAG CL_BL_CYAN CL_BL_GREY CL_BL_DARK
   fi
 
   [[ -n "$version" || -n "$ver" ]] && about && doExit
@@ -339,7 +320,7 @@ doBuild() {
   loadavg=$(getLA)
 
   if [[ $loadavg -gt $MAX_LA && -z "$yes" ]] ; then
-    show "Current LA ($loadavg) is too high. We strongly don't recommend start build process at this moment." $BROWN
+    show "Current LA ($loadavg) is too high. We strongly don't recommend start build process at this moment." $YELLOW
     show "\nContinue build anyway? (y/N)" $CYAN
 
     if ! readAnswer "N" ; then
@@ -348,7 +329,7 @@ doBuild() {
   fi
 
   if [[ -d "$prefix" && -z "$yes" ]] ; then
-    show "Directory $prefix already exists." $BROWN
+    show "Directory $prefix already exists." $YELLOW
     show "\nYou really want to use this directory? (Y/n)" $CYAN
 
     if ! readAnswer "Y" ; then
@@ -558,7 +539,7 @@ checkEOLDates() {
     if [[ $normal_ts -lt $now ]] ; then
       expired=true
       normal_rd=$(date -d "@$normal_ts" +'%d %B %Y')
-      show "Normal maintenance finished $normal_rd." $BROWN
+      show "Normal maintenance finished $normal_rd." $YELLOW
     fi
   fi
 
@@ -577,8 +558,8 @@ checkEOLDates() {
           show "Security maintenance finished $security_rd." $RED
         else
           expired_rd=$(date -d "@$expired_ts" +'%d %B %Y')
-          show "Security maintenance finished $security_rd." $BROWN
-          show "Extended maintenance will be finished $expired_rd." $BROWN
+          show "Security maintenance finished $security_rd." $YELLOW
+          show "Extended maintenance will be finished $expired_rd." $YELLOW
         fi
       else
         show "Security maintenance finished $security_rd." $RED
@@ -826,7 +807,7 @@ installPackage() {
 
   pushd "$tmp_dir" &> /dev/null
 
-    show "\nInstalling ${CL_BOLD}${pkg}${CL_NORM}" $BROWN
+    show "\nInstalling ${CL_BOLD}${pkg}${CL_NORM}" $YELLOW
     show "Fetching file ${file_name}... "
 
     if ! fetchRemoteFile "$url" "$file_name" ; then
@@ -875,7 +856,7 @@ installGitSource() {
 
   pushd "$tmp_dir" &> /dev/null
 
-    show "\nInstalling ${CL_BOLD}${pkg}${CL_NORM}" $BROWN
+    show "\nInstalling ${CL_BOLD}${pkg}${CL_NORM}" $YELLOW
     showm "Fetching sources from ${url:0:62}... "
 
     spinnerOn
@@ -941,7 +922,7 @@ installSvnSource() {
   shift 3
 
   pushd "$tmp_dir" &> /dev/null
-    show "\nInstalling ${CL_BOLD}${pkg}${CL_NORM}" $BROWN
+    show "\nInstalling ${CL_BOLD}${pkg}${CL_NORM}" $YELLOW
     showm "Fetching sources from ${url:0:62}... "
 
     spinnerOn
@@ -1016,7 +997,7 @@ installHgSource() {
 
   pushd "$tmp_dir" &> /dev/null
 
-    show "\nInstalling ${CL_BOLD}${pkg}${CL_NORM}" $BROWN
+    show "\nInstalling ${CL_BOLD}${pkg}${CL_NORM}" $YELLOW
     showm "Fetching sources from ${url:0:62}... "
 
     spinnerOn
@@ -1489,7 +1470,7 @@ listDefs() {
   ruby_count=0
   ruby_next=0
 
-  printf "\n${CL_BOLD}${CL_BG_BROWN} %-26s${CL_NORM} ${CL_BOLD}${CL_BG_CYAN} %-26s${CL_NORM} ${CL_BOLD}${CL_BG_GREEN} %-26s${CL_NORM} ${CL_BOLD}${CL_BG_MAG} %-26s${CL_NORM} ${CL_BOLD}${CL_BG_GREY} %-26s${CL_NORM}\n\n" "RUBY" "JRUBY" "REE" "RUBINIUS" "OTHER"
+  printf "\n${CL_BOLD}${CL_BG_YELLOW} %-26s${CL_NORM} ${CL_BOLD}${CL_BG_CYAN} %-26s${CL_NORM} ${CL_BOLD}${CL_BG_GREEN} %-26s${CL_NORM} ${CL_BOLD}${CL_BG_MAG} %-26s${CL_NORM} ${CL_BOLD}${CL_BG_GREY} %-26s${CL_NORM}\n\n" "RUBY" "JRUBY" "REE" "RUBINIUS" "OTHER"
 
   while : ; do
     ruby_next=$(($ruby_count+1))
@@ -1655,7 +1636,7 @@ require() {
 
   for app in "$@" ; do
     if ! checkDeps "$app" ; then
-      show "\nWarning: This action required ${app}. Please install this application and try again.\n" $BROWN
+      show "\nWarning: This action required ${app}. Please install this application and try again.\n" $YELLOW
       doExit 1
     fi
   done
@@ -1676,7 +1657,7 @@ requireCompiler() {
 
       if [[ $? -ne 0 ]] ; then
         show ""
-        show "Warning: Compiler $complr is not found." $BROWN
+        show "Warning: Compiler $complr is not found." $YELLOW
         show "" && doExit 1
       fi
     done
@@ -1685,7 +1666,7 @@ requireCompiler() {
 
     if [[ $? -ne 0 ]] ; then
       show ""
-      show "Warning: For this package require compiler. Please install compiler (gcc/clang) and try again." $BROWN
+      show "Warning: For this package require compiler. Please install compiler (gcc/clang) and try again." $YELLOW
       show "" && doExit 1
     fi
   fi
@@ -2123,7 +2104,7 @@ showo() {
 # Echo: No
 usage() {
   show ""
-  show "${CL_BOLD}Usage:${CL_NORM} rbbuild ${CL_BROWN}{definition-file}${CL_NORM} ${CL_GREEN}{options}${CL_NORM}..."
+  show "${CL_BOLD}Usage:${CL_NORM} rbbuild ${CL_GREEN}{options}${CL_NORM} file"
   show ""
   show "${CL_BOLD}Options:${CL_NORM}"
   show ""
@@ -2133,7 +2114,7 @@ usage() {
   showo "--no-patch, -np"         "Skip patch directives in definition file"
   showo "--cc-comp, -cc"          "Path to C compiler"                                                             "path/name"
   showo "--cxx-comp, -cxx"        "Path to C++ compiler" "path"                                                    "path/name"
-  showo "--ignore-checksums, -ic" "Skip checksum check (${CL_BROWN}insecure!${CL_NORM})"
+  showo "--ignore-checksums, -ic" "Skip checksum check (${CL_YELLOW}insecure!${CL_NORM})"
   showo "--list, -l"              "List of all definition files"
   showo "--mirror, -m"            "Mirror name for downloading source archives from it"                            "name"
   showo "--mirror-list, -ml"      "Show list of all available mirrors"
@@ -2169,7 +2150,7 @@ about() {
   show ""
   show "${CL_BL_CYAN}${APP}${CL_NORM} ${CL_CYAN}${VER}${CL_NORM} - Utility for compiling and installing different ruby versions"
   show ""
-  show "Copyright (C) 2009-2016 ESSENTIAL KAOS" $DARK
+  show "Copyright (C) 2009-$(date +%Y) ESSENTIAL KAOS" $DARK
   show "Essential Kaos Open Source License <https://essentialkaos.com/ekol>" $DARK
   show ""
 }
