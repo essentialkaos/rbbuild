@@ -6,7 +6,7 @@
 APP="RBBuild Def Utils"
 
 # App version (String)
-VER="1.4.3"
+VER="1.4.4"
 
 ################################################################################
 
@@ -305,7 +305,7 @@ proc() {
   for file in "$@" ; do
     target_name=$(basename "$file")
 
-    show "Processing file ${CL_BOLD}$target_name${CL_NORM}... "
+    showm "Processing file ${CL_BOLD}$target_name${CL_NORM}... "
 
     if ! checkPerms "FRW" "$file" ; then
       show "FAIL" $RED
