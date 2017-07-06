@@ -1,8 +1,6 @@
 <p align="center"><a href="#usage-demo">Usage demo</a> • <a href="#installation">Installation</a> • <a href="#usage">Usage</a> • <a href="#build-status">Build Status</a> • <a href="#license">License</a></p>
 
-<p align="center">
-<img width="300" height="150" src="https://gh.kaos.io/rbbuild-v3.png"/>
-</p>
+<p align="center"><img width="300" height="150" src="https://gh.kaos.io/rbbuild-v3.png"/></p>
 
 `rbbuild` is utility for compiling and installing different ruby versions.
 
@@ -10,23 +8,23 @@
 
 [![demo](https://gh.kaos.io/rbbuild-160.gif)](#usage-demo)
 
-## Installation
+### Installation
 
-### From [ESSENTIAL KAOS Public Repository](https://yum.kaos.io) for RHEL6/CentOS6
+#### From [ESSENTIAL KAOS Public Repository](https://yum.kaos.io) for RHEL6/CentOS6
 
 ```
 [sudo] yum install -y https://yum.kaos.io/6/release/x86_64/kaos-repo-8.0-0.el6.noarch.rpm
 [sudo] yum install rbbuild
 ```
 
-### From [ESSENTIAL KAOS Public Repository](https://yum.kaos.io) for RHEL7/CentOS7
+#### From [ESSENTIAL KAOS Public Repository](https://yum.kaos.io) for RHEL7/CentOS7
 
 ```
 [sudo] yum install -y https://yum.kaos.io/7/release/x86_64/kaos-repo-8.0-0.el7.noarch.rpm
 [sudo] yum install rbbuild
 ```
 
-### Using `install.sh`
+#### Using `install.sh`
 We provide simple bash script `script.sh` for installing app from the sources.
 
 ```
@@ -44,7 +42,7 @@ If you have some issues with installing, try to use script in debug mode:
 [sudo] ./install.sh --debug
 ```
 
-## Usage
+### Usage
 
 ```
 Usage: rbbuild {definition-file} {options}...
@@ -86,13 +84,15 @@ Examples:
 
 ```
 
-## Build Status
+### Build Status
 
 | Branch | Status | Code Climate |
 |--------|--------|--------------|
 | `master` | [![Build Status](https://travis-ci.org/essentialkaos/rbbuild.svg?branch=master)](https://travis-ci.org/essentialkaos/rbbuild) | [![Code Climate](https://codeclimate.com/github/essentialkaos/rbbuild/badges/gpa.svg)](https://codeclimate.com/github/essentialkaos/rbbuild) |
 | `develop` | [![Build Status](https://travis-ci.org/essentialkaos/rbbuild.svg?branch=develop)](https://travis-ci.org/essentialkaos/rbbuild) | - |
 
-## License
+### License
 
 [EKOL](https://essentialkaos.com/ekol)
+
+<p align="center"><a href="https://essentialkaos.com"><img src="https://gh.kaos.io/ekgh.svg"/></a></p>
