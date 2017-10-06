@@ -225,7 +225,7 @@ prepDefFile() {
     fetchRemoteDefFile "$1"
   else
     if checkPerms "FR" "$1" ; then
-      if checkPerms "S" ; then
+      if checkPerms "S" "$1" ; then
         def_file=$(getAbsPath "$1")
       else
         show "Error! Definition file is empty.\n" $RED
