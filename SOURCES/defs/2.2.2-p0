@@ -1,5 +1,5 @@
 # RBBuild Def File
-# UPDATED 28/Apr/2017 20:53:16 by Anton Novojlov <andy@essentialkaos.com>
+# UPDATED 28/Apr/2017 20:53:16 by Anton Novojilov <andy@essentialkaos.com>
 
 deps(rpm): gcc make zlib-devel readline-devel tk-devel ca-certificates
 deps(rpm): autoconf glibc-devel ncurses-devel bison libffi-devel

@@ -160,7 +160,7 @@ main() {
 # Code: No
 # Echo: No
 repack() {
-  local file url file_name arch_dir
+  local file url file_name arch_dir size_diff
 
   for file in "$@" ; do
     if [[ $file =~ http:|https:|ftp: ]] ; then
@@ -193,7 +193,9 @@ repack() {
     rm -rf "$arch_dir.7z" &> /dev/null
     7za a -t7z -mx=9 "$arch_dir.7z" "$arch_dir" &> /dev/null
 
-    show "DONE" $GREEN
+    size_diff=$(getSizeDiff "$file_name" "$arch_dir.7z")
+
+    show "${CL_GREEN}DONE${CL_NORM} ${CL_DARK}(${size_diff}%)${CL_NORM}"
 
     [[ -n "$remove" ]] && rm -rf "$file_name" &> /dev/null
 
@@ -660,6 +662,22 @@ detectOs() {
   elif [[ "$os_arch" == "i386" && "$os_name" == "$OS_LINUX" ]]; then
     os_arnm="linux32"
   fi
+}
+
+# Return size diff
+#
+# 1: File #1 (String)
+# 2: file #2 (String)
+#
+# Code: No
+# Echo: Diff (Number)
+getSizeDiff() {
+  local size1 size2
+
+  size1=$(stat -c '%s' "$1")
+  size2=$(stat -c '%s' "$2")
+
+  echo "scale=3; 100-((${size1}/${size2})*100)" | bc | sed 's/00$//'
 }
 
 # Exit from utility

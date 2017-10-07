@@ -1,5 +1,5 @@
 # RBBuild Def File
-# UPDATED 01/Mar/2016 09:40:47 by Anton Novojlov <andy@essentialkaos.com>
+# UPDATED 01/Mar/2016 09:40:47 by Anton Novojilov <andy@essentialkaos.com>
 
 deps(deb): gcc build-essentials bison zlib1g-dev libyaml-dev libssl-dev libreadline-dev llvm llvm-dev libncurses5-dev libeditline-dev
 deps(rpm): gcc gcc-c++ readline-devel openssl-devel zlib-devel llvm llvm-static libedit-devel

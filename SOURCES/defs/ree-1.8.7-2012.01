@@ -1,5 +1,5 @@
 # RBBuild Def File
-# UPDATED 13/Aug/2015 11:53:23 by Anton Novojlov <andy@essentialkaos.com>
+# UPDATED 13/Aug/2015 11:53:23 by Anton Novojilov <andy@essentialkaos.com>
 
 deps(rpm): gcc make openssl openssl-devel zlib zlib-devel readline readline-devel
 deps(rpm): glibc glibc-devel ncurses ncurses-devel bison byacc
