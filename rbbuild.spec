@@ -121,11 +121,11 @@ rm -rf %{buildroot}
 - Small fix for rbdef
 
 * Wed Jul 13 2016 Anton Novojilov <andy@essentialkaos.com> - 1.5.6-0
-- Imporved listing
+- Improved listing
 
 * Fri May 13 2016 Anton Novojilov <andy@essentialkaos.com> - 1.5.5-0
 - Fixed bug with listing def files
-- Imporved listing
+- Improved listing
 
 * Thu Apr 28 2016 Anton Novojilov <andy@essentialkaos.com> - 1.5.4-0
 - Fixed typo in Mac OS name
