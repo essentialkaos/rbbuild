@@ -83,6 +83,13 @@ rm -rf %{buildroot}
 - Added jruby-9.1.11.0
 - Added jruby-9.1.12.0
 - Added jruby-9.1.13.0
+- Added 2.2.6-railsexpress
+- Added 2.2.7-railsexpress
+- Added 2.2.8-railsexpress
+- Added 2.3.4-railsexpress
+- Added 2.3.5-railsexpress
+- Added 2.4.1-railsexpress
+- Added 2.4.2-railsexpress
 
 * Sun Jun 04 2017 Anton Novojilov <andy@essentialkaos.com> - 1.6.6-0
 - Added 2.2.7-p0
