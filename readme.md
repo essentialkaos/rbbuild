@@ -1,6 +1,6 @@
 <p align="center"><a href="#usage-demo">Usage demo</a> • <a href="#installation">Installation</a> • <a href="#usage">Usage</a> • <a href="#build-status">Build Status</a> • <a href="#license">License</a></p>
 
-<p align="center"><img src="https://gh.kaos.io/rbbuild.svg"/></p>
+<p align="center"><a href="#readme"><img src="https://gh.kaos.io/rbbuild.svg"/></a></p>
 
 `rbbuild` is utility for compiling and installing different ruby versions.
 
