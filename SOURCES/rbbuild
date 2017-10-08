@@ -6,7 +6,7 @@
 APP="RBBuild"
 
 # App version (String)
-VER="1.6.7"
+VER="1.7.0"
 
 ################################################################################
 
@@ -176,7 +176,7 @@ main() {
 
   if [[ -z "$mirror_list" ]] ; then
     if [[ -z "$prefix" && -z "$rbenv" ]] ; then
-      show "\nYou must use --prefix (-p) argument for define install location.\n" $RED
+      error "\nYou must use --prefix (-p) argument for define install location.\n"
       doExit 1
     fi
   fi
@@ -186,7 +186,7 @@ main() {
 
   if [[ -d "$tmp" ]] ; then
     if ! checkPerms "DRW" "$tmp" ; then
-      show "\nYou don't have enough permissions to use directory $tmp\n" $RED
+      error "\nYou don't have enough permissions to use directory $tmp\n"
       doExit 1
     fi
   fi
@@ -228,12 +228,12 @@ prepDefFile() {
       if checkPerms "S" "$1" ; then
         def_file=$(getAbsPath "$1")
       else
-        show "Error! Definition file is empty.\n" $RED
+        error "Error! Definition file is empty.\n"
         doExit 1
       fi
     else
       if ! checkPerms "FR" "$DEF_PATH/$1" ; then
-        show "Error! Definition file is not found.\n" $RED
+        error "Error! Definition file is not found.\n"
         doExit 1
       else
         def_file=$(getAbsPath "$DEF_PATH/$1")
@@ -255,7 +255,7 @@ fetchRemoteDefFile() {
   status=$(checkHTTPStatus "$url")
 
   if [[ "$status" != "200" ]] ; then
-    show "Can't fetch remote definition file - server return error status <$status>." $RED
+    error "Can't fetch remote definition file - server return error status <$status>"
     show "" && doExit 1
   fi
 
@@ -304,7 +304,7 @@ doBuild() {
     rbenv_prefix=$(getRBEnvPrefix)
 
     if [[ -z "$rbenv_prefix" ]] ; then
-      show "RBEnv data directory not found. Please define --prefix (-p) manually." $RED
+      error "RBEnv data directory not found. Please define --prefix (-p) manually"
       show "" && doExit 1
     fi
 
@@ -466,7 +466,7 @@ checkBuildDeps() {
   fi
 
   if [[ -n "$is_fail" ]] ; then
-    show "FAIL" $RED
+    error "FAIL"
 
     show ""
 
@@ -555,14 +555,14 @@ checkEOLDates() {
         extended_ts=$(date +%s -d "$extended")
 
         if [[ $extended_ts -lt $now ]] ; then
-          show "Security maintenance finished $security_rd." $RED
+          error "Security maintenance finished $security_rd"
         else
           expired_rd=$(date -d "@$expired_ts" +'%d %B %Y')
-          show "Security maintenance finished $security_rd." $YELLOW
-          show "Extended maintenance will be finished $expired_rd." $YELLOW
+          show "Security maintenance finished <$security_rd>" $YELLOW
+          show "Extended maintenance will be finished <$expired_rd>" $YELLOW
         fi
       else
-        show "Security maintenance finished $security_rd." $RED
+        error "Security maintenance finished <$security_rd>"
       fi
     fi
   fi
@@ -586,7 +586,7 @@ readDefinition() {
 
   if ! grep -q "^\[$mirror\]" "$def_file" ; then
     show ""
-    show "Error! Can't find mirror with name <$mirror>. Please check selected definition file." $RED
+    error "Error! Can't find mirror with name <$mirror>. Please check selected definition file."
     show "" && doExit 1
   fi
 
@@ -603,7 +603,7 @@ readDefinition() {
   spinnerOff
 
   if [[ -n "$failed" ]] ; then
-    show "FAIL" $RED
+    error "FAIL"
     return 1
   fi
 
@@ -649,7 +649,7 @@ execDefinition() {
         "git")       continue ;;
         "svn")       continue ;;
         "hg")        continue ;;
-        *) show "Unknown action <$action>! Please check selected definition file." $RED
+        *) error "Unknown action <$action>! Please check selected definition file."
            show "" && doExit 1 ;;
       esac
     else
@@ -662,7 +662,7 @@ execDefinition() {
         "git")       installGitSource "${args[@]}" || failed=true ;;
         "svn")       installSvnSource "${args[@]}" || failed=true ;;
         "hg")        installHgSource  "${args[@]}" || failed=true ;;
-        *) show "Unknown action <$action>! Please check selected definition file." $RED
+        *) error "Unknown action <$action>! Please check selected definition file."
            show "" && doExit 1 ;;
       esac
     fi
@@ -691,10 +691,10 @@ checkRemoteFile() {
   status=$(checkHTTPStatus "$url")
 
   if [[ "$status" != "200" ]] ; then
-    show "FAIL " $RED
-    show ""
-    show "Server return error status ${CL_BOLD}<$status>${CL_NORM} for file ${CL_BOLD}<$url>${CL_NORM}."
-    show "Try another mirror (use -ml argument for view all available mirrors)."
+    error "FAIL"
+    error ""
+    error "Server return error status <$status> for file <$url>."
+    error "Try another mirror (use -ml argument for view all available mirrors)."
 
     show "" && doExit 1
   fi
@@ -866,8 +866,8 @@ installGitSource() {
     git clone "$url" &> $verb_output
 
     if [[ $? -ne 0 ]] ; then
-      show "FAIL" $RED
-      show "Can't checkout git repository $url"
+      error "FAIL"
+      error "Can't checkout git repository <$url>"
       show "" && doExit 1
     fi
 
@@ -951,8 +951,8 @@ installSvnSource() {
     svn checkout "$svn_url" "$checkout_dir" $svn_adds &> $verb_output
 
     if [[ $? -ne 0 ]] ; then
-      show "FAIL" $RED
-      show "Can't checkout git repository $url"
+      error "FAIL"
+      error "Can't checkout git repository <$url>"
       show "" && doExit 1
     fi
 
@@ -1007,8 +1007,8 @@ installHgSource() {
     hg clone "$url" &> $verb_output
 
     if [[ $? -ne 0 ]] ; then
-      show "FAIL" $RED
-      show "Can't checkout mercurial repository $url"
+      error "FAIL"
+      error "Can't checkout mercurial repository <$url>"
       show "" && doExit 1
     fi
 
@@ -1087,7 +1087,7 @@ mkPrefixDir() {
   mkdir -p "$prefix" &> /dev/null
 
   if ! checkPerms "DRW" "$prefix" ; then
-    show "You don't have enough permissions (read & write) to use directory $prefix" $RED
+    error "You don't have enough permissions (read & write) to use directory <$prefix>"
     show "" && doExit 1
   fi
 }
@@ -1173,10 +1173,10 @@ checkCRC() {
   if [[ "$file_crc" == "$crc" ]] ; then
     show "OK" $GREEN
   else
-    show "FAIL" $RED
-    show ""
-    show "Checksum of the file <$filename> not equals to checksum from the definition file. Maybe file was changed." $RED
-    show "You can use argument --ignore-checksums (-ic) for skipping this check." $CYAN
+    error "FAIL"
+    error ""
+    error "Checksum of the file <$filename> not equals to checksum from the definition file. Maybe file was changed."
+    error "You can use argument --ignore-checksums (-ic) for skipping this check."
 
     show "" && doExit 1
   fi
@@ -1229,7 +1229,7 @@ unpackArchive() {
 
     rm -f "$arch"
   else
-    show "Can't unpack file $arch. Exiting..." $RED
+    error "Can't unpack file $arch. Exiting..."
     show "" && doExit 1
   fi
 
@@ -1317,7 +1317,7 @@ buildPackage() {
     runBuilder "$builder_name" "$pkg" "$pkg_dir" "$@"
     return $?
   else
-    show "Error building package — builder <$builder_name> is not found." $RED
+    error "Error building package — builder <$builder_name> is not found"
     show "" && doExit 1
   fi
 }
@@ -1365,7 +1365,7 @@ hasBuilder() {
 # Code: No
 # Echo: No
 buildFailed() {
-  show "FAILED" $RED
+  error "FAILED"
   show ""
 
   local prfx="$1"
@@ -1396,8 +1396,8 @@ checkVersionCompatibility() {
   local requiredVersion="$1"
 
   if [[ ${requiredVersion//./} -gt ${VER//./} ]] ; then
-    show "Can't build package - builder not compatible with current version of $APP core." $RED
-    show "Builder required version $requiredVersion or higher, you have version $VER." $RED
+    error "Can't build package - builder not compatible with current version of $APP core."
+    error "Builder required version $requiredVersion or higher, you have version $VER."
 
     show "" && doExit 1
   fi
@@ -1436,7 +1436,7 @@ listDefs() {
     if [[ -d $shrdir/rbbuild ]] ; then
       defs_dir="$shrdir/rbbuild"
     else
-      show "Can't show list of definition files - definitions not found." $RED
+      error "Can't show list of definition files - definitions not found"
       show "" && doExit 1
     fi
   fi
@@ -2022,7 +2022,7 @@ spinner() {
 # Code: No
 # Echo: No
 showArgWarn() {
-  show "Error! You used unsupport argument $1. Please check command syntax." $RED
+  error "Error! You used unsupport argument $1. Please check command syntax."
   exit 1
 }
 
@@ -2096,6 +2096,16 @@ showo() {
     optf=$(( 26 - ${#optt} ))
     echo -e "  ${CL_GREEN}${optn}${CL_NORM} ${CL_GREY}${optp}${CL_NORM} ${CL_DARK}${breadcrumbs:0:$optf}${CL_NORM} $optd"
   fi
+}
+
+# Print error message
+#
+# 1: Message (String)
+#
+# Code: No
+# Echo: No
+error() {
+  show "$@" $RED 1>&2
 }
 
 # Show usage info

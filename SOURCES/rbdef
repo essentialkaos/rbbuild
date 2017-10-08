@@ -147,7 +147,7 @@ main() {
     "rec")     getRecord "$@" ;;
     "proc")    proc "$@" ;;
     "upload")  upload "$@" ;;
-    *) show "Unknown command $cmnd" $RED ;;
+    *) error "Unknown command $cmnd" ;;
   esac
 
   doExit
@@ -160,7 +160,8 @@ main() {
 # Code: No
 # Echo: No
 repack() {
-  local file url file_name arch_dir size_diff
+  local file url file_name arch_dir
+  local prev_size new_size size_diff
 
   for file in "$@" ; do
     if [[ $file =~ http:|https:|ftp: ]] ; then
@@ -173,7 +174,7 @@ repack() {
     elif checkPerms "FR" "$file" ; then
       file_name="$file"
     else
-      show "Can't find file for repack." $RED
+      error "Can't find file for repack"
       doExit 1
     fi
 
@@ -182,8 +183,8 @@ repack() {
     arch_dir=$(unpack "$file_name")
 
     if [[ -z "$arch_dir" ]] ; then
-      show "FAIL" $RED
-      show "Can't unpack file $file_name. Exiting..." $RED
+      error "FAIL"
+      error "Can't unpack file $file_name. Exiting..."
       doExit 1
     fi
 
@@ -193,9 +194,11 @@ repack() {
     rm -rf "$arch_dir.7z" &> /dev/null
     7za a -t7z -mx=9 "$arch_dir.7z" "$arch_dir" &> /dev/null
 
+    prev_size=$(getHumanFileSize "$file_name")
+    new_size=$(getHumanFileSize "$arch_dir.7z")
     size_diff=$(getSizeDiff "$file_name" "$arch_dir.7z")
 
-    show "${CL_GREEN}DONE${CL_NORM} ${CL_DARK}(${size_diff}%)${CL_NORM}"
+    show "${CL_GREEN}DONE${CL_NORM} ${CL_DARK}(${prev_size} → ${new_size} / ${size_diff}%)${CL_NORM}"
 
     [[ -n "$remove" ]] && rm -rf "$file_name" &> /dev/null
 
@@ -235,7 +238,7 @@ getRecord() {
 
     rm -rf "$file_name" &> /dev/null
   else
-    show "Can't generate record for repo." $RED
+    error "Can't generate record for repo"
     doExit 1
   fi
 }
@@ -263,8 +266,8 @@ replace() {
     showm "Processing file ${CL_BOLD}$target_name${CL_NORM}... "
 
     if ! checkPerms "FRW" "$file" ; then
-      show "FAIL" $RED
-      show "You don't have enough permissions for modify file $file" $RED
+      error "FAIL"
+      error "You don't have enough permissions for modify file $file"
       continue
     fi
 
@@ -307,11 +310,11 @@ proc() {
   for file in "$@" ; do
     target_name=$(basename "$file")
 
-    showm "Processing file ${CL_BOLD}$target_name${CL_NORM}... "
+    showm "Processing file ${CL_BOLD}${target_name}${CL_NORM}... "
 
     if ! checkPerms "FRW" "$file" ; then
-      show "FAIL" $RED
-      show "You don't have enough permissions for modify file $file" $RED
+      error "FAIL"
+      error "You don't have enough permissions for modify file $file"
       continue
     fi
 
@@ -397,7 +400,7 @@ crc() {
 
     [[ -n "$remove" ]] && rm -rf "$file_name" &> /dev/null
   else
-    show "Can't make CRC checksum for file $1. File is not exist or not readable." $RED
+    error "Can't make CRC checksum for file $1. File is not exist or not readable."
     doExit 1
   fi
 }
@@ -680,6 +683,16 @@ getSizeDiff() {
   echo "scale=3; 100-((${size1}/${size2})*100)" | bc | sed 's/00$//'
 }
 
+# Print human size of file
+#
+# 1: File (String)
+#
+# Code: No
+# Echo: Size (String)
+getHumanFileSize() {
+  du -kh "$1" | cut -f1
+}
+
 # Exit from utility
 #
 # 1: Exit code (Number) [Optional]
@@ -699,7 +712,7 @@ doExit() {
 # Code: No
 # Echo: No
 showArgWarn() {
-  show "Error! You used unsupport argument $1. Please check command syntax." $RED
+  error "Error! You used unsupport argument $1. Please check command syntax."
   doExit 1
 }
 
@@ -764,6 +777,16 @@ showo() {
     optf=$(( 28 - ${#optt} ))
     echo -e "  ${ent_clr}${ent_name}${CL_NORM} ${CL_GREY}${optp}${CL_NORM} ${CL_DARK}${breadcrumbs:0:$optf}${CL_NORM} $ent_desc"
   fi
+}
+
+# Print error message
+#
+# 1: Message (String)
+#
+# Code: No
+# Echo: No
+error() {
+  show "$@" $RED 1>&2
 }
 
 # -
