@@ -87,6 +87,7 @@ rm -rf %{buildroot}
 %changelog
 * Sun Oct 08 2017 Anton Novojilov <andy@essentialkaos.com> - 1.6.7-0
 - [rbbuild] Minor fixes
+- [rbdef] Minor improvements
 
 * Sun Jun 04 2017 Anton Novojilov <andy@essentialkaos.com> - 1.6.6-0
 - [rbdef] Minor fixes
