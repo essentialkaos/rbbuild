@@ -1,5 +1,5 @@
 # RBBuild Def File
-# UPDATED 28/Apr/2016 05:28:58 by Anton Novojlov <andy@essentialkaos.com>
+# UPDATED 28/Apr/2016 05:28:58 by Anton Novojilov <andy@essentialkaos.com>
 
 deps(rpm): make gcc gcc-c++
 deps(deb): make gcc build-essentials

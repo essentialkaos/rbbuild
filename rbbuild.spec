@@ -29,7 +29,7 @@
 
 Summary:         Utility for compiling and installing different ruby versions 
 Name:            rbbuild
-Version:         1.6.6
+Version:         1.7.0
 Release:         0%{?dist}
 License:         EKOL
 Vendor:          ESSENTIALKAOS
@@ -85,6 +85,11 @@ rm -rf %{buildroot}
 ################################################################################
 
 %changelog
+* Sun Oct 08 2017 Anton Novojilov <andy@essentialkaos.com> - 1.7.0-0
+- [rbdef|rbbuild] Print errors to stderr
+- [rbbuild] Minor fixes
+- [rbdef] Minor improvements
+
 * Sun Jun 04 2017 Anton Novojilov <andy@essentialkaos.com> - 1.6.6-0
 - [rbdef] Minor fixes
 
@@ -121,11 +126,11 @@ rm -rf %{buildroot}
 - Small fix for rbdef
 
 * Wed Jul 13 2016 Anton Novojilov <andy@essentialkaos.com> - 1.5.6-0
-- Imporved listing
+- Improved listing
 
 * Fri May 13 2016 Anton Novojilov <andy@essentialkaos.com> - 1.5.5-0
 - Fixed bug with listing def files
-- Imporved listing
+- Improved listing
 
 * Thu Apr 28 2016 Anton Novojilov <andy@essentialkaos.com> - 1.5.4-0
 - Fixed typo in Mac OS name
