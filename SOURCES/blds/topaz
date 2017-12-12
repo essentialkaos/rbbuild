@@ -1,4 +1,5 @@
 #!/bin/bash
+# shellcheck disable=SC1117,SC2034,SC2154
 
 # Start topaz builder
 #
@@ -18,7 +19,7 @@ topazBuilder() {
 
   prfx="${XPREFIX:-${prefix}}"
 
-  pushd "$pkg_dir" &> /dev/null
+  pushd "$pkg_dir" &> /dev/null || printErrorAndExit "Can't set working dir to $pkg_dir"
 
     showm "Building... "
 
@@ -41,13 +42,13 @@ topazBuilder() {
           cp -r . "$prfx" || fail=true
         fi
 
-        pushd "$prfx/bin"
+        pushd "$prfx/bin" || printErrorAndExit "Can't set working dir to $prfx/bin"
 
           if [[ -z "$fail" ]] ; then
             ln -fs topaz ruby || fail=true
           fi
 
-        popd
+        popd || printErrorAndExit "Can't set working dir"
       } &>> "$output"
     else
       {
@@ -60,13 +61,13 @@ topazBuilder() {
           cp -r . "$prfx" || fail=true
         fi
 
-        pushd "$prfx/bin"
+        pushd "$prfx/bin" || printErrorAndExit "Can't set working dir to $prfx/bin"
 
           if [[ -z "$fail" ]] ; then
             ln -fs topaz ruby || fail=true
           fi
 
-        popd
+        popd || printErrorAndExit "Can't set working dir"
       } &>> "$log"
     fi
 
@@ -87,5 +88,5 @@ topazBuilder() {
 
     unset exit_protect
 
-  popd &> /dev/null
+  popd &> /dev/null || printErrorAndExit "Can't set working dir"
 }

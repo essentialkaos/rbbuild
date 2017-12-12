@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC1117,SC2034,SC2154,SC2181
 
 ################################################################################
 
@@ -6,7 +7,7 @@
 APP="RBBuild"
 
 # App version (String)
-VER="1.7.0"
+VER="1.7.1"
 
 ################################################################################
 
@@ -40,6 +41,13 @@ CL_BL_BLUE="\e[1;${BLUE};49m"
 CL_BL_MAG="\e[1;${MAG};49m"
 CL_BL_CYAN="\e[1;${CYAN};49m"
 CL_BL_GREY="\e[1;${GREY};49m"
+CL_BG_RED="\e[7;${RED};49m"
+CL_BG_GREEN="\e[7;${GREEN};49m"
+CL_BG_YELLOW="\e[7;${YELLOW};49m"
+CL_BG_BLUE="\e[7;${BLUE};49m"
+CL_BG_MAG="\e[7;${MAG};49m"
+CL_BG_CYAN="\e[7;${CYAN};49m"
+CL_BG_GREY="\e[7;${GREY};49m"
 
 ################################################################################
 
@@ -263,7 +271,7 @@ fetchRemoteDefFile() {
 
   showm "Fetching remote defenition file... "
 
-  pushd "$tmp_dir" &> /dev/null
+  pushd "$tmp_dir" &> /dev/null || printErrorAndExit "Can't set working dir to $tmp_dir"
 
     start_time=$(now)
 
@@ -278,7 +286,7 @@ fetchRemoteDefFile() {
 
     show "${CL_GREEN}DONE${CL_NORM} ${CL_DARK}($grc_time)${CL_NORM}"
 
-  popd &> /dev/null
+  popd &> /dev/null || printErrorAndExit "Can't set working dir"
 
   def_file="$tmp_dir/$file_name"
 }
@@ -637,9 +645,12 @@ execDefinition() {
     [[ -z "$line" || $line =~ \[ ]] && break
 
     fmtd="${line//\"/}"
-    cmnd=(${fmtd/: / })
+
+    IFS=" " read -r -a cmnd <<< "${fmtd/: / }"
+    IFS=" " read -r -a args <<< "${cmnd[@]:1:999}"
+    
     action="${cmnd[0]}"
-    args=(${cmnd[@]:1:999})
+    
 
     if [[ -n "$check" ]] ; then
       case $action in
@@ -726,7 +737,7 @@ installPatch() {
 
   mkdir -p "$tmp_dir/patches"
 
-  pushd "$tmp_dir/patches" &> /dev/null
+  pushd "$tmp_dir/patches" &> /dev/null || printErrorAndExit "Can't set working dir to $tmp_dir/patches"
 
     show "\nFetching patch ${file_name}... "
 
@@ -738,7 +749,7 @@ installPatch() {
 
     require_patching=true
 
-  popd &> /dev/null
+  popd &> /dev/null || printErrorAndExit "Can't set working dir"
 }
 
 # Install patchset (set of patches)
@@ -767,7 +778,7 @@ installPatchset() {
 
   mkdir -p "$tmp_dir/patches"
 
-  pushd "$tmp_dir/patches" &> /dev/nullt
+  pushd "$tmp_dir/patches" &> /dev/null || printErrorAndExit "Can't set working dir to $tmp_dir/patches"
 
     show "\nFetching patchset ${file_name}... "
 
@@ -780,7 +791,7 @@ installPatchset() {
 
     require_patching=true
 
-  popd &> /dev/null
+  popd &> /dev/null || printErrorAndExit "Can't set working dir"
 }
 
 # Install binary file
@@ -805,7 +816,7 @@ installPackage() {
 
   shift 3
 
-  pushd "$tmp_dir" &> /dev/null
+  pushd "$tmp_dir" &> /dev/null || printErrorAndExit "Can't set working dir to $tmp_dir"
 
     show "\nInstalling ${CL_BOLD}${pkg}${CL_NORM}" $YELLOW
     show "Fetching file ${file_name}... "
@@ -828,7 +839,7 @@ installPackage() {
 
     buildPackage "$pkg" "$pkg_dir" "$@"
 
-  popd &> /dev/null
+  popd &> /dev/null || printErrorAndExit "Can't set working dir"
 
   return 0
 }
@@ -854,7 +865,7 @@ installGitSource() {
 
   shift 4
 
-  pushd "$tmp_dir" &> /dev/null
+  pushd "$tmp_dir" &> /dev/null || printErrorAndExit "Can't set working dir to $tmp_dir"
 
     show "\nInstalling ${CL_BOLD}${pkg}${CL_NORM}" $YELLOW
     showm "Fetching sources from ${url:0:62}... "
@@ -873,13 +884,13 @@ installGitSource() {
 
     clone_dir=$(basename "$url" | sed 's/.git//')
 
-    pushd "$clone_dir" &> /dev/null
+    pushd "$clone_dir" &> /dev/null || printErrorAndExit "Can't set working dir to $clone_dir"
       if [[ -n "$tag" && $tag != "!" ]] ; then
         git checkout "$tag" &> $verb_output
       elif [[ -n "$branch" && $branch != "!" ]] ; then
         git checkout "$branch" &> $verb_output
       fi
-    popd &> /dev/null
+    popd &> /dev/null || printErrorAndExit "Can't set working dir"
 
     spinnerOff
 
@@ -888,17 +899,17 @@ installGitSource() {
 
     show "${CL_GREEN}DONE${CL_NORM} ${CL_DARK}($grc_time)${CL_NORM}"
 
-    pushd "$clone_dir" &> /dev/null
+    pushd "$clone_dir" &> /dev/null || printErrorAndExit "Can't set working dir to $clone_dir"
 
       [[ -n "$require_patching" ]] && applyPatches "$pkg"
 
-    popd &> /dev/null
+    popd &> /dev/null || printErrorAndExit "Can't set working dir"
 
     defBuildFlags
 
     buildPackage "$pkg" "$clone_dir" "$@"
 
-  popd &> /dev/null
+  popd &> /dev/null || printErrorAndExit "Can't set working dir"
 }
 
 # Install sources from subversion repository
@@ -921,7 +932,7 @@ installSvnSource() {
 
   shift 3
 
-  pushd "$tmp_dir" &> /dev/null
+  pushd "$tmp_dir" &> /dev/null || printErrorAndExit "Can't set working dir to $tmp_dir"
     show "\nInstalling ${CL_BOLD}${pkg}${CL_NORM}" $YELLOW
     showm "Fetching sources from ${url:0:62}... "
 
@@ -948,6 +959,7 @@ installSvnSource() {
 
     checkout_dir=$(mktemp -u "XXXXXXXX")
 
+    # shellcheck disable=SC2086
     svn checkout "$svn_url" "$checkout_dir" $svn_adds &> $verb_output
 
     if [[ $? -ne 0 ]] ; then
@@ -963,17 +975,17 @@ installSvnSource() {
 
     show "${CL_GREEN}DONE${CL_NORM} ${CL_DARK}($grc_time)${CL_NORM}"
 
-    pushd "$checkout_dir" &> /dev/null
+    pushd "$checkout_dir" &> /dev/null || printErrorAndExit "Can't set working dir to $checkout_dir"
 
       [[ -n "$require_patching" ]] && applyPatches "$pkg"
 
-    popd &> /dev/null
+    popd &> /dev/null || printErrorAndExit "Can't set working dir"
 
     defBuildFlags
 
     buildPackage "$pkg" "$checkout_dir" "$@"
 
-  popd &> /dev/null
+  popd &> /dev/null || printErrorAndExit "Can't set working dir"
 }
 
 # Install sources from mercurial repository
@@ -995,7 +1007,7 @@ installHgSource() {
 
   shift 3
 
-  pushd "$tmp_dir" &> /dev/null
+  pushd "$tmp_dir" &> /dev/null || printErrorAndExit "Can't set working dir to $tmp_dir"
 
     show "\nInstalling ${CL_BOLD}${pkg}${CL_NORM}" $YELLOW
     showm "Fetching sources from ${url:0:62}... "
@@ -1014,13 +1026,13 @@ installHgSource() {
 
     clone_dir=$(basename "$url")
 
-    pushd "$clone_dir" &> /dev/null
+    pushd "$clone_dir" &> /dev/null || printErrorAndExit "Can't set working dir to $clone_dir"
       if [[ -n "$tag" && $tag != "!" ]] ; then
         hg checkout "$tag" &> $verb_output
       elif [[ -n "$branch" && $branch != "!" ]] ; then
         hg checkout "$branch" &> $verb_output
       fi
-    popd &> /dev/null
+    popd &> /dev/null || printErrorAndExit "Can't set working dir"
 
     spinnerOff
 
@@ -1029,17 +1041,17 @@ installHgSource() {
 
     show "${CL_GREEN}DONE${CL_NORM} ${CL_DARK}($grc_time)${CL_NORM}"
 
-    pushd "$clone_dir" &> /dev/null
+    pushd "$clone_dir" &> /dev/null || printErrorAndExit "Can't set working dir to $clone_dir"
 
       [[ -n "$require_patching" ]] && applyPatches "$pkg"
 
-    popd &> /dev/null
+    popd &> /dev/null || printErrorAndExit "Can't set working dir"
 
     defBuildFlags
 
     buildPackage "$pkg" "$clone_dir" "$@"
 
-  popd &> /dev/null
+  popd &> /dev/null || printErrorAndExit "Can't set working dir"
 }
 
 # Apply patches to sources
@@ -1050,22 +1062,27 @@ installHgSource() {
 # Echo: No
 applyPatches() {
   local pkg="$1"
-  local pkgdir=$(ls -1 -d -- */ 2> /dev/null | grep -v "patches" | head -1)
+  local pkgdir
+
+  # shellcheck disable=SC2010
+  pkgdir=$(ls -1 -d -- */ 2> /dev/null | grep -v "patches" | head -1)
 
   showm "Applying patches... "
 
-  pushd "$tmp_dir/$pkgdir" &> /dev/null
+  pushd "$tmp_dir/$pkgdir" &> /dev/null || printErrorAndExit "Can't set working dir to $tmp_dir/$pkgdir"
 
     local patch
 
     if [[ -n $(find "$tmp_dir/patches" -name ".patch") ]] ; then
       for patch in $tmp_dir/patches/*.patch ; do
+        # shellcheck disable=SC2002
         cat "$patch" | patch -p1 &> $verb_output
       done
     fi
 
     if [[ -n $(find "$tmp_dir/patches" -name ".diff") ]] ; then
       for patch in $tmp_dir/patches/*.diff ; do
+        # shellcheck disable=SC2002
         cat "$patch" | git apply &> $verb_output
       done
     fi
@@ -1076,7 +1093,7 @@ applyPatches() {
 
     show "DONE" $GREEN
 
-  popd &> /dev/null
+  popd &> /dev/null || printErrorAndExit "Can't set working dir"
 }
 
 # Create prefix directory
@@ -1132,11 +1149,11 @@ fetchRemoteFile() {
     [[ ! -d "$cache_dir" ]] && mkdir -p "$cache_dir"
 
     if [[ ! -f "$cache_dir/$file_name" ]] ; then
-      pushd "$cache_dir" &> /dev/null
+      pushd "$cache_dir" &> /dev/null || printErrorAndExit "Can't set working dir to $cache_dir"
 
         download "$url" "$file_name" || failed=true
 
-      popd &> /dev/null
+      popd &> /dev/null || printErrorAndExit "Can't set working dir"
     fi
 
     if [[ -z "$failed" ]] ; then
@@ -1334,8 +1351,10 @@ buildPackage() {
 runBuilder() {
   local builder_func="${1}Builder"
 
+  # shellcheck disable=SC1090
   source "$BLD_PATH/$1"
 
+  # shellcheck disable=SC2046,SC2116
   eval $(echo "$builder_func") "$pkg" "$pkg_dir" "$@"
 
   return $?
@@ -1414,7 +1433,7 @@ showMirrorList() {
 
   while read -r mirror ; do
     show "$mirror" $CYAN
-  done < <(cat "$def_file" | grep "\[" | sed 's/[][]//g')
+  done < <(grep "\[" "$def_file" | sed 's/[][]//g')
 }
 
 # Show list of all def files
@@ -1447,22 +1466,22 @@ listDefs() {
     [[ -h "$defs_dir/$def" ]] && continue
 
     if [[ $def =~ ^(1|2).[0-9]{1,}.[0-9]{1,}* ]] ; then
-      ruby_list+=($def)
+      ruby_list+=("$def")
     elif [[ $def =~ ^jruby-* ]] ; then
-      jruby_list+=($def)
+      jruby_list+=("$def")
     elif [[ $def =~ ^ree-* ]] ; then
-      ree_list+=($def)
+      ree_list+=("$def")
     elif [[ $def =~ ^rubinius-* ]] ; then
-      rbx_list+=($def)
+      rbx_list+=("$def")
     else
-      oth_list+=($def)
+      oth_list+=("$def")
     fi
   done
 
-  ruby_list=($(sortVersionArray "${ruby_list[@]}"))
-  jruby_list=($(sortVersionArray "${jruby_list[@]}"))
-  ree_list=($(sortVersionArray "${ree_list[@]}"))
-  rbx_list=($(sortVersionArray "${rbx_list[@]}"))
+  IFS=" " read -r -a ruby_list <<< "${ruby_list[@]}"
+  IFS=" " read -r -a jruby_list <<< "${jruby_list[@]}"
+  IFS=" " read -r -a ree_list <<< "${ree_list[@]}"
+  IFS=" " read -r -a rbx_list <<< "${rbx_list[@]}"
 
   local ruby_ver jruby_ver ree_ver rbx_ver oth_ver all_ver count ruby_count ruby_next
 
@@ -1473,11 +1492,12 @@ listDefs() {
   printf "\n${CL_BOLD}${CL_BG_YELLOW} %-26s${CL_NORM} ${CL_BOLD}${CL_BG_CYAN} %-26s${CL_NORM} ${CL_BOLD}${CL_BG_GREEN} %-26s${CL_NORM} ${CL_BOLD}${CL_BG_MAG} %-26s${CL_NORM} ${CL_BOLD}${CL_BG_GREY} %-26s${CL_NORM}\n\n" "RUBY" "JRUBY" "REE" "RUBINIUS" "OTHER"
 
   while : ; do
-    ruby_next=$(($ruby_count+1))
+    ruby_next=$((ruby_count+1))
 
+    # shellcheck disable=SC1001
     if [[ "${ruby_list[$ruby_next]}" =~ \-railsexpress ]] ; then
       ruby_ver=$(getAlignedColoredText "${ruby_list[$ruby_count]}${CL_DARK}-railsexpress${CL_NORM}" "${ruby_list[$ruby_count]}-railsexpress" 26)
-      ruby_count=$(($ruby_count+2))
+      ruby_count=$((ruby_count+2))
     else
       ruby_ver="${ruby_list[$ruby_count]}"
       ((ruby_count++))
@@ -1544,7 +1564,7 @@ getThreadsNum() {
   local proc_num rec_num la
 
   proc_num=$(nproc)
-  la=$(cat /proc/loadavg | cut -f2 -d" " | sed 's/\..*//')
+  la=$(cut -f2 -d" " < /proc/loadavg | sed 's/\..*//')
 
   if [[ $proc_num -eq 1 || $la -ge 5 ]] ; then
     echo 1
@@ -1692,7 +1712,7 @@ exportCompilerOpts() {
   fi
 
   if [[ -n "$opts" ]] ; then
-    export $opts
+    export opts
   fi
 }
 
@@ -1742,8 +1762,10 @@ download() {
   fi
 
   if [[ -n "$quiet" ]] ; then
+    # shellcheck disable=SC2086
     curl $args -s "$1" -o "$2"
   else
+    # shellcheck disable=SC2086
     curl $args -# "$1" -o "$2"
   fi
 
@@ -1830,8 +1852,8 @@ checkDeps() {
 # Code: Yes
 # Echo: Sorted array (String)
 sortVersionArray() {
-  if [[ -n "$@" ]] ; then
-    echo "$@" | tr " " "\n" | sort -V | tr "\n" " " && printf "\n"
+  if [[ -n "$*" ]] ; then
+    echo "$*" | tr " " "\n" | sort -V | tr "\n" " " && printf "\n"
   fi
 }
 
@@ -1911,7 +1933,7 @@ sortList() {
 # Code: No
 # Echo: LA (Number)
 getLA() {
-  cat /proc/loadavg | cut -f1 -d" " | sed 's/\..*//'
+  cut -f1 -d" " < /proc/loadavg | sed 's/\..*//'
 }
 
 # Get absolute path
@@ -1922,6 +1944,17 @@ getLA() {
 # Echo: Absolute path (String)
 getAbsPath() {
   readlink -f "$1"
+}
+
+# Print an error and exit from utility
+#
+# 1: Messsage (String)
+#
+# Code: No
+# Echo: No
+printErrorAndExit() {
+  error "$*"
+  doExit 1
 }
 
 # Clean temporary data
@@ -2191,6 +2224,7 @@ while [[ -n "$1" ]] ; do
     if [[ -z "$argn" ]] ; then
       argn=$arg
     else
+      # shellcheck disable=SC2015
       [[ -z "$argk" ]] && ( declare -F showArgValWarn &>/dev/null && showArgValWarn "--$argn" ) || declare "$argn=true"
       argn=$arg
     fi
@@ -2220,7 +2254,8 @@ while [[ -n "$1" ]] ; do
         shift && continue
       fi
 
-      [[ -n "${!argm}" && $MERGEABLE_ARGS\  =~ $argm\  ]] && declare "$argm=${!argm} ${arg[@]:1:99}" || declare "$argm=${arg[@]:1:99}"
+      # shellcheck disable=SC2015
+      [[ -n "${!argm}" && $MERGEABLE_ARGS\  =~ $argm\  ]] && declare "$argm=${!argm} ${arg[*]:1:99}" || declare "$argm=${arg[*]:1:99}"
 
       unset argm && shift && continue
     else
@@ -2229,6 +2264,7 @@ while [[ -n "$1" ]] ; do
       if [[ -z "$argn" ]] ; then
         argn=$arg
       else
+        # shellcheck disable=SC2015
         [[ -z "$argk" ]] && ( declare -F showArgValWarn &>/dev/null && showArgValWarn "--$argn" ) || declare "$argn=true"
         argn=$arg
       fi
@@ -2248,6 +2284,7 @@ while [[ -n "$1" ]] ; do
     fi
   else
     if [[ -n "$argn" ]] ; then
+      # shellcheck disable=SC2015
       [[ -n "${!argn}" && $MERGEABLE_ARGS\  =~ $argn\  ]] && declare "$argn=${!argn} $1" || declare "$argn=$1"
 
       unset argn && shift && continue
@@ -2262,6 +2299,7 @@ done
 
 unset arg argn argm argk
 
+# shellcheck disable=SC2015,SC2086
 [[ -n "$KEEP_ARGS" ]] && main $argv || main ${argt:1:9999}
 
 ########################################################################################

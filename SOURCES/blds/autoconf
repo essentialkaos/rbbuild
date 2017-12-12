@@ -1,4 +1,5 @@
 #!/bin/bash
+# shellcheck disable=SC1117,SC2034,SC2154
 
 # Start autoconf builder
 #
@@ -20,7 +21,7 @@ autoconfBuilder() {
 
   exportCompilerOpts
 
-  pushd "$pkg_dir" &> /dev/null
+  pushd "$pkg_dir" &> /dev/null || printErrorAndExit "Can't set working dir to $pkg_dir"
 
     showm "Autoconf... "
 
@@ -63,7 +64,7 @@ autoconfBuilder() {
 
     unset exit_protect
 
-  popd &> /dev/null
+  popd &> /dev/null || printErrorAndExit "Can't set working dir"
 
   buildPackage "$pkg" "$pkg_dir" "default" "$@"
 }

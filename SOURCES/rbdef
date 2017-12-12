@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC1117,SC2034,SC2154
 
 ################################################################################
 
@@ -6,7 +7,7 @@
 APP="RBBuild Def Utils"
 
 # App version (String)
-VER="1.5.0"
+VER="1.5.1"
 
 ################################################################################
 
@@ -326,7 +327,7 @@ proc() {
 
     while read -r line ; do
       if [[ $line =~ patch:|patchset:|package: ]] ; then
-        rec=(${line//\"/})
+        IFS=" " read -r -a rec <<< "${line//\"/}"
 
         if [[ $line =~ patch:|patchset: ]] ; then
           url="${rec[1]}"
@@ -459,6 +460,7 @@ upload() {
 
   for file in "$@" ; do
     if [[ -r "$file" ]] ; then
+      # shellcheck disable=SC2086
       s3cmd --no-preserve $adds put "$file" "$bucket/"
     fi
   done
@@ -878,6 +880,7 @@ while [[ -n "$1" ]] ; do
     if [[ -z "$argn" ]] ; then
       argn=$arg
     else
+      # shellcheck disable=SC2015
       [[ -z "$argk" ]] && ( declare -F showArgValWarn &>/dev/null && showArgValWarn "--$argn" ) || declare "$argn=true"
       argn=$arg
     fi
@@ -907,7 +910,8 @@ while [[ -n "$1" ]] ; do
         shift && continue
       fi
 
-      [[ -n "${!argm}" && $MERGEABLE_ARGS\  =~ $argm\  ]] && declare "$argm=${!argm} ${arg[@]:1:99}" || declare "$argm=${arg[@]:1:99}"
+      # shellcheck disable=SC2015
+      [[ -n "${!argm}" && $MERGEABLE_ARGS\  =~ $argm\  ]] && declare "$argm=${!argm} ${arg[*]:1:99}" || declare "$argm=${arg[*]:1:99}"
 
       unset argm && shift && continue
     else
@@ -916,6 +920,7 @@ while [[ -n "$1" ]] ; do
       if [[ -z "$argn" ]] ; then
         argn=$arg
       else
+        # shellcheck disable=SC2015
         [[ -z "$argk" ]] && ( declare -F showArgValWarn &>/dev/null && showArgValWarn "--$argn" ) || declare "$argn=true"
         argn=$arg
       fi
@@ -935,6 +940,7 @@ while [[ -n "$1" ]] ; do
     fi
   else
     if [[ -n "$argn" ]] ; then
+      # shellcheck disable=SC2015
       [[ -n "${!argn}" && $MERGEABLE_ARGS\  =~ $argn\  ]] && declare "$argn=${!argn} $1" || declare "$argn=$1"
 
       unset argn && shift && continue
@@ -949,6 +955,7 @@ done
 
 unset arg argn argm argk
 
+# shellcheck disable=SC2015,SC2086
 [[ -n "$KEEP_ARGS" ]] && main $argv || main ${argt:1:9999}
 
 ########################################################################################

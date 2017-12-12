@@ -1,4 +1,5 @@
 #!/bin/bash
+# shellcheck disable=SC1117,SC2034,SC2154
 
 # Start JRuby builder
 #
@@ -20,7 +21,7 @@ jrubyBuilder() {
 
   exportCompilerOpts
 
-  pushd "$pkg_dir" &> /dev/null
+  pushd "$pkg_dir" &> /dev/null || printErrorAndExit "Can't set working dir to $pkg_dir"
 
     showm "Building... "
 
@@ -42,7 +43,7 @@ jrubyBuilder() {
           cp -r . "$prfx" || fail=true
         fi
 
-        pushd "$prfx/bin"
+        pushd "$prfx/bin" || printErrorAndExit "Can't set working dir to $prfx/bin"
 
           if [[ -z "$fail" ]] ; then
             ln -fs jruby ruby || fail=true
@@ -53,7 +54,7 @@ jrubyBuilder() {
             ./ruby gem install jruby-launcher || fail=true
           fi
 
-        popd
+        popd || printErrorAndExit "Can't set working dir"
       } >> "$output"
     else
       {
@@ -65,17 +66,17 @@ jrubyBuilder() {
           cp -r . "$prfx"
         fi
 
-        pushd "$prfx/bin"
+        pushd "$prfx/bin" || printErrorAndExit "Can't set working dir to $prfx/bin"
 
           if [[ -z "$fail" ]] ; then
             ln -fs jruby ruby || fail=true
           fi
 
           if [[ -z "$fail" ]] ; then
-            ./ruby gem install jruby-launcher &> $verb_output || fail=true
+            ./ruby gem install jruby-launcher &> "$verb_output" || fail=true
           fi
 
-        popd
+        popd || printErrorAndExit "Can't set working dir"
       } > "$log" 2>> "$output"
     fi
 
@@ -96,7 +97,7 @@ jrubyBuilder() {
 
     show "${CL_GREEN}DONE${CL_NORM} ${CL_DARK}($grc_time)${CL_NORM}"
 
-  popd &> /dev/null
+  popd &> /dev/null || printErrorAndExit "Can't set working dir"
 
   echo -n > "$log"
 

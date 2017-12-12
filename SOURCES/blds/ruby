@@ -1,4 +1,5 @@
 #!/bin/bash
+# shellcheck disable=SC1117,SC2034,SC2086,SC2154
 
 # Start ruby builder
 #
@@ -19,7 +20,7 @@ rubyBuilder() {
   prfx="${XPREFIX:-${prefix}}"
   ruby_bin="$prfx/bin/ruby"
 
-  pushd "$pkg_dir" &> /dev/null
+  pushd "$pkg_dir" &> /dev/null || printErrorAndExit "Can't set working dir to $pkg_dir"
 
     showm "Building... "
 
@@ -74,5 +75,5 @@ rubyBuilder() {
 
     unset exit_protect
 
-  popd &> /dev/null
+  popd &> /dev/null || printErrorAndExit "Can't set working dir"
 }
