@@ -27,7 +27,7 @@
 
 ################################################################################
 
-Summary:         Utility for compiling and installing different ruby versions 
+Summary:         Utility for compiling and installing different ruby versions
 Name:            rbbuild
 Version:         1.7.1
 Release:         0%{?dist}
