@@ -1,4 +1,5 @@
 #!/bin/bash
+# shellcheck disable=SC1117,SC2034,SC2154
 
 # Start MRuby builder
 #
@@ -20,7 +21,7 @@ mrubyBuilder() {
 
   exportCompilerOpts
 
-  pushd "$pkg_dir" &> /dev/null
+  pushd "$pkg_dir" &> /dev/null || printErrorAndExit "Can't set working dir to $pkg_dir"
 
     showm "Building... "
 
@@ -75,12 +76,12 @@ mrubyBuilder() {
       return 1
     fi
 
-    pushd "$prfx/bin" &> /dev/null
+    pushd "$prfx/bin" &> /dev/null || printErrorAndExit "Can't set working dir to $prfx/bin"
 
       ln -fs mruby ruby
       ln -fs mirb irb
 
-    popd &> /dev/null
+    popd &> /dev/null || printErrorAndExit "Can't set working dir"
 
     end_time=$(now)
     grc_time=$(getGraceTime "$start_time" "$end_time")
@@ -91,5 +92,5 @@ mrubyBuilder() {
 
     unset exit_protect
 
-  popd &> /dev/null
+  popd &> /dev/null || printErrorAndExit "Can't set working dir"
 }

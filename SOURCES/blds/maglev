@@ -1,4 +1,5 @@
 #!/bin/bash
+# shellcheck disable=SC1117,SC2034,SC2086,SC2154
 
 # Start Maglev builder
 #
@@ -21,7 +22,7 @@ maglevBuilder() {
 
   exportCompilerOpts
 
-  pushd "$pkg_dir" &> /dev/null
+  pushd "$pkg_dir" &> /dev/null || printErrorAndExit "Can't set working dir to $pkg_dir"
 
     showm "Building... "
 
@@ -44,14 +45,15 @@ maglevBuilder() {
           cp -r . "$prfx" || fail=true
         fi
 
-        pushd "$prfx"
+        pushd "$prfx" || printErrorAndExit "Can't set working dir to $prfx"
 
           if [[ -z "$fail" ]] ; then
             showe "./install.sh $iopts"
+            # shellcheck disable=SC2086
             ./install.sh $iopts || fail=true
           fi
 
-        popd
+        popd || printErrorAndExit "Can't set working dir"
       } &>> "$output"
     else
       {
@@ -64,13 +66,14 @@ maglevBuilder() {
           cp -r . "$prfx" || fail=true
         fi
 
-        pushd "$prfx"
+        pushd "$prfx" || printErrorAndExit "Can't set working dir to $prfx"
 
           if [[ -z "$fail" ]] ; then
+            # shellcheck disable=SC2086
             ./install.sh $iopts || fail=true
           fi
 
-        popd
+        popd || printErrorAndExit "Can't set working dir"
       } &>> "$log"
     fi
 
@@ -82,12 +85,12 @@ maglevBuilder() {
       return 1
     fi
 
-    pushd "$prfx/bin" &> /dev/null
+    pushd "$prfx/bin" &> /dev/null || printErrorAndExit "Can't set working dir to $prfx/bin"
 
       ln -fs maglev-ruby ruby
       ln -fs maglev-irb irb
 
-    popd &> /dev/null
+    popd &> /dev/null || printErrorAndExit "Can't set working dir"
 
     end_time=$(now)
     grc_time=$(getGraceTime "$start_time" "$end_time")
@@ -98,7 +101,7 @@ maglevBuilder() {
 
     unset exit_protect
 
-  popd &> /dev/null
+  popd &> /dev/null || printErrorAndExit "Can't set working dir"
 
-  show "Run \"maglev start\" to start up the stone before using \"ruby\" or \"irb\"" $BROWN
+  show "Run \"maglev start\" to start up the stone before using \"ruby\" or \"irb\"" $YELLOW
 }

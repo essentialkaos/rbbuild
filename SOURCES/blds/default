@@ -1,4 +1,5 @@
 #!/bin/bash
+# shellcheck disable=SC1117,SC2034,SC2086,SC2154
 
 # Start default ruby builder
 #
@@ -25,6 +26,7 @@ defaultBuilder() {
 
   exportCompilerOpts
 
+  # shellcheck disable=SC1001
   if [[ ! $mopts =~ \-j\  ]] ; then
     if [[ -n "$threads" ]] ; then
       mopts="${mopts} -j $threads"
@@ -38,7 +40,7 @@ defaultBuilder() {
     iopts="${iopts} DESTDIR=$dest_dir"
   fi
 
-  pushd "$pkg_dir" &> /dev/null
+  pushd "$pkg_dir" &> /dev/null || printErrorAndExit "Can't set working dir to $pkg_dir"
 
     showm "Building... "
 
@@ -115,5 +117,5 @@ defaultBuilder() {
 
     unset exit_protect
 
-  popd &> /dev/null
+  popd &> /dev/null || printErrorAndExit "Can't set working dir"
 }

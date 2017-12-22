@@ -86,10 +86,10 @@ Examples:
 
 ### Build Status
 
-| Branch | Status | Code Climate |
-|--------|--------|--------------|
-| `master` | [![Build Status](https://travis-ci.org/essentialkaos/rbbuild.svg?branch=master)](https://travis-ci.org/essentialkaos/rbbuild) | [![Code Climate](https://codeclimate.com/github/essentialkaos/rbbuild/badges/gpa.svg)](https://codeclimate.com/github/essentialkaos/rbbuild) |
-| `develop` | [![Build Status](https://travis-ci.org/essentialkaos/rbbuild.svg?branch=develop)](https://travis-ci.org/essentialkaos/rbbuild) | - |
+| Branch | Status |
+|--------|--------|
+| `master` | [![Build Status](https://travis-ci.org/essentialkaos/rbbuild.svg?branch=master)](https://travis-ci.org/essentialkaos/rbbuild) |
+| `develop` | [![Build Status](https://travis-ci.org/essentialkaos/rbbuild.svg?branch=develop)](https://travis-ci.org/essentialkaos/rbbuild) |
 
 ### License
 

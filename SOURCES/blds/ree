@@ -1,4 +1,5 @@
 #!/bin/bash
+# shellcheck disable=SC1117,SC2034,SC2154
 
 # Start REE builder
 #
@@ -23,7 +24,7 @@ reeBuilder() {
     copts="${copts} --no-tcmalloc"
   fi
 
-  pushd $pkg_dir &> /dev/null
+  pushd "$pkg_dir" &> /dev/null || printErrorAndExit "Can't set working dir to $pkg_dir"
 
     showm "Building... "
 
@@ -69,5 +70,5 @@ reeBuilder() {
 
     unset exit_protect
 
-  popd &> /dev/null
+  popd &> /dev/null || printErrorAndExit "Can't set working dir"
 }

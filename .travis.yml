@@ -2,6 +2,18 @@ language: bash
 
 sudo: false
 
+addons:
+  apt:
+    sources:
+      - debian-sid
+    packages:
+      - shellcheck
+
 script:
-  - bash SOURCES/rbdef -h
-  - bash SOURCES/rbbuild -h
+ - bash -c 'shopt -s globstar; shellcheck install.sh'
+ - bash -c 'shopt -s globstar; shellcheck SOURCES/rbdef'
+ - bash -c 'shopt -s globstar; shellcheck SOURCES/rbbuild SOURCES/blds/*'
+
+matrix:
+  fast_finish: true
+
