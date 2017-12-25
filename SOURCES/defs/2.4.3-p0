@@ -1,5 +1,5 @@
 # RBBuild Def File
-# UPDATED 08/Oct/2017 01:56:51 by Anton Novojilov <andy@essentialkaos.com>
+# UPDATED 25/Dec/2017 23:04:31 by Anton Novojilov <andy@essentialkaos.com>
 
 deps(rpm): gcc make zlib-devel readline-devel tk-devel ca-certificates
 deps(rpm): autoconf glibc-devel ncurses-devel bison libffi-devel
@@ -13,9 +13,9 @@ PREFIX(openssl-1.1.0g): {prefix}/openssl
 CONFOPTS(ruby-2.4.3-p0): --with-openssl-dir={prefix}/openssl --disable-install-doc
 
 [default]
-  package: "openssl-1.1.0g" "https://www.openssl.org/source/openssl-1.1.0g.tar.gz" "!" openssl
-  package: "ruby-2.4.3-p0" "https://cache.ruby-lang.org/pub/ruby/2.4/ruby-2.4.3.tar.gz" "!"
+  package: "openssl-1.1.0g" "https://www.openssl.org/source/openssl-1.1.0g.tar.gz" "e8240a8be304d4317a750753321b073c664bfdd4" openssl
+  package: "ruby-2.4.3-p0" "https://cache.ruby-lang.org/pub/ruby/2.4/ruby-2.4.3.tar.gz" "787b7f4e90fb4b39a61bc1a31eb7765f875a590c"
 
 [essentialkaos]
-  package: "openssl-1.1.0g" "https://ruby.kaos.io/openssl-1.1.0g.7z" "!" openssl
-  package: "ruby-2.4.3-p0" "https://ruby.kaos.io/ruby-2.4.3.7z" "!"
+  package: "openssl-1.1.0g" "https://ruby.kaos.io/openssl-1.1.0g.7z" "92102da780f9b7ca23e2f91b6ff9fcb496386484" openssl
+  package: "ruby-2.4.3-p0" "https://ruby.kaos.io/ruby-2.4.3.7z" "1cd2dfe3c7e4329d37935ff875419d6cebbd7170"
