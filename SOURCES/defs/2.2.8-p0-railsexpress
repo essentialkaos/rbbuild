@@ -6,18 +6,18 @@ deps(rpm): autoconf glibc-devel ncurses-devel bison libffi-devel
 deps(deb): gcc git make zlib1g-dev libreadline6-dev tk-dev ca-certificates
 deps(deb): autoconf libc6-dev libncurses5-dev bison libffi-dev
 
-CONFOPTS(openssl-1.0.2l): gcc --openssldir={prefix}/openssl/ssl zlib-dynamic no-krb5 shared -fPIC
-MAKEOPTS(openssl-1.0.2l): -j 1
-PREFIX(openssl-1.0.2l): {prefix}/openssl
+CONFOPTS(openssl-1.0.2n): gcc --openssldir={prefix}/openssl/ssl zlib-dynamic no-krb5 shared -fPIC
+MAKEOPTS(openssl-1.0.2n): -j 1
+PREFIX(openssl-1.0.2n): {prefix}/openssl
 
 CONFOPTS(ruby-2.2.8-p0): --with-openssl-dir={prefix}/openssl --disable-install-doc
 
 [default]
-  package: "openssl-1.0.2l" "https://www.openssl.org/source/openssl-1.0.2l.tar.gz" "b58d5d0e9cea20e571d903aafa853e2ccd914138" openssl
+  package: "openssl-1.0.2n" "https://www.openssl.org/source/openssl-1.0.2n.tar.gz" "!" openssl
   patchset: "https://ruby.kaos.io/patches/2.2.8-p0.7z" "9c55816b3b5a426054195c179529ed6a10c2a3d1"
   package: "ruby-2.2.8-p0" "https://ftp.ruby-lang.org/pub/ruby/2.2/ruby-2.2.8.tar.gz" "15a6fca1bfe0488b24a204708a287904028aa367"
 
 [essentialkaos]
-  package: "openssl-1.0.2l" "https://ruby.kaos.io/openssl-1.0.2l.7z" "df379e63c3af70522d570d63e9746a47c77d00fa" openssl
+  package: "openssl-1.0.2n" "https://ruby.kaos.io/openssl-1.0.2n.7z" "!" openssl
   patchset: "https://ruby.kaos.io/patches/2.2.8-p0.7z" "9c55816b3b5a426054195c179529ed6a10c2a3d1"
   package: "ruby-2.2.8-p0" "https://ruby.kaos.io/ruby-2.2.8.7z" "c93666379062d8e27df8d0c208dd8b4a2d1f9b93"
