@@ -81,8 +81,8 @@ rm -rf %{buildroot}
 - Added 2.5.0
 - Added jruby-9.1.14.0
 - Added jruby-9.1.15.0
-- OpenSSL updated to 1.1.0g for 2.4.x-2.5.0
-- OpenSSL updated to 1.0.2n for 2.0.x-2.3.x
+- OpenSSL updated to 1.1.0g for 2.4.0-2.5.0
+- OpenSSL updated to 1.0.2n for 2.2.8-2.3.6
 
 * Sun Oct 08 2017 Anton Novojilov <andy@essentialkaos.com> - 1.7.0-0
 - Added 2.2.8-p0
