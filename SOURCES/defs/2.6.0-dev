@@ -10,12 +10,12 @@ CONFOPTS(openssl-1.1.0g): gcc --openssldir={prefix}/openssl/ssl zlib-dynamic sha
 MAKEOPTS(openssl-1.1.0g): -j 1
 PREFIX(openssl-1.1.0g): {prefix}/openssl
 
-CONFOPTS(ruby-2.5.0-dev): --with-openssl-dir={prefix}/openssl --disable-install-doc
+CONFOPTS(ruby-2.6.0-dev): --with-openssl-dir={prefix}/openssl --disable-install-doc
 
 [default]
-  package: "openssl-1.1.0g" "https://www.openssl.org/source/openssl-1.1.0g.tar.gz" "!" openssl
-  git: "ruby-2.5.0-dev" "https://github.com/ruby/ruby.git" "!" "trunk" "autoconf"
+  package: "openssl-1.1.0g" "https://www.openssl.org/source/openssl-1.1.0g.tar.gz" "e8240a8be304d4317a750753321b073c664bfdd4" openssl
+  git: "ruby-2.6.0-dev" "https://github.com/ruby/ruby.git" "!" "trunk" "autoconf"
 
 [essentialkaos]
-  package: "openssl-1.1.0g" "https://ruby.kaos.io/openssl-1.1.0g.7z" "!" openssl
-  git: "ruby-2.5.0-dev" "https://github.com/ruby/ruby.git" "!" "trunk" "autoconf"
+  package: "openssl-1.1.0g" "https://ruby.kaos.io/openssl-1.1.0g.7z" "92102da780f9b7ca23e2f91b6ff9fcb496386484" openssl
+  git: "ruby-2.6.0-dev" "https://github.com/ruby/ruby.git" "!" "trunk" "autoconf"
