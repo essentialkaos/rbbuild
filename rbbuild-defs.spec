@@ -75,7 +75,7 @@ rm -rf %{buildroot}
 ################################################################################
 
 %changelog
-* Tue Dec 26 2017 Anton Novojilov <andy@essentialkaos.com> - 1.7.1-0
+* Tue Dec 26 2017 Anton Novojilov <andy@essentialkaos.com> - 
 - Added 2.3.6
 - Added 2.4.3
 - Added 2.5.0
@@ -107,8 +107,8 @@ rm -rf %{buildroot}
 - Added jruby-9.1.10.0
 
 * Sat Apr 29 2017 Anton Novojilov <andy@essentialkaos.com> - 1.6.5-0
-- OpenSSL updated to 1.1.0d for 2.4.x, 2.5.0-dev
-- OpenSSL updated to 1.0.2k for 1.9.2-pXXX-2.3.x
+- OpenSSL updated to 1.1.0d for 2.4.0-2.5.0-dev
+- OpenSSL updated to 1.0.2k for 1.9.2-p0-2.3.4
 - Added 2.3.3-p0-railsexpress
 - Added 2.4.0-p0-railsexpress
 
