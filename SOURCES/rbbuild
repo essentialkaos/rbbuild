@@ -161,8 +161,8 @@ tmp_dir=""
 def_file=""
 require_patching=""
 
-ruby_bin=$(which "ruby")
-java_bin=$(which "java")
+ruby_bin=$(which "ruby" 2>/dev/null)
+java_bin=$(which "java" 2>/dev/null)
 
 declare -A plocat
 
