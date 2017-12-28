@@ -2,9 +2,9 @@
 # UPDATED 28/Dec/2017 16:37:01 by Anton Novojilov <andy@essentialkaos.com>
 
 deps(rpm): gcc make zlib-devel readline-devel tk-devel ca-certificates
-deps(rpm): autoconf glibc-devel ncurses-devel bison libffi-devel
+deps(rpm): autoconf glibc-devel ncurses-devel bison libffi-devel git
 deps(deb): gcc make zlib1g-dev libreadline6-dev tk-dev ca-certificates
-deps(deb): autoconf libc6-dev libncurses5-dev bison libffi-dev
+deps(deb): autoconf libc6-dev libncurses5-dev bison libffi-dev git
 
 deps(bin): ruby
 
