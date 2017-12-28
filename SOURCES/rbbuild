@@ -7,7 +7,7 @@
 APP="RBBuild"
 
 # App version (String)
-VER="1.7.2"
+VER="1.8.0"
 
 ################################################################################
 
@@ -160,6 +160,9 @@ log=""
 tmp_dir=""
 def_file=""
 require_patching=""
+
+ruby_bin=$(which "ruby")
+java_bin=$(which "java")
 
 declare -A plocat
 
@@ -332,7 +335,7 @@ doBuild() {
     show "\nContinue build anyway? (y/N)" $CYAN
 
     if ! readAnswer "N" ; then
-      show "" && doExit
+      doExit
     fi
   fi
 
@@ -341,7 +344,7 @@ doBuild() {
     show "\nYou really want to use this directory? (Y/n)" $CYAN
 
     if ! readAnswer "Y" ; then
-      show "" && doExit
+      doExit
     fi
   fi
 
@@ -581,7 +584,7 @@ checkEOLDates() {
   show "\nYou really want build this version? (Y/n)" $CYAN
 
   if ! readAnswer "Y" ; then
-    show "" && doExit
+    doExit
   fi
 }
 
@@ -648,7 +651,7 @@ execDefinition() {
 
     IFS=" " read -r -a cmnd <<< "${fmtd/: / }"
     IFS=" " read -r -a args <<< "${cmnd[@]:1:999}"
-    
+
     action="${cmnd[0]}"
 
     if [[ -n "$check" ]] ; then
@@ -666,12 +669,12 @@ execDefinition() {
       mkPrefixDir || return 1
 
       case $action in
-        "patch")     installPatch     "${args[@]}" || failed=true ;;
-        "patchset")  installPatchset  "${args[@]}" || failed=true ;;
-        "package")   installPackage   "${args[@]}" || failed=true ;;
-        "git")       installGitSource "${args[@]}" || failed=true ;;
-        "svn")       installSvnSource "${args[@]}" || failed=true ;;
-        "hg")        installHgSource  "${args[@]}" || failed=true ;;
+        "patch")     installPatches   "${args[@]}"      || failed=true ;;
+        "patchset")  installPatches   "${args[@]}" true || failed=true ;;
+        "package")   installPackage   "${args[@]}"      || failed=true ;;
+        "git")       installGitSource "${args[@]}"      || failed=true ;;
+        "svn")       installSvnSource "${args[@]}"      || failed=true ;;
+        "hg")        installHgSource  "${args[@]}"      || failed=true ;;
         *) error "Unknown action <$action>! Please check selected definition file."
            show "" && doExit 1 ;;
       esac
@@ -714,24 +717,25 @@ checkRemoteFile() {
   fi
 }
 
-# Download and install patch
+# Download and install patch or patches
 #
 # 1: URL of patch (String)
 # 2: Checksum (String)
 #
 # Code: No
 # Echo: No
-installPatch() {
-  local url file_name crc
+installPatches() {
+  local url file_name crc is_patchset
+
+  url=$(parseArgsInString "$1")
+  is_patchset="$2"
 
   if [[ -n "$no_patch" ]] ; then
-    show "Skipping patch $1..." $MAG
+    show "Ignoring patch/patchset $1" $MAG
     return 0
   fi
 
   require "git"
-
-  url=$(parseArgsInString "$1")
 
   [[ -n "${plocat[$url]}" ]] && url="${plocat[$url]}"
 
@@ -742,7 +746,7 @@ installPatch() {
 
   pushd "$tmp_dir/patches" &> /dev/null || printErrorAndExit "Can't set working dir to $tmp_dir/patches"
 
-    show "\nFetching patch ${file_name}... "
+    show "\nFetching patch/patchset ${file_name}... "
 
     if ! fetchRemoteFile "$url" "$file_name" ; then
       return 1
@@ -750,47 +754,9 @@ installPatch() {
 
     checkCRC "$file_name" "$crc"
 
-    require_patching=true
-
-  popd &> /dev/null || printErrorAndExit "Can't set working dir"
-}
-
-# Install patchset (set of patches)
-#
-# 1: URL of patchset (String)
-# 2: Checksum (String)
-#
-# Code: No
-# Echo: No
-installPatchset() {
-  local url file_name crc
-
-  if [[ -n "$no_patch" ]] ; then
-    show "Skipping patchset $1..." $MAG
-    return 0
-  fi
-
-  require "git"
-
-  url=$(parseArgsInString "$1")
-
-  [[ -n "${plocat[$url]}" ]] && url="${plocat[$url]}"
-
-  file_name=$(basename "$url")
-  crc="$2"
-
-  mkdir -p "$tmp_dir/patches"
-
-  pushd "$tmp_dir/patches" &> /dev/null || printErrorAndExit "Can't set working dir to $tmp_dir/patches"
-
-    show "\nFetching patchset ${file_name}... "
-
-    if ! fetchRemoteFile "$url" "$file_name" ; then
-      return 1
+    if [[ -z "$is_patchset" ]] ; then
+      unpackArchive "$file_name"
     fi
-
-    checkCRC "$file_name" "$crc"
-    unpackArchive "$file_name"
 
     require_patching=true
 
@@ -1067,34 +1033,49 @@ applyPatches() {
   local pkg="$1"
   local pkgdir
 
-  # shellcheck disable=SC2010
-  pkgdir=$(ls -1 -d -- */ 2> /dev/null | grep -v "patches" | head -1)
+  pkgdir=$(echo "$pkg" | sed 's/-p[0-9]*//')
 
-  showm "Applying patches... "
+  show "Applying patches..."
 
   pushd "$tmp_dir/$pkgdir" &> /dev/null || printErrorAndExit "Can't set working dir to $tmp_dir/$pkgdir"
 
-    local patch
+    local patch patch_name
 
-    if [[ -n $(find "$tmp_dir/patches" -name ".patch") ]] ; then
+    if [[ -n $(find "$tmp_dir/patches" -name "*.patch") ]] ; then
       for patch in $tmp_dir/patches/*.patch ; do
+        patch_name=$(basename "$patch")
+        showm "Applying $patch_name... "
+
         # shellcheck disable=SC2002
         cat "$patch" | patch -p1 &> $verb_output
+
+        if [[ $? -ne 0 ]] ; then
+          error "FAIL"
+          return 1
+        else
+          show "DONE" $GREEN
+        fi
       done
     fi
 
-    if [[ -n $(find "$tmp_dir/patches" -name ".diff") ]] ; then
+    if [[ -n $(find "$tmp_dir/patches" -name "*.diff") ]] ; then
       for patch in $tmp_dir/patches/*.diff ; do
+        patch_name=$(basename "$patch")
+        showm "Applying $patch_name... "
+
         # shellcheck disable=SC2002
         cat "$patch" | git apply &> $verb_output
+
+        if [[ $? -ne 0 ]] ; then
+          error "FAIL"
+          return 1
+        else
+          show "DONE" $GREEN
+        fi
       done
     fi
 
     unset require_patching
-
-    rm -rf "$tmp_dir/patches" &> /dev/null
-
-    show "DONE" $GREEN
 
   popd &> /dev/null || printErrorAndExit "Can't set working dir"
 }
@@ -2102,7 +2083,11 @@ showm() {
 # Code: No
 # Echo: No
 showe() {
-  show "\n${CL_BL_MAG}EXEC → ${CL_NORM}${CL_MAG}$*${CL_NORM}\n"
+  local win_width
+
+  win_width=$(tput cols)
+
+  printf "\n\033[1;39;45m%-${win_width}s${CL_NORM}\n\n" " ► $*"
 }
 
 # Show formated message with option info
