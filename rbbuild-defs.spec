@@ -29,7 +29,7 @@
 
 Summary:         Def files for rbbuild utility 
 Name:            rbbuild-defs
-Version:         1.7.2
+Version:         1.8.0
 Release:         0%{?dist}
 License:         EKOL
 Vendor:          ESSENTIALKAOS
@@ -75,7 +75,7 @@ rm -rf %{buildroot}
 ################################################################################
 
 %changelog
-* Thu Dec 28 2017 Anton Novojilov <andy@essentialkaos.com> - 1.7.2-0
+* Thu Dec 28 2017 Anton Novojilov <andy@essentialkaos.com> - 1.8.0-0
 - Fixed 2.5.0-p0 for build on CentOS6
 
 * Tue Dec 26 2017 Anton Novojilov <andy@essentialkaos.com> - 1.7.1-0
