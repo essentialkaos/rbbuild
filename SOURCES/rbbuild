@@ -272,7 +272,7 @@ fetchRemoteDefFile() {
 
   file_name=$(basename "$url")
 
-  showm "Fetching remote defenition file... "
+  showm "Fetching remote defenition file… "
 
   pushd "$tmp_dir" &> $verb_output || printErrorAndExit "Can't set working dir to $tmp_dir"
 
@@ -348,7 +348,7 @@ doBuild() {
     fi
   fi
 
-  show "Starting build process..."
+  show "Starting build process…"
 
   checkBuildDeps
   readDefinition
@@ -357,14 +357,14 @@ doBuild() {
     return 1
   fi
 
-  show "Executing defenition file actions... "
+  show "Executing defenition file actions… "
 
   execDefinition
 
   status=$?
 
   if [[ $status -eq 0 && -n "$rbenv" ]] ; then
-    showm "\nRehashing... "
+    showm "\nRehashing… "
 
     rbenv rehash &> /dev/null
 
@@ -382,7 +382,7 @@ checkBuildDeps() {
   local dep_list dep_pref dep has_lib pips gems
   local is_fail deb_list rpm_list bin_list lib_list pip_list gem_list
 
-  showm "Checking build dependencies... "
+  showm "Checking build dependencies… "
 
   if [[ "$os_dist" == "$DIST_UBUNTU" || "$os_dist" == "$DIST_DEBIAN" ]] ; then
     dep_list=$(readDefProp "deps(deb)")
@@ -603,7 +603,7 @@ readDefinition() {
 
   [[ $mirror != "default" ]] && show "\nYou use mirror ${CL_BOLD}$mirror${CL_NORM}\n" $CYAN
 
-  showm "Checking remote files availability... "
+  showm "Checking remote files availability… "
 
   spinnerOn
 
@@ -746,7 +746,7 @@ installPatches() {
 
   pushd "$tmp_dir/patches" &> $verb_output || printErrorAndExit "Can't set working dir to $tmp_dir/patches"
 
-    show "\nFetching patch/patchset ${file_name}... "
+    show "\nFetching patch/patchset ${file_name}… "
 
     if ! fetchRemoteFile "$url" "$file_name" ; then
       return 1
@@ -788,7 +788,7 @@ installPackage() {
   pushd "$tmp_dir" &> $verb_output || printErrorAndExit "Can't set working dir to $tmp_dir"
 
     show "\nInstalling ${CL_BOLD}${pkg}${CL_NORM}" $YELLOW
-    show "Fetching file ${file_name}... "
+    show "Fetching file ${file_name}… "
 
     if ! fetchRemoteFile "$url" "$file_name" ; then
       return 1
@@ -837,7 +837,7 @@ installGitSource() {
   pushd "$tmp_dir" &> $verb_output || printErrorAndExit "Can't set working dir to $tmp_dir"
 
     show "\nInstalling ${CL_BOLD}${pkg}${CL_NORM}" $YELLOW
-    showm "Fetching sources from ${url:0:62}... "
+    showm "Fetching sources from ${url:0:62}… "
 
     spinnerOn
 
@@ -903,7 +903,7 @@ installSvnSource() {
 
   pushd "$tmp_dir" &> $verb_output || printErrorAndExit "Can't set working dir to $tmp_dir"
     show "\nInstalling ${CL_BOLD}${pkg}${CL_NORM}" $YELLOW
-    showm "Fetching sources from ${url:0:62}... "
+    showm "Fetching sources from ${url:0:62}… "
 
     spinnerOn
 
@@ -979,7 +979,7 @@ installHgSource() {
   pushd "$tmp_dir" &> $verb_output || printErrorAndExit "Can't set working dir to $tmp_dir"
 
     show "\nInstalling ${CL_BOLD}${pkg}${CL_NORM}" $YELLOW
-    showm "Fetching sources from ${url:0:62}... "
+    showm "Fetching sources from ${url:0:62}… "
 
     spinnerOn
 
@@ -1045,7 +1045,7 @@ applyPatches() {
     if [[ -n $(find "$tmp_dir/patches" -name "*.patch") ]] ; then
       for patch in $tmp_dir/patches/*.patch ; do
         patch_name=$(basename "$patch")
-        showm "Applying $patch_name... "
+        showm "Applying $patch_name… "
 
         # shellcheck disable=SC2002
         cat "$patch" | patch -p1 &> $verb_output
@@ -1062,7 +1062,7 @@ applyPatches() {
     if [[ -n $(find "$tmp_dir/patches" -name "*.diff") ]] ; then
       for patch in $tmp_dir/patches/*.diff ; do
         patch_name=$(basename "$patch")
-        showm "Applying $patch_name... "
+        showm "Applying $patch_name… "
 
         # shellcheck disable=SC2002
         cat "$patch" | git apply &> $verb_output
@@ -1171,7 +1171,7 @@ checkCRC() {
 
   [[ -n "$ignore_checksums" ]] && return
 
-  showm "Checking sha1 checksum... "
+  showm "Checking sha1 checksum… "
 
   file_crc=$(sha1sum "$filename" | cut -f1 -d" ")
 
@@ -1202,31 +1202,31 @@ unpackArchive() {
   spinnerOn
 
   if [[ $1 =~ .tar.gz$|.tgz$|.tar.gzip$ ]] ; then
-    showm "Unpacking tar.gz archive... "
+    showm "Unpacking tar.gz archive… "
 
     tar xzvf "$arch" &> $verb_output
 
     rm -f "$arch"
   elif [[ $1 =~ .tar.bz2$|.tbz2$|.tbz2$|.tb2$|.tbz$ ]] ; then
-    showm "Unpacking tar.bz2 archive... "
+    showm "Unpacking tar.bz2 archive… "
 
     tar xjvf "$arch" &> $verb_output
 
     rm -f "$arch"
   elif [[ $1 =~ .zip$ ]] ; then
-    showm "Unpacking zip archive... "
+    showm "Unpacking zip archive… "
 
     unzip "$arch" &> $verb_output
 
     rm -f "$arch"
   elif [[ $1 =~ .tar.xz$|.txz$ ]]; then
-    showm "Unpacking xz archive... "
+    showm "Unpacking xz archive… "
 
     tar xJfv "$arch" &> $verb_output
 
     rm -f "$arch"
   elif [[ $1 =~ .7z$ ]] ; then
-    showm "Unpacking 7z archive... "
+    showm "Unpacking 7z archive… "
 
     require "7za"
 
@@ -1234,7 +1234,7 @@ unpackArchive() {
 
     rm -f "$arch"
   else
-    error "Can't unpack file $arch. Exiting..."
+    error "Can't unpack file $arch. Exiting…"
     show "" && doExit 1
   fi
 
