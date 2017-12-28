@@ -85,6 +85,11 @@ rm -rf %{buildroot}
 ################################################################################
 
 %changelog
+* Thu Dec 28 2017 Anton Novojilov <andy@essentialkaos.com> - 1.7.2-0
+- [rbbuild] Fixed minor bug with spinner
+- [rbbuild] Fixed minor bug with checking remote source status
+- [rbbuild] Improved handling permission errors
+
 * Tue Dec 12 2017 Anton Novojilov <andy@essentialkaos.com> - 1.7.1-0
 - [rbdef|rbbuild] Code refactoring
 
