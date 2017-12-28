@@ -87,6 +87,7 @@ rm -rf %{buildroot}
 %changelog
 * Thu Dec 28 2017 Anton Novojilov <andy@essentialkaos.com> - 1.8.0-0
 - [rbbuild] Fixed major bug with applying patches
+- [rbbuild] Added 'ruby_bin' and 'java_bin' variables
 - [rbbuild] Fixed minor bug with spinner
 - [rbbuild] Fixed minor bug with checking remote source status
 - [rbbuild] Improved handling permission errors

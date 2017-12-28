@@ -76,7 +76,7 @@ rm -rf %{buildroot}
 
 %changelog
 * Thu Dec 28 2017 Anton Novojilov <andy@essentialkaos.com> - 1.7.2-0
-- Fixed 2.5.0 for build on CentOS6
+- Fixed 2.5.0-p0 for build on CentOS6
 
 * Tue Dec 26 2017 Anton Novojilov <andy@essentialkaos.com> - 1.7.1-0
 - Added 2.3.6
