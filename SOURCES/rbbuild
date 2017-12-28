@@ -1033,6 +1033,7 @@ applyPatches() {
   local pkg="$1"
   local pkgdir
 
+  # shellcheck disable=SC2001
   pkgdir=$(echo "$pkg" | sed 's/-p[0-9]*//')
 
   show "Applying patches..."
