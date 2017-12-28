@@ -650,7 +650,6 @@ execDefinition() {
     IFS=" " read -r -a args <<< "${cmnd[@]:1:999}"
     
     action="${cmnd[0]}"
-    
 
     if [[ -n "$check" ]] ; then
       case $action in
@@ -702,6 +701,10 @@ checkRemoteFile() {
   status=$(checkHTTPStatus "$url")
 
   if [[ "$status" != "200" ]] ; then
+    if [[ -n "$spinner_pid" ]] ; then
+      spinnerOff
+    fi
+
     error "FAIL"
     error ""
     error "Server return error status <$status> for file <$url>."
