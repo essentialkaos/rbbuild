@@ -1736,7 +1736,7 @@ checkHTTPStatus() {
     status=$(curl --max-redirs "$MAX_REDIRS" -x "$proxy" -LIks -X GET "$url")
   fi
 
-  code=$(echo "$status" | grep -Fi "HTTP" | cut -f2 -d" ")
+  code=$(echo "$status" | grep -E "^HTTP\/" | cut -f2 -d" ")
 
   if [[ -z "$code" ]] ; then
     echo "-1"
