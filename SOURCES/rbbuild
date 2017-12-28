@@ -274,7 +274,7 @@ fetchRemoteDefFile() {
 
   showm "Fetching remote defenition file... "
 
-  pushd "$tmp_dir" &> /dev/null || printErrorAndExit "Can't set working dir to $tmp_dir"
+  pushd "$tmp_dir" &> $verb_output || printErrorAndExit "Can't set working dir to $tmp_dir"
 
     start_time=$(now)
 
@@ -289,7 +289,7 @@ fetchRemoteDefFile() {
 
     show "${CL_GREEN}DONE${CL_NORM} ${CL_DARK}($grc_time)${CL_NORM}"
 
-  popd &> /dev/null || printErrorAndExit "Can't set working dir"
+  popd &> $verb_output || printErrorAndExit "Can't set working dir"
 
   def_file="$tmp_dir/$file_name"
 }
@@ -735,7 +735,7 @@ installPatches() {
     return 0
   fi
 
-  require "git"
+  require "git" "patch"
 
   [[ -n "${plocat[$url]}" ]] && url="${plocat[$url]}"
 
@@ -744,7 +744,7 @@ installPatches() {
 
   mkdir -p "$tmp_dir/patches"
 
-  pushd "$tmp_dir/patches" &> /dev/null || printErrorAndExit "Can't set working dir to $tmp_dir/patches"
+  pushd "$tmp_dir/patches" &> $verb_output || printErrorAndExit "Can't set working dir to $tmp_dir/patches"
 
     show "\nFetching patch/patchset ${file_name}... "
 
@@ -760,7 +760,7 @@ installPatches() {
 
     require_patching=true
 
-  popd &> /dev/null || printErrorAndExit "Can't set working dir"
+  popd &> $verb_output || printErrorAndExit "Can't set working dir"
 }
 
 # Install binary file
@@ -785,7 +785,7 @@ installPackage() {
 
   shift 3
 
-  pushd "$tmp_dir" &> /dev/null || printErrorAndExit "Can't set working dir to $tmp_dir"
+  pushd "$tmp_dir" &> $verb_output || printErrorAndExit "Can't set working dir to $tmp_dir"
 
     show "\nInstalling ${CL_BOLD}${pkg}${CL_NORM}" $YELLOW
     show "Fetching file ${file_name}... "
@@ -808,7 +808,7 @@ installPackage() {
 
     buildPackage "$pkg" "$pkg_dir" "$@"
 
-  popd &> /dev/null || printErrorAndExit "Can't set working dir"
+  popd &> $verb_output || printErrorAndExit "Can't set working dir"
 
   return 0
 }
@@ -834,7 +834,7 @@ installGitSource() {
 
   shift 4
 
-  pushd "$tmp_dir" &> /dev/null || printErrorAndExit "Can't set working dir to $tmp_dir"
+  pushd "$tmp_dir" &> $verb_output || printErrorAndExit "Can't set working dir to $tmp_dir"
 
     show "\nInstalling ${CL_BOLD}${pkg}${CL_NORM}" $YELLOW
     showm "Fetching sources from ${url:0:62}... "
@@ -853,13 +853,13 @@ installGitSource() {
 
     clone_dir=$(basename "$url" | sed 's/.git//')
 
-    pushd "$clone_dir" &> /dev/null || printErrorAndExit "Can't set working dir to $clone_dir"
+    pushd "$clone_dir" &> $verb_output || printErrorAndExit "Can't set working dir to $clone_dir"
       if [[ -n "$tag" && $tag != "!" ]] ; then
         git checkout "$tag" &> $verb_output
       elif [[ -n "$branch" && $branch != "!" ]] ; then
         git checkout "$branch" &> $verb_output
       fi
-    popd &> /dev/null || printErrorAndExit "Can't set working dir"
+    popd &> $verb_output || printErrorAndExit "Can't set working dir"
 
     spinnerOff
 
@@ -868,17 +868,17 @@ installGitSource() {
 
     show "${CL_GREEN}DONE${CL_NORM} ${CL_DARK}($grc_time)${CL_NORM}"
 
-    pushd "$clone_dir" &> /dev/null || printErrorAndExit "Can't set working dir to $clone_dir"
+    pushd "$clone_dir" &> $verb_output || printErrorAndExit "Can't set working dir to $clone_dir"
 
       [[ -n "$require_patching" ]] && applyPatches "$pkg"
 
-    popd &> /dev/null || printErrorAndExit "Can't set working dir"
+    popd &> $verb_output || printErrorAndExit "Can't set working dir"
 
     defBuildFlags
 
     buildPackage "$pkg" "$clone_dir" "$@"
 
-  popd &> /dev/null || printErrorAndExit "Can't set working dir"
+  popd &> $verb_output || printErrorAndExit "Can't set working dir"
 }
 
 # Install sources from subversion repository
@@ -901,7 +901,7 @@ installSvnSource() {
 
   shift 3
 
-  pushd "$tmp_dir" &> /dev/null || printErrorAndExit "Can't set working dir to $tmp_dir"
+  pushd "$tmp_dir" &> $verb_output || printErrorAndExit "Can't set working dir to $tmp_dir"
     show "\nInstalling ${CL_BOLD}${pkg}${CL_NORM}" $YELLOW
     showm "Fetching sources from ${url:0:62}... "
 
@@ -944,17 +944,17 @@ installSvnSource() {
 
     show "${CL_GREEN}DONE${CL_NORM} ${CL_DARK}($grc_time)${CL_NORM}"
 
-    pushd "$checkout_dir" &> /dev/null || printErrorAndExit "Can't set working dir to $checkout_dir"
+    pushd "$checkout_dir" &> $verb_output || printErrorAndExit "Can't set working dir to $checkout_dir"
 
       [[ -n "$require_patching" ]] && applyPatches "$pkg"
 
-    popd &> /dev/null || printErrorAndExit "Can't set working dir"
+    popd &> $verb_output || printErrorAndExit "Can't set working dir"
 
     defBuildFlags
 
     buildPackage "$pkg" "$checkout_dir" "$@"
 
-  popd &> /dev/null || printErrorAndExit "Can't set working dir"
+  popd &> $verb_output || printErrorAndExit "Can't set working dir"
 }
 
 # Install sources from mercurial repository
@@ -976,7 +976,7 @@ installHgSource() {
 
   shift 3
 
-  pushd "$tmp_dir" &> /dev/null || printErrorAndExit "Can't set working dir to $tmp_dir"
+  pushd "$tmp_dir" &> $verb_output || printErrorAndExit "Can't set working dir to $tmp_dir"
 
     show "\nInstalling ${CL_BOLD}${pkg}${CL_NORM}" $YELLOW
     showm "Fetching sources from ${url:0:62}... "
@@ -995,13 +995,13 @@ installHgSource() {
 
     clone_dir=$(basename "$url")
 
-    pushd "$clone_dir" &> /dev/null || printErrorAndExit "Can't set working dir to $clone_dir"
+    pushd "$clone_dir" &> $verb_output || printErrorAndExit "Can't set working dir to $clone_dir"
       if [[ -n "$tag" && $tag != "!" ]] ; then
         hg checkout "$tag" &> $verb_output
       elif [[ -n "$branch" && $branch != "!" ]] ; then
         hg checkout "$branch" &> $verb_output
       fi
-    popd &> /dev/null || printErrorAndExit "Can't set working dir"
+    popd &> $verb_output || printErrorAndExit "Can't set working dir"
 
     spinnerOff
 
@@ -1010,17 +1010,17 @@ installHgSource() {
 
     show "${CL_GREEN}DONE${CL_NORM} ${CL_DARK}($grc_time)${CL_NORM}"
 
-    pushd "$clone_dir" &> /dev/null || printErrorAndExit "Can't set working dir to $clone_dir"
+    pushd "$clone_dir" &> $verb_output || printErrorAndExit "Can't set working dir to $clone_dir"
 
       [[ -n "$require_patching" ]] && applyPatches "$pkg"
 
-    popd &> /dev/null || printErrorAndExit "Can't set working dir"
+    popd &> $verb_output || printErrorAndExit "Can't set working dir"
 
     defBuildFlags
 
     buildPackage "$pkg" "$clone_dir" "$@"
 
-  popd &> /dev/null || printErrorAndExit "Can't set working dir"
+  popd &> $verb_output || printErrorAndExit "Can't set working dir"
 }
 
 # Apply patches to sources
@@ -1031,14 +1031,14 @@ installHgSource() {
 # Echo: No
 applyPatches() {
   local pkg="$1"
-  local pkgdir
+  local pkgdir="$pkg"
 
-  # shellcheck disable=SC2001
-  pkgdir=$(echo "$pkg" | sed 's/-p[0-9]*//')
+  if [[ ! -e "$tmp_dir/$pkgdir" ]] ; then
+    # shellcheck disable=SC2001
+    pkgdir=$(echo "$pkg" | sed 's/-p[0-9]*//')
+  fi
 
-  show "Applying patches..."
-
-  pushd "$tmp_dir/$pkgdir" &> /dev/null || printErrorAndExit "Can't set working dir to $tmp_dir/$pkgdir"
+  pushd "$tmp_dir/$pkgdir" &> $verb_output || printErrorAndExit "Can't set working dir to $tmp_dir/$pkgdir"
 
     local patch patch_name
 
@@ -1078,7 +1078,7 @@ applyPatches() {
 
     unset require_patching
 
-  popd &> /dev/null || printErrorAndExit "Can't set working dir"
+  popd &> $verb_output || printErrorAndExit "Can't set working dir"
 }
 
 # Create prefix directory
@@ -1137,11 +1137,11 @@ fetchRemoteFile() {
     [[ ! -d "$cache_dir" ]] && mkdir -p "$cache_dir"
 
     if [[ ! -f "$cache_dir/$file_name" ]] ; then
-      pushd "$cache_dir" &> /dev/null || printErrorAndExit "Can't set working dir to $cache_dir"
+      pushd "$cache_dir" &> $verb_output || printErrorAndExit "Can't set working dir to $cache_dir"
 
         download "$url" "$file_name" || failed=true
 
-      popd &> /dev/null || printErrorAndExit "Can't set working dir"
+      popd &> $verb_output || printErrorAndExit "Can't set working dir"
     fi
 
     if [[ -z "$failed" ]] ; then
