@@ -663,7 +663,7 @@ execDefinition() {
            show "" && doExit 1 ;;
       esac
     else
-      mkPrefixDir
+      mkPrefixDir || return 1
 
       case $action in
         "patch")     installPatch     "${args[@]}" || failed=true ;;
@@ -1107,9 +1107,12 @@ mkPrefixDir() {
   mkdir -p "$prefix" &> /dev/null
 
   if ! checkPerms "DRW" "$prefix" ; then
-    error "You don't have enough permissions (read & write) to use directory <$prefix>"
-    show "" && doExit 1
+    show ""
+    error "You don't have enough permissions (read & write) to use directory $prefix"
+    return 1
   fi
+
+  return 0
 }
 
 # Read build flags from def file
@@ -1195,7 +1198,7 @@ checkCRC() {
   else
     error "FAIL"
     error ""
-    error "Checksum of the file <$filename> not equals to checksum from the definition file. Maybe file was changed."
+    error "Checksum of the file $filename not equals to checksum from the definition file. Maybe file was changed."
     error "You can use argument --ignore-checksums (-ic) for skipping this check."
 
     show "" && doExit 1
@@ -1337,7 +1340,7 @@ buildPackage() {
     runBuilder "$builder_name" "$pkg" "$pkg_dir" "$@"
     return $?
   else
-    error "Error building package — builder <$builder_name> is not found"
+    error "Error building package — builder $builder_name is not found"
     show "" && doExit 1
   fi
 }
