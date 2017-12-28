@@ -754,7 +754,7 @@ installPatches() {
 
     checkCRC "$file_name" "$crc"
 
-    if [[ -z "$is_patchset" ]] ; then
+    if [[ -n "$is_patchset" ]] ; then
       unpackArchive "$file_name"
     fi
 
