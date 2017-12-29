@@ -706,9 +706,7 @@ checkRemotePatch() {
 
       doExit 1
     fi
-  fi
-
-  if [[ ${url:(-5)} == ".diff" ]] ; then
+  else if [[ ${url:(-5)} == ".diff" ]] ; then
     if ! checkDeps "git" ; then
       if [[ -n "$spinner_pid" ]] ; then
         spinnerOff
@@ -716,6 +714,17 @@ checkRemotePatch() {
 
       error "FAIL\n"
       error "Patch installation require 'git' utility"
+
+      doExit 1
+    fi
+  else
+    if ! checkDeps "git" || ! checkDeps "patch" ; then
+      if [[ -n "$spinner_pid" ]] ; then
+        spinnerOff
+      fi
+
+      error "FAIL\n"
+      error "Patch installation require 'git' and 'patch' utilities"
 
       doExit 1
     fi
