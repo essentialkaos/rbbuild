@@ -569,11 +569,11 @@ checkEOLDates() {
           error "Security maintenance finished $security_rd"
         else
           expired_rd=$(date -d "@$expired_ts" +'%d %B %Y')
-          show "Security maintenance finished <$security_rd>" $YELLOW
-          show "Extended maintenance will be finished <$expired_rd>" $YELLOW
+          show "Security maintenance finished $security_rd" $YELLOW
+          show "Extended maintenance will be finished $expired_rd" $YELLOW
         fi
       else
-        error "Security maintenance finished <$security_rd>"
+        error "Security maintenance finished $security_rd"
       fi
     fi
   fi
@@ -706,7 +706,7 @@ checkRemotePatch() {
 
       doExit 1
     fi
-  else if [[ ${url:(-5)} == ".diff" ]] ; then
+  elif [[ ${url:(-5)} == ".diff" ]] ; then
     if ! checkDeps "git" ; then
       if [[ -n "$spinner_pid" ]] ; then
         spinnerOff
