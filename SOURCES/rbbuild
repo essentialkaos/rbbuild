@@ -603,7 +603,7 @@ readDefinition() {
 
   [[ $mirror != "default" ]] && show "\nYou use mirror ${CL_BOLD}$mirror${CL_NORM}\n" $CYAN
 
-  showm "Checking remote files availability… "
+  showm "Checking remote files… "
 
   spinnerOn
 
@@ -656,9 +656,9 @@ execDefinition() {
 
     if [[ -n "$check" ]] ; then
       case $action in
-        "patch")     checkRemoteFile "!" "${args[@]}" || failed=true ;;
-        "patchset")  checkRemoteFile "!" "${args[@]}" || failed=true ;;
-        "package")   checkRemoteFile     "${args[@]}" || failed=true ;;
+        "patch")     checkRemotePatch "${args[@]}" ;;
+        "patchset")  checkRemotePatch "${args[@]}" ;;
+        "package")   checkRemoteFile  "${args[@]}" ;;
         "git")       continue ;;
         "svn")       continue ;;
         "hg")        continue ;;
@@ -669,12 +669,12 @@ execDefinition() {
       mkPrefixDir || return 1
 
       case $action in
-        "patch")     installPatches   "${args[@]}"      || failed=true ;;
-        "patchset")  installPatches   "${args[@]}" true || failed=true ;;
-        "package")   installPackage   "${args[@]}"      || failed=true ;;
-        "git")       installGitSource "${args[@]}"      || failed=true ;;
-        "svn")       installSvnSource "${args[@]}"      || failed=true ;;
-        "hg")        installHgSource  "${args[@]}"      || failed=true ;;
+        "patch")     installPatches   "patch"    "${args[@]}" || failed=true ;;
+        "patchset")  installPatches   "patchset" "${args[@]}" || failed=true ;;
+        "package")   installPackage   "${args[@]}"            || failed=true ;;
+        "git")       installGitSource "${args[@]}"            || failed=true ;;
+        "svn")       installSvnSource "${args[@]}"            || failed=true ;;
+        "hg")        installHgSource  "${args[@]}"            || failed=true ;;
         *) error "Unknown action <$action>! Please check selected definition file."
            show "" && doExit 1 ;;
       esac
@@ -686,10 +686,48 @@ execDefinition() {
   return 0
 }
 
+# Check remote patch and dependencies for it
+#
+# 1: URL (String)
+#
+# Code: No
+# Echo: No
+checkRemotePatch() {
+  local url="$1"
+
+  if [[ ${url:(-6)} == ".patch" ]] ; then
+    if ! checkDeps "patch" ; then
+      if [[ -n "$spinner_pid" ]] ; then
+        spinnerOff
+      fi
+
+      error "FAIL\n"
+      error "Patch installation require 'patch' utility"
+
+      doExit 1
+    fi
+  fi
+
+  if [[ ${url:(-5)} == ".diff" ]] ; then
+    if ! checkDeps "git" ; then
+      if [[ -n "$spinner_pid" ]] ; then
+        spinnerOff
+      fi
+
+      error "FAIL\n"
+      error "Patch installation require 'git' utility"
+
+      doExit 1
+    fi
+  fi
+
+  checkRemoteFile "!" "$url"
+}
+
 # Check remote file availability
 #
-# 1: File name (String)
-# 2: URL to file (String) [Optional]
+# 1: Package name (String)
+# 2: URL to file (String)
 #
 # Code: No
 # Echo: No
@@ -708,8 +746,7 @@ checkRemoteFile() {
       spinnerOff
     fi
 
-    error "FAIL"
-    error ""
+    error "FAIL\n"
     error "Server return error status <$status> for file <$url>."
     error "Try another mirror (use -ml argument for view all available mirrors)."
 
@@ -725,22 +762,21 @@ checkRemoteFile() {
 # Code: No
 # Echo: No
 installPatches() {
-  local url file_name crc is_patchset
+  local url file_name crc patch_type
 
-  url=$(parseArgsInString "$1")
-  is_patchset="$2"
+
+  patch_type="$1"
+  url=$(parseArgsInString "$2")
+  crc="$3"
 
   if [[ -n "$no_patch" ]] ; then
     show "Ignoring patch/patchset $1" $MAG
     return 0
   fi
 
-  require "git" "patch"
-
   [[ -n "${plocat[$url]}" ]] && url="${plocat[$url]}"
 
   file_name=$(basename "$url")
-  crc="$2"
 
   mkdir -p "$tmp_dir/patches"
 
@@ -754,7 +790,7 @@ installPatches() {
 
     checkCRC "$file_name" "$crc"
 
-    if [[ -n "$is_patchset" ]] ; then
+    if [[ "$patch_type" == "patchset" ]] ; then
       unpackArchive "$file_name"
     fi
 
