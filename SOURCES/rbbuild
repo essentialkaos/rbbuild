@@ -1042,8 +1042,8 @@ applyPatches() {
 
     local patch patch_name
 
-    if [[ -n $(find "$tmp_dir/patches" -name "*.patch") ]] ; then
-      for patch in $tmp_dir/patches/*.patch ; do
+    if [[ -n $(find "$tmp_dir/patches" -name "*.patch" -print -quit) ]] ; then
+      for patch in $(find "$tmp_dir/patches" -name "*.patch" | sort -n) ; do
         patch_name=$(basename "$patch")
         showm "Applying $patch_name… "
 
@@ -1059,8 +1059,8 @@ applyPatches() {
       done
     fi
 
-    if [[ -n $(find "$tmp_dir/patches" -name "*.diff") ]] ; then
-      for patch in $tmp_dir/patches/*.diff ; do
+    if [[ -n $(find "$tmp_dir/patches" -name "*.diff" -print -quit) ]] ; then
+      for patch in $(find "$tmp_dir/patches" -name "*.diff" | sort -n) ; do
         patch_name=$(basename "$patch")
         showm "Applying $patch_name… "
 
