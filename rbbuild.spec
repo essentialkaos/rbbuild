@@ -92,6 +92,7 @@ rm -rf %{buildroot}
 - [rbbuild] Added 'ruby_bin' and 'java_bin' variables
 - [rbbuild] Fixed minor bug with spinner
 - [rbbuild] Fixed minor bug with checking remote source status
+- [rbbuild] Fixed minor bug with sorting versions
 - [rbbuild] Improved handling permission errors
 - [rbbuild] Minor UI improvements
 - [rbbuild] Code refactoring
