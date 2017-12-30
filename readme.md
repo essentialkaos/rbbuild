@@ -6,7 +6,7 @@
 
 ### Usage demo
 
-[![demo](https://gh.kaos.io/rbbuild-160.gif)](#usage-demo)
+[![demo](https://gh.kaos.io/rbbuild-180.gif)](#usage-demo)
 
 ### Installation
 

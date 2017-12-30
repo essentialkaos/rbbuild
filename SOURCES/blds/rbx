@@ -29,7 +29,7 @@ rbxBuilder() {
 
   pushd "$pkg_dir" &> /dev/null || printErrorAndExit "Can't set working dir to $pkg_dir"
 
-    showm "Building... "
+    showm "Building… "
 
     [[ -n "$verbose" ]] && show ""
 

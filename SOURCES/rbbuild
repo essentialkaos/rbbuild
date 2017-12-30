@@ -7,7 +7,7 @@
 APP="RBBuild"
 
 # App version (String)
-VER="1.7.1"
+VER="1.8.0"
 
 ################################################################################
 
@@ -161,6 +161,9 @@ tmp_dir=""
 def_file=""
 require_patching=""
 
+ruby_bin=$(which "ruby" 2>/dev/null)
+java_bin=$(which "java" 2>/dev/null)
+
 declare -A plocat
 
 ################################################################################
@@ -269,9 +272,9 @@ fetchRemoteDefFile() {
 
   file_name=$(basename "$url")
 
-  showm "Fetching remote defenition file... "
+  showm "Fetching remote defenition file… "
 
-  pushd "$tmp_dir" &> /dev/null || printErrorAndExit "Can't set working dir to $tmp_dir"
+  pushd "$tmp_dir" &> $verb_output || printErrorAndExit "Can't set working dir to $tmp_dir"
 
     start_time=$(now)
 
@@ -286,7 +289,7 @@ fetchRemoteDefFile() {
 
     show "${CL_GREEN}DONE${CL_NORM} ${CL_DARK}($grc_time)${CL_NORM}"
 
-  popd &> /dev/null || printErrorAndExit "Can't set working dir"
+  popd &> $verb_output || printErrorAndExit "Can't set working dir"
 
   def_file="$tmp_dir/$file_name"
 }
@@ -332,7 +335,7 @@ doBuild() {
     show "\nContinue build anyway? (y/N)" $CYAN
 
     if ! readAnswer "N" ; then
-      show "" && doExit
+      doExit
     fi
   fi
 
@@ -341,11 +344,11 @@ doBuild() {
     show "\nYou really want to use this directory? (Y/n)" $CYAN
 
     if ! readAnswer "Y" ; then
-      show "" && doExit
+      doExit
     fi
   fi
 
-  show "Starting build process..."
+  show "Starting build process…"
 
   checkBuildDeps
   readDefinition
@@ -354,14 +357,14 @@ doBuild() {
     return 1
   fi
 
-  show "Executing defenition file actions... "
+  show "Executing defenition file actions… "
 
   execDefinition
 
   status=$?
 
   if [[ $status -eq 0 && -n "$rbenv" ]] ; then
-    showm "\nRehashing... "
+    showm "\nRehashing… "
 
     rbenv rehash &> /dev/null
 
@@ -379,7 +382,7 @@ checkBuildDeps() {
   local dep_list dep_pref dep has_lib pips gems
   local is_fail deb_list rpm_list bin_list lib_list pip_list gem_list
 
-  showm "Checking build dependencies... "
+  showm "Checking build dependencies… "
 
   if [[ "$os_dist" == "$DIST_UBUNTU" || "$os_dist" == "$DIST_DEBIAN" ]] ; then
     dep_list=$(readDefProp "deps(deb)")
@@ -566,11 +569,11 @@ checkEOLDates() {
           error "Security maintenance finished $security_rd"
         else
           expired_rd=$(date -d "@$expired_ts" +'%d %B %Y')
-          show "Security maintenance finished <$security_rd>" $YELLOW
-          show "Extended maintenance will be finished <$expired_rd>" $YELLOW
+          show "Security maintenance finished $security_rd" $YELLOW
+          show "Extended maintenance will be finished $expired_rd" $YELLOW
         fi
       else
-        error "Security maintenance finished <$security_rd>"
+        error "Security maintenance finished $security_rd"
       fi
     fi
   fi
@@ -581,7 +584,7 @@ checkEOLDates() {
   show "\nYou really want build this version? (Y/n)" $CYAN
 
   if ! readAnswer "Y" ; then
-    show "" && doExit
+    doExit
   fi
 }
 
@@ -600,7 +603,7 @@ readDefinition() {
 
   [[ $mirror != "default" ]] && show "\nYou use mirror ${CL_BOLD}$mirror${CL_NORM}\n" $CYAN
 
-  showm "Checking remote files availability... "
+  showm "Checking remote files… "
 
   spinnerOn
 
@@ -648,15 +651,14 @@ execDefinition() {
 
     IFS=" " read -r -a cmnd <<< "${fmtd/: / }"
     IFS=" " read -r -a args <<< "${cmnd[@]:1:999}"
-    
+
     action="${cmnd[0]}"
-    
 
     if [[ -n "$check" ]] ; then
       case $action in
-        "patch")     checkRemoteFile "!" "${args[@]}" || failed=true ;;
-        "patchset")  checkRemoteFile "!" "${args[@]}" || failed=true ;;
-        "package")   checkRemoteFile     "${args[@]}" || failed=true ;;
+        "patch")     checkRemotePatch "${args[@]}" ;;
+        "patchset")  checkRemotePatch "${args[@]}" ;;
+        "package")   checkRemoteFile  "${args[@]}" ;;
         "git")       continue ;;
         "svn")       continue ;;
         "hg")        continue ;;
@@ -664,15 +666,15 @@ execDefinition() {
            show "" && doExit 1 ;;
       esac
     else
-      mkPrefixDir
+      mkPrefixDir || return 1
 
       case $action in
-        "patch")     installPatch     "${args[@]}" || failed=true ;;
-        "patchset")  installPatchset  "${args[@]}" || failed=true ;;
-        "package")   installPackage   "${args[@]}" || failed=true ;;
-        "git")       installGitSource "${args[@]}" || failed=true ;;
-        "svn")       installSvnSource "${args[@]}" || failed=true ;;
-        "hg")        installHgSource  "${args[@]}" || failed=true ;;
+        "patch")     installPatches   "patch"    "${args[@]}" || failed=true ;;
+        "patchset")  installPatches   "patchset" "${args[@]}" || failed=true ;;
+        "package")   installPackage   "${args[@]}"            || failed=true ;;
+        "git")       installGitSource "${args[@]}"            || failed=true ;;
+        "svn")       installSvnSource "${args[@]}"            || failed=true ;;
+        "hg")        installHgSource  "${args[@]}"            || failed=true ;;
         *) error "Unknown action <$action>! Please check selected definition file."
            show "" && doExit 1 ;;
       esac
@@ -684,10 +686,57 @@ execDefinition() {
   return 0
 }
 
+# Check remote patch and dependencies for it
+#
+# 1: URL (String)
+#
+# Code: No
+# Echo: No
+checkRemotePatch() {
+  local url="$1"
+
+  if [[ ${url:(-6)} == ".patch" ]] ; then
+    if ! checkDeps "patch" ; then
+      if [[ -n "$spinner_pid" ]] ; then
+        spinnerOff
+      fi
+
+      error "FAIL\n"
+      error "Patch installation require 'patch' utility"
+
+      doExit 1
+    fi
+  elif [[ ${url:(-5)} == ".diff" ]] ; then
+    if ! checkDeps "git" ; then
+      if [[ -n "$spinner_pid" ]] ; then
+        spinnerOff
+      fi
+
+      error "FAIL\n"
+      error "Patch installation require 'git' utility"
+
+      doExit 1
+    fi
+  else
+    if ! checkDeps "git" || ! checkDeps "patch" ; then
+      if [[ -n "$spinner_pid" ]] ; then
+        spinnerOff
+      fi
+
+      error "FAIL\n"
+      error "Patch installation require 'git' and 'patch' utilities"
+
+      doExit 1
+    fi
+  fi
+
+  checkRemoteFile "!" "$url"
+}
+
 # Check remote file availability
 #
-# 1: File name (String)
-# 2: URL to file (String) [Optional]
+# 1: Package name (String)
+# 2: URL to file (String)
 #
 # Code: No
 # Echo: No
@@ -702,8 +751,11 @@ checkRemoteFile() {
   status=$(checkHTTPStatus "$url")
 
   if [[ "$status" != "200" ]] ; then
-    error "FAIL"
-    error ""
+    if [[ -n "$spinner_pid" ]] ; then
+      spinnerOff
+    fi
+
+    error "FAIL\n"
     error "Server return error status <$status> for file <$url>."
     error "Try another mirror (use -ml argument for view all available mirrors)."
 
@@ -711,35 +763,35 @@ checkRemoteFile() {
   fi
 }
 
-# Download and install patch
+# Download and install patch or patches
 #
 # 1: URL of patch (String)
 # 2: Checksum (String)
 #
 # Code: No
 # Echo: No
-installPatch() {
-  local url file_name crc
+installPatches() {
+  local url file_name crc patch_type
+
+
+  patch_type="$1"
+  url=$(parseArgsInString "$2")
+  crc="$3"
 
   if [[ -n "$no_patch" ]] ; then
-    show "Skipping patch $1..." $MAG
+    show "Ignoring patch/patchset $1" $MAG
     return 0
   fi
-
-  require "git"
-
-  url=$(parseArgsInString "$1")
 
   [[ -n "${plocat[$url]}" ]] && url="${plocat[$url]}"
 
   file_name=$(basename "$url")
-  crc="$2"
 
   mkdir -p "$tmp_dir/patches"
 
-  pushd "$tmp_dir/patches" &> /dev/null || printErrorAndExit "Can't set working dir to $tmp_dir/patches"
+  pushd "$tmp_dir/patches" &> $verb_output || printErrorAndExit "Can't set working dir to $tmp_dir/patches"
 
-    show "\nFetching patch ${file_name}... "
+    show "\nFetching patch/patchset ${file_name}… "
 
     if ! fetchRemoteFile "$url" "$file_name" ; then
       return 1
@@ -747,51 +799,13 @@ installPatch() {
 
     checkCRC "$file_name" "$crc"
 
-    require_patching=true
-
-  popd &> /dev/null || printErrorAndExit "Can't set working dir"
-}
-
-# Install patchset (set of patches)
-#
-# 1: URL of patchset (String)
-# 2: Checksum (String)
-#
-# Code: No
-# Echo: No
-installPatchset() {
-  local url file_name crc
-
-  if [[ -n "$no_patch" ]] ; then
-    show "Skipping patchset $1..." $MAG
-    return 0
-  fi
-
-  require "git"
-
-  url=$(parseArgsInString "$1")
-
-  [[ -n "${plocat[$url]}" ]] && url="${plocat[$url]}"
-
-  file_name=$(basename "$url")
-  crc="$2"
-
-  mkdir -p "$tmp_dir/patches"
-
-  pushd "$tmp_dir/patches" &> /dev/null || printErrorAndExit "Can't set working dir to $tmp_dir/patches"
-
-    show "\nFetching patchset ${file_name}... "
-
-    if ! fetchRemoteFile "$url" "$file_name" ; then
-      return 1
+    if [[ "$patch_type" == "patchset" ]] ; then
+      unpackArchive "$file_name"
     fi
 
-    checkCRC "$file_name" "$crc"
-    unpackArchive "$file_name"
-
     require_patching=true
 
-  popd &> /dev/null || printErrorAndExit "Can't set working dir"
+  popd &> $verb_output || printErrorAndExit "Can't set working dir"
 }
 
 # Install binary file
@@ -816,10 +830,10 @@ installPackage() {
 
   shift 3
 
-  pushd "$tmp_dir" &> /dev/null || printErrorAndExit "Can't set working dir to $tmp_dir"
+  pushd "$tmp_dir" &> $verb_output || printErrorAndExit "Can't set working dir to $tmp_dir"
 
     show "\nInstalling ${CL_BOLD}${pkg}${CL_NORM}" $YELLOW
-    show "Fetching file ${file_name}... "
+    show "Fetching file ${file_name}… "
 
     if ! fetchRemoteFile "$url" "$file_name" ; then
       return 1
@@ -839,7 +853,7 @@ installPackage() {
 
     buildPackage "$pkg" "$pkg_dir" "$@"
 
-  popd &> /dev/null || printErrorAndExit "Can't set working dir"
+  popd &> $verb_output || printErrorAndExit "Can't set working dir"
 
   return 0
 }
@@ -865,10 +879,10 @@ installGitSource() {
 
   shift 4
 
-  pushd "$tmp_dir" &> /dev/null || printErrorAndExit "Can't set working dir to $tmp_dir"
+  pushd "$tmp_dir" &> $verb_output || printErrorAndExit "Can't set working dir to $tmp_dir"
 
     show "\nInstalling ${CL_BOLD}${pkg}${CL_NORM}" $YELLOW
-    showm "Fetching sources from ${url:0:62}... "
+    showm "Fetching sources from ${url:0:62}… "
 
     spinnerOn
 
@@ -884,13 +898,13 @@ installGitSource() {
 
     clone_dir=$(basename "$url" | sed 's/.git//')
 
-    pushd "$clone_dir" &> /dev/null || printErrorAndExit "Can't set working dir to $clone_dir"
+    pushd "$clone_dir" &> $verb_output || printErrorAndExit "Can't set working dir to $clone_dir"
       if [[ -n "$tag" && $tag != "!" ]] ; then
         git checkout "$tag" &> $verb_output
       elif [[ -n "$branch" && $branch != "!" ]] ; then
         git checkout "$branch" &> $verb_output
       fi
-    popd &> /dev/null || printErrorAndExit "Can't set working dir"
+    popd &> $verb_output || printErrorAndExit "Can't set working dir"
 
     spinnerOff
 
@@ -899,17 +913,17 @@ installGitSource() {
 
     show "${CL_GREEN}DONE${CL_NORM} ${CL_DARK}($grc_time)${CL_NORM}"
 
-    pushd "$clone_dir" &> /dev/null || printErrorAndExit "Can't set working dir to $clone_dir"
+    pushd "$clone_dir" &> $verb_output || printErrorAndExit "Can't set working dir to $clone_dir"
 
       [[ -n "$require_patching" ]] && applyPatches "$pkg"
 
-    popd &> /dev/null || printErrorAndExit "Can't set working dir"
+    popd &> $verb_output || printErrorAndExit "Can't set working dir"
 
     defBuildFlags
 
     buildPackage "$pkg" "$clone_dir" "$@"
 
-  popd &> /dev/null || printErrorAndExit "Can't set working dir"
+  popd &> $verb_output || printErrorAndExit "Can't set working dir"
 }
 
 # Install sources from subversion repository
@@ -932,9 +946,9 @@ installSvnSource() {
 
   shift 3
 
-  pushd "$tmp_dir" &> /dev/null || printErrorAndExit "Can't set working dir to $tmp_dir"
+  pushd "$tmp_dir" &> $verb_output || printErrorAndExit "Can't set working dir to $tmp_dir"
     show "\nInstalling ${CL_BOLD}${pkg}${CL_NORM}" $YELLOW
-    showm "Fetching sources from ${url:0:62}... "
+    showm "Fetching sources from ${url:0:62}… "
 
     spinnerOn
 
@@ -975,17 +989,17 @@ installSvnSource() {
 
     show "${CL_GREEN}DONE${CL_NORM} ${CL_DARK}($grc_time)${CL_NORM}"
 
-    pushd "$checkout_dir" &> /dev/null || printErrorAndExit "Can't set working dir to $checkout_dir"
+    pushd "$checkout_dir" &> $verb_output || printErrorAndExit "Can't set working dir to $checkout_dir"
 
       [[ -n "$require_patching" ]] && applyPatches "$pkg"
 
-    popd &> /dev/null || printErrorAndExit "Can't set working dir"
+    popd &> $verb_output || printErrorAndExit "Can't set working dir"
 
     defBuildFlags
 
     buildPackage "$pkg" "$checkout_dir" "$@"
 
-  popd &> /dev/null || printErrorAndExit "Can't set working dir"
+  popd &> $verb_output || printErrorAndExit "Can't set working dir"
 }
 
 # Install sources from mercurial repository
@@ -1007,10 +1021,10 @@ installHgSource() {
 
   shift 3
 
-  pushd "$tmp_dir" &> /dev/null || printErrorAndExit "Can't set working dir to $tmp_dir"
+  pushd "$tmp_dir" &> $verb_output || printErrorAndExit "Can't set working dir to $tmp_dir"
 
     show "\nInstalling ${CL_BOLD}${pkg}${CL_NORM}" $YELLOW
-    showm "Fetching sources from ${url:0:62}... "
+    showm "Fetching sources from ${url:0:62}… "
 
     spinnerOn
 
@@ -1026,13 +1040,13 @@ installHgSource() {
 
     clone_dir=$(basename "$url")
 
-    pushd "$clone_dir" &> /dev/null || printErrorAndExit "Can't set working dir to $clone_dir"
+    pushd "$clone_dir" &> $verb_output || printErrorAndExit "Can't set working dir to $clone_dir"
       if [[ -n "$tag" && $tag != "!" ]] ; then
         hg checkout "$tag" &> $verb_output
       elif [[ -n "$branch" && $branch != "!" ]] ; then
         hg checkout "$branch" &> $verb_output
       fi
-    popd &> /dev/null || printErrorAndExit "Can't set working dir"
+    popd &> $verb_output || printErrorAndExit "Can't set working dir"
 
     spinnerOff
 
@@ -1041,17 +1055,17 @@ installHgSource() {
 
     show "${CL_GREEN}DONE${CL_NORM} ${CL_DARK}($grc_time)${CL_NORM}"
 
-    pushd "$clone_dir" &> /dev/null || printErrorAndExit "Can't set working dir to $clone_dir"
+    pushd "$clone_dir" &> $verb_output || printErrorAndExit "Can't set working dir to $clone_dir"
 
       [[ -n "$require_patching" ]] && applyPatches "$pkg"
 
-    popd &> /dev/null || printErrorAndExit "Can't set working dir"
+    popd &> $verb_output || printErrorAndExit "Can't set working dir"
 
     defBuildFlags
 
     buildPackage "$pkg" "$clone_dir" "$@"
 
-  popd &> /dev/null || printErrorAndExit "Can't set working dir"
+  popd &> $verb_output || printErrorAndExit "Can't set working dir"
 }
 
 # Apply patches to sources
@@ -1062,38 +1076,54 @@ installHgSource() {
 # Echo: No
 applyPatches() {
   local pkg="$1"
-  local pkgdir
+  local pkgdir="$pkg"
 
-  # shellcheck disable=SC2010
-  pkgdir=$(ls -1 -d -- */ 2> /dev/null | grep -v "patches" | head -1)
+  if [[ ! -e "$tmp_dir/$pkgdir" ]] ; then
+    # shellcheck disable=SC2001
+    pkgdir=$(echo "$pkg" | sed 's/-p[0-9]*//')
+  fi
 
-  showm "Applying patches... "
+  pushd "$tmp_dir/$pkgdir" &> $verb_output || printErrorAndExit "Can't set working dir to $tmp_dir/$pkgdir"
 
-  pushd "$tmp_dir/$pkgdir" &> /dev/null || printErrorAndExit "Can't set working dir to $tmp_dir/$pkgdir"
+    local patch patch_name
 
-    local patch
+    if [[ -n $(find "$tmp_dir/patches" -name "*.patch" -print -quit) ]] ; then
+      for patch in $(find "$tmp_dir/patches" -name "*.patch" | sort -n) ; do
+        patch_name=$(basename "$patch")
+        showm "Applying $patch_name… "
 
-    if [[ -n $(find "$tmp_dir/patches" -name ".patch") ]] ; then
-      for patch in $tmp_dir/patches/*.patch ; do
         # shellcheck disable=SC2002
         cat "$patch" | patch -p1 &> $verb_output
+
+        if [[ $? -ne 0 ]] ; then
+          error "FAIL"
+          return 1
+        else
+          show "DONE" $GREEN
+        fi
       done
     fi
 
-    if [[ -n $(find "$tmp_dir/patches" -name ".diff") ]] ; then
-      for patch in $tmp_dir/patches/*.diff ; do
+    if [[ -n $(find "$tmp_dir/patches" -name "*.diff" -print -quit) ]] ; then
+      for patch in $(find "$tmp_dir/patches" -name "*.diff" | sort -n) ; do
+        patch_name=$(basename "$patch")
+        showm "Applying $patch_name… "
+
         # shellcheck disable=SC2002
         cat "$patch" | git apply &> $verb_output
+
+        if [[ $? -ne 0 ]] ; then
+          error "FAIL"
+          return 1
+        else
+          show "DONE" $GREEN
+        fi
       done
     fi
 
     unset require_patching
 
-    rm -rf "$tmp_dir/patches" &> /dev/null
-
-    show "DONE" $GREEN
-
-  popd &> /dev/null || printErrorAndExit "Can't set working dir"
+  popd &> $verb_output || printErrorAndExit "Can't set working dir"
 }
 
 # Create prefix directory
@@ -1104,9 +1134,12 @@ mkPrefixDir() {
   mkdir -p "$prefix" &> /dev/null
 
   if ! checkPerms "DRW" "$prefix" ; then
-    error "You don't have enough permissions (read & write) to use directory <$prefix>"
-    show "" && doExit 1
+    show ""
+    error "You don't have enough permissions (read & write) to use directory $prefix"
+    return 1
   fi
+
+  return 0
 }
 
 # Read build flags from def file
@@ -1149,11 +1182,11 @@ fetchRemoteFile() {
     [[ ! -d "$cache_dir" ]] && mkdir -p "$cache_dir"
 
     if [[ ! -f "$cache_dir/$file_name" ]] ; then
-      pushd "$cache_dir" &> /dev/null || printErrorAndExit "Can't set working dir to $cache_dir"
+      pushd "$cache_dir" &> $verb_output || printErrorAndExit "Can't set working dir to $cache_dir"
 
         download "$url" "$file_name" || failed=true
 
-      popd &> /dev/null || printErrorAndExit "Can't set working dir"
+      popd &> $verb_output || printErrorAndExit "Can't set working dir"
     fi
 
     if [[ -z "$failed" ]] ; then
@@ -1183,7 +1216,7 @@ checkCRC() {
 
   [[ -n "$ignore_checksums" ]] && return
 
-  showm "Checking sha1 checksum... "
+  showm "Checking sha1 checksum… "
 
   file_crc=$(sha1sum "$filename" | cut -f1 -d" ")
 
@@ -1192,7 +1225,7 @@ checkCRC() {
   else
     error "FAIL"
     error ""
-    error "Checksum of the file <$filename> not equals to checksum from the definition file. Maybe file was changed."
+    error "Checksum of the file $filename not equals to checksum from the definition file. Maybe file was changed."
     error "You can use argument --ignore-checksums (-ic) for skipping this check."
 
     show "" && doExit 1
@@ -1214,31 +1247,31 @@ unpackArchive() {
   spinnerOn
 
   if [[ $1 =~ .tar.gz$|.tgz$|.tar.gzip$ ]] ; then
-    showm "Unpacking tar.gz archive... "
+    showm "Unpacking tar.gz archive… "
 
     tar xzvf "$arch" &> $verb_output
 
     rm -f "$arch"
   elif [[ $1 =~ .tar.bz2$|.tbz2$|.tbz2$|.tb2$|.tbz$ ]] ; then
-    showm "Unpacking tar.bz2 archive... "
+    showm "Unpacking tar.bz2 archive… "
 
     tar xjvf "$arch" &> $verb_output
 
     rm -f "$arch"
   elif [[ $1 =~ .zip$ ]] ; then
-    showm "Unpacking zip archive... "
+    showm "Unpacking zip archive… "
 
     unzip "$arch" &> $verb_output
 
     rm -f "$arch"
   elif [[ $1 =~ .tar.xz$|.txz$ ]]; then
-    showm "Unpacking xz archive... "
+    showm "Unpacking xz archive… "
 
     tar xJfv "$arch" &> $verb_output
 
     rm -f "$arch"
   elif [[ $1 =~ .7z$ ]] ; then
-    showm "Unpacking 7z archive... "
+    showm "Unpacking 7z archive… "
 
     require "7za"
 
@@ -1246,7 +1279,7 @@ unpackArchive() {
 
     rm -f "$arch"
   else
-    error "Can't unpack file $arch. Exiting..."
+    error "Can't unpack file $arch. Exiting…"
     show "" && doExit 1
   fi
 
@@ -1334,7 +1367,7 @@ buildPackage() {
     runBuilder "$builder_name" "$pkg" "$pkg_dir" "$@"
     return $?
   else
-    error "Error building package — builder <$builder_name> is not found"
+    error "Error building package — builder $builder_name is not found"
     show "" && doExit 1
   fi
 }
@@ -1478,10 +1511,10 @@ listDefs() {
     fi
   done
 
-  IFS=" " read -r -a ruby_list <<< "${ruby_list[@]}"
-  IFS=" " read -r -a jruby_list <<< "${jruby_list[@]}"
-  IFS=" " read -r -a ree_list <<< "${ree_list[@]}"
-  IFS=" " read -r -a rbx_list <<< "${rbx_list[@]}"
+  IFS=" " read -r -a ruby_list <<< "$(sortVersionArray "${ruby_list[@]}")"
+  IFS=" " read -r -a jruby_list <<< "$(sortVersionArray "${jruby_list[@]}")"
+  IFS=" " read -r -a ree_list <<< "$(sortVersionArray "${ree_list[@]}")"
+  IFS=" " read -r -a rbx_list <<< "$(sortVersionArray "${rbx_list[@]}")"
 
   local ruby_ver jruby_ver ree_ver rbx_ver oth_ver all_ver count ruby_count ruby_next
 
@@ -1489,7 +1522,7 @@ listDefs() {
   ruby_count=0
   ruby_next=0
 
-  printf "\n${CL_BOLD}${CL_BG_YELLOW} %-26s${CL_NORM} ${CL_BOLD}${CL_BG_CYAN} %-26s${CL_NORM} ${CL_BOLD}${CL_BG_GREEN} %-26s${CL_NORM} ${CL_BOLD}${CL_BG_MAG} %-26s${CL_NORM} ${CL_BOLD}${CL_BG_GREY} %-26s${CL_NORM}\n\n" "RUBY" "JRUBY" "REE" "RUBINIUS" "OTHER"
+  printf "\n${CL_BOLD}${CL_BG_YELLOW} %-26s${CL_NORM} ${CL_BOLD}${CL_BG_CYAN} %-26s${CL_NORM} ${CL_BOLD}${CL_BG_GREEN} %-26s${CL_NORM} ${CL_BOLD}${CL_BG_MAG} %-24s${CL_NORM} ${CL_BOLD}${CL_BG_GREY} %-22s${CL_NORM}\n\n" "RUBY" "JRUBY" "REE" "RUBINIUS" "OTHER"
 
   while : ; do
     ruby_next=$((ruby_count+1))
@@ -1508,7 +1541,7 @@ listDefs() {
     rbx_ver="${rbx_list[$count]}"
     oth_ver="${oth_list[$count]}"
 
-    printf " %-26b  %-26s  %-26s  %-26s  %-26s\n" "$ruby_ver" "$jruby_ver" "$ree_ver" "$rbx_ver" "$oth_ver"
+    printf " %-26b  %-26s  %-26s  %-24s  %-22s\n" "$ruby_ver" "$jruby_ver" "$ree_ver" "$rbx_ver" "$oth_ver"
 
     all_ver="${ruby_ver}${jruby_ver}${ree_ver}${rbx_ver}${oth_ver}"
 
@@ -1733,7 +1766,7 @@ checkHTTPStatus() {
     status=$(curl --max-redirs "$MAX_REDIRS" -x "$proxy" -LIks -X GET "$url")
   fi
 
-  code=$(echo "$status" | grep -Fi "HTTP" | cut -f2 -d" ")
+  code=$(echo "$status" | grep -E "^HTTP\/" | cut -f2 -d" ")
 
   if [[ -z "$code" ]] ; then
     echo "-1"
@@ -2096,7 +2129,11 @@ showm() {
 # Code: No
 # Echo: No
 showe() {
-  show "\n${CL_BL_MAG}EXEC → ${CL_NORM}${CL_MAG}$*${CL_NORM}\n"
+  local win_width
+
+  win_width=$(tput cols)
+
+  printf "\n\033[1;39;45m%-${win_width}s${CL_NORM}\n\n" " ► $*"
 }
 
 # Show formated message with option info

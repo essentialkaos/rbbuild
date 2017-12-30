@@ -29,7 +29,7 @@
 
 Summary:         Utility for compiling and installing different ruby versions
 Name:            rbbuild
-Version:         1.7.1
+Version:         1.8.0
 Release:         0%{?dist}
 License:         EKOL
 Vendor:          ESSENTIALKAOS
@@ -42,7 +42,9 @@ BuildArch:       noarch
 BuildRoot:       %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 Requires:        %{name}-defs
-Requires:        bash p7zip gawk
+Requires:        bash p7zip patch gawk
+
+Provides:        %{name} = %{version}-%{release}
 
 ################################################################################
 
@@ -85,6 +87,16 @@ rm -rf %{buildroot}
 ################################################################################
 
 %changelog
+* Thu Dec 28 2017 Anton Novojilov <andy@essentialkaos.com> - 1.8.0-0
+- [rbbuild] Fixed major bug with applying patches
+- [rbbuild] Added 'ruby_bin' and 'java_bin' variables
+- [rbbuild] Fixed minor bug with spinner
+- [rbbuild] Fixed minor bug with checking remote source status
+- [rbbuild] Fixed minor bug with sorting versions
+- [rbbuild] Improved handling permission errors
+- [rbbuild] Minor UI improvements
+- [rbbuild] Code refactoring
+
 * Tue Dec 12 2017 Anton Novojilov <andy@essentialkaos.com> - 1.7.1-0
 - [rbdef|rbbuild] Code refactoring
 
