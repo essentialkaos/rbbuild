@@ -1511,10 +1511,10 @@ listDefs() {
     fi
   done
 
-  IFS=" " read -r -a ruby_list <<< $(sortVersionArray "${ruby_list[@]}")
-  IFS=" " read -r -a jruby_list <<< $(sortVersionArray "${jruby_list[@]}")
-  IFS=" " read -r -a ree_list <<< $(sortVersionArray "${ree_list[@]}")
-  IFS=" " read -r -a rbx_list <<< $(sortVersionArray "${rbx_list[@]}")
+  IFS=" " read -r -a ruby_list <<< "$(sortVersionArray "${ruby_list[@]}")"
+  IFS=" " read -r -a jruby_list <<< "$(sortVersionArray "${jruby_list[@]}")"
+  IFS=" " read -r -a ree_list <<< "$(sortVersionArray "${ree_list[@]}")"
+  IFS=" " read -r -a rbx_list <<< "$(sortVersionArray "${rbx_list[@]}")"
 
   local ruby_ver jruby_ver ree_ver rbx_ver oth_ver all_ver count ruby_count ruby_next
 
