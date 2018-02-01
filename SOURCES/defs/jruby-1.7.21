@@ -9,4 +9,4 @@ deps(bin): java
   package: "jruby-1.7.21" "https://s3.amazonaws.com/jruby.org/downloads/1.7.21/jruby-bin-1.7.21.tar.gz" "4955b69a913b22f96bd599eff2a133d8d1ed42c6" jruby
 
 [essentialkaos]
-  package: "jruby-1.7.21" "https://ruby.kaos.io/jruby-1.7.21.7z" "1def0648c7c4409c4a61c06d08f32b39bbb45f77" jruby
+  package: "jruby-1.7.21" "https://ruby.kaos.st/jruby-1.7.21.7z" "1def0648c7c4409c4a61c06d08f32b39bbb45f77" jruby

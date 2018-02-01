@@ -20,6 +20,6 @@ CONFOPTS(ruby-2.5.0-p0): --with-openssl-dir={prefix}/openssl --with-baseruby={ru
   package: "ruby-2.5.0-p0" "https://cache.ruby-lang.org/pub/ruby/2.5/ruby-2.5.0.tar.gz" "58f77301c891c1c4a08f301861c26b1ea46509f6"
 
 [essentialkaos]
-  package: "openssl-1.1.0g" "https://ruby.kaos.io/openssl-1.1.0g.7z" "92102da780f9b7ca23e2f91b6ff9fcb496386484" openssl
+  package: "openssl-1.1.0g" "https://ruby.kaos.st/openssl-1.1.0g.7z" "92102da780f9b7ca23e2f91b6ff9fcb496386484" openssl
   patch: "https://github.com/ruby/ruby/commit/de11e472b447df6d45cd2eaa577d0f2f1efd4064.patch" "4bd7b9e2893f56b6833a16be52f64193b6c02ed1"
-  package: "ruby-2.5.0-p0" "https://ruby.kaos.io/ruby-2.5.0.7z" "b83d7ad6a3789f54e2b2e475fad20f054fc103e3"
+  package: "ruby-2.5.0-p0" "https://ruby.kaos.st/ruby-2.5.0.7z" "b83d7ad6a3789f54e2b2e475fad20f054fc103e3"

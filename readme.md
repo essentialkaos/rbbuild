@@ -1,26 +1,26 @@
 <p align="center"><a href="#usage-demo">Usage demo</a> • <a href="#installation">Installation</a> • <a href="#usage">Usage</a> • <a href="#build-status">Build Status</a> • <a href="#license">License</a></p>
 
-<p align="center"><a href="#readme"><img src="https://gh.kaos.io/rbbuild.svg"/></a></p>
+<p align="center"><a href="#readme"><img src="https://gh.kaos.st/rbbuild.svg"/></a></p>
 
 `rbbuild` is utility for compiling and installing different ruby versions.
 
 ### Usage demo
 
-[![demo](https://gh.kaos.io/rbbuild-180.gif)](#usage-demo)
+[![demo](https://gh.kaos.st/rbbuild-180.gif)](#usage-demo)
 
 ### Installation
 
-#### From [ESSENTIAL KAOS Public Repository](https://yum.kaos.io) for RHEL6/CentOS6
+#### From [ESSENTIAL KAOS Public Repository](https://yum.kaos.st) for RHEL6/CentOS6
 
 ```
-[sudo] yum install -y https://yum.kaos.io/6/release/x86_64/kaos-repo-8.0-0.el6.noarch.rpm
+[sudo] yum install -y https://yum.kaos.st/6/release/x86_64/kaos-repo-9.0-0.el6.noarch.rpm
 [sudo] yum install rbbuild
 ```
 
-#### From [ESSENTIAL KAOS Public Repository](https://yum.kaos.io) for RHEL7/CentOS7
+#### From [ESSENTIAL KAOS Public Repository](https://yum.kaos.st) for RHEL7/CentOS7
 
 ```
-[sudo] yum install -y https://yum.kaos.io/7/release/x86_64/kaos-repo-8.0-0.el7.noarch.rpm
+[sudo] yum install -y https://yum.kaos.st/7/release/x86_64/kaos-repo-9.0-0.el7.noarch.rpm
 [sudo] yum install rbbuild
 ```
 
@@ -95,4 +95,4 @@ Examples:
 
 [EKOL](https://essentialkaos.com/ekol)
 
-<p align="center"><a href="https://essentialkaos.com"><img src="https://gh.kaos.io/ekgh.svg"/></a></p>
+<p align="center"><a href="https://essentialkaos.com"><img src="https://gh.kaos.st/ekgh.svg"/></a></p>

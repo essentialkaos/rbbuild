@@ -18,11 +18,11 @@ CONFOPTS(ruby-1.9.3-p551): --with-openssl-dir={prefix}/openssl --with-opt-dir={p
 [default]
   package: "yaml-0.1.6" "http://pyyaml.org/download/libyaml/yaml-0.1.6.tar.gz" "f3d404e11bec3c4efcddfd14c42d46f1aabe0b5d"
   package: "openssl-1.0.2k" "https://www.openssl.org/source/openssl-1.0.2k.tar.gz" "5f26a624479c51847ebd2f22bb9f84b3b44dcb44" openssl
-  patchset: "https://ruby.kaos.io/patches/1.9.3-p551.7z" "8b290c42a639db71471d2e42560099f6df6a9e99"
+  patchset: "https://ruby.kaos.st/patches/1.9.3-p551.7z" "8b290c42a639db71471d2e42560099f6df6a9e99"
   package: "ruby-1.9.3-p551" "https://ftp.ruby-lang.org/pub/ruby/1.9/ruby-1.9.3-p551.tar.gz" "5cf6c9383444163a3f753b50c35e441988189258"
 
 [essentialkaos]
-  package: "yaml-0.1.6" "https://ruby.kaos.io/yaml-0.1.6.7z" "f223c0c924e9f7d598d83d3127e7aac362c2589f"
-  package: "openssl-1.0.2k" "https://ruby.kaos.io/openssl-1.0.2k.7z" "1c23f9626f598371c5810fbdeed35da44e1fbf24" openssl
-  patchset: "https://ruby.kaos.io/patches/1.9.3-p551.7z" "8b290c42a639db71471d2e42560099f6df6a9e99"
-  package: "ruby-1.9.3-p551" "https://ruby.kaos.io/ruby-1.9.3-p551.7z" "89bb05d83db8199a61c1ebf9e9cbfa21615679dc"
+  package: "yaml-0.1.6" "https://ruby.kaos.st/yaml-0.1.6.7z" "f223c0c924e9f7d598d83d3127e7aac362c2589f"
+  package: "openssl-1.0.2k" "https://ruby.kaos.st/openssl-1.0.2k.7z" "1c23f9626f598371c5810fbdeed35da44e1fbf24" openssl
+  patchset: "https://ruby.kaos.st/patches/1.9.3-p551.7z" "8b290c42a639db71471d2e42560099f6df6a9e99"
+  package: "ruby-1.9.3-p551" "https://ruby.kaos.st/ruby-1.9.3-p551.7z" "89bb05d83db8199a61c1ebf9e9cbfa21615679dc"
