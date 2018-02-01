@@ -17,5 +17,5 @@ CONFOPTS(ruby-2.4.3-p0): --with-openssl-dir={prefix}/openssl --disable-install-d
   package: "ruby-2.4.3-p0" "https://cache.ruby-lang.org/pub/ruby/2.4/ruby-2.4.3.tar.gz" "787b7f4e90fb4b39a61bc1a31eb7765f875a590c"
 
 [essentialkaos]
-  package: "openssl-1.1.0g" "https://ruby.kaos.io/openssl-1.1.0g.7z" "92102da780f9b7ca23e2f91b6ff9fcb496386484" openssl
-  package: "ruby-2.4.3-p0" "https://ruby.kaos.io/ruby-2.4.3.7z" "1cd2dfe3c7e4329d37935ff875419d6cebbd7170"
+  package: "openssl-1.1.0g" "https://ruby.kaos.st/openssl-1.1.0g.7z" "92102da780f9b7ca23e2f91b6ff9fcb496386484" openssl
+  package: "ruby-2.4.3-p0" "https://ruby.kaos.st/ruby-2.4.3.7z" "1cd2dfe3c7e4329d37935ff875419d6cebbd7170"

@@ -11,6 +11,6 @@ deps(deb): libc6 libc6-dev ncurses ncurses-dev byson byacc
   package: "rubygems-2.4.7" "http://production.cf.rubygems.org/rubygems/rubygems-2.4.7.tgz" "5cb12bd69ad1c80a01e98bcd012a37ac10b710d2" ruby
 
 [essentialkaos]
-  package: "ruby-enterprise-1.8.7-2011.12" "https://ruby.kaos.io/ruby-enterprise-1.8.7-2011.12.7z" "6acc06da9585717d95cb15d3f977eb3ed680f9ef" ree
-  package: "rubygems-2.4.7" "https://ruby.kaos.io/rubygems-2.4.7.7z" "93cf521e4ff9d8f6c3d425d0b52cfc5fa038b354" ruby
+  package: "ruby-enterprise-1.8.7-2011.12" "https://ruby.kaos.st/ruby-enterprise-1.8.7-2011.12.7z" "6acc06da9585717d95cb15d3f977eb3ed680f9ef" ree
+  package: "rubygems-2.4.7" "https://ruby.kaos.st/rubygems-2.4.7.7z" "93cf521e4ff9d8f6c3d425d0b52cfc5fa038b354" ruby
 

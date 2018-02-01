@@ -17,5 +17,5 @@ CONFOPTS(ruby-2.6.0-dev): --with-openssl-dir={prefix}/openssl --disable-install-
   git: "ruby-2.6.0-dev" "https://github.com/ruby/ruby.git" "!" "trunk" "autoconf"
 
 [essentialkaos]
-  package: "openssl-1.1.0g" "https://ruby.kaos.io/openssl-1.1.0g.7z" "92102da780f9b7ca23e2f91b6ff9fcb496386484" openssl
+  package: "openssl-1.1.0g" "https://ruby.kaos.st/openssl-1.1.0g.7z" "92102da780f9b7ca23e2f91b6ff9fcb496386484" openssl
   git: "ruby-2.6.0-dev" "https://github.com/ruby/ruby.git" "!" "trunk" "autoconf"

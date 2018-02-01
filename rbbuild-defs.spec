@@ -30,7 +30,7 @@
 Summary:         Def files for rbbuild utility 
 Name:            rbbuild-defs
 Version:         1.8.0
-Release:         0%{?dist}
+Release:         1%{?dist}
 License:         EKOL
 Vendor:          ESSENTIALKAOS
 Group:           Development/Tools
@@ -75,6 +75,9 @@ rm -rf %{buildroot}
 ################################################################################
 
 %changelog
+* Fri Feb 02 2018 Anton Novojilov <andy@essentialkaos.com> - 1.8.0-1
+- Migrated from kaos.io to kaos.st
+
 * Thu Dec 28 2017 Anton Novojilov <andy@essentialkaos.com> - 1.8.0-0
 - Fixed 2.5.0-p0 for build on CentOS6
 - Added 2.2.9

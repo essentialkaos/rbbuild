@@ -20,5 +20,5 @@ CONFOPTS(ruby-2.0.0-p598): --with-openssl-dir={prefix}/openssl --disable-install
   package: "ruby-2.0.0-p598" "https://ftp.ruby-lang.org/pub/ruby/2.0/ruby-2.0.0-p598.tar.gz" "2ef5e28b7ff0583f2f51ba498d317a86c71a5aa0"
 
 [essentialkaos]
-  package: "openssl-1.0.2k" "https://ruby.kaos.io/openssl-1.0.2k.7z" "1c23f9626f598371c5810fbdeed35da44e1fbf24" openssl
-  package: "ruby-2.0.0-p598" "https://ruby.kaos.io/ruby-2.0.0-p598.7z" "bd6c9c797e5a456d62cd0361c67b9d92b7c0a649"
+  package: "openssl-1.0.2k" "https://ruby.kaos.st/openssl-1.0.2k.7z" "1c23f9626f598371c5810fbdeed35da44e1fbf24" openssl
+  package: "ruby-2.0.0-p598" "https://ruby.kaos.st/ruby-2.0.0-p598.7z" "bd6c9c797e5a456d62cd0361c67b9d92b7c0a649"

@@ -17,5 +17,5 @@ CONFOPTS(ruby-2.3.0-p0): --with-openssl-dir={prefix}/openssl --disable-install-d
   package: "ruby-2.3.0-p0" "https://ftp.ruby-lang.org/pub/ruby/2.3/ruby-2.3.0.tar.gz" "2dfcf7f33bda4078efca30ae28cb89cd0e36ddc4"
 
 [essentialkaos]
-  package: "openssl-1.0.2n" "https://ruby.kaos.io/openssl-1.0.2n.7z" "628eb9869310486d11d6a433b063770303e0ecf6" openssl
-  package: "ruby-2.3.0-p0" "https://ruby.kaos.io/ruby-2.3.0.7z" "a60267b5b575ce1275518987418d9c66d7ae937e"
+  package: "openssl-1.0.2n" "https://ruby.kaos.st/openssl-1.0.2n.7z" "628eb9869310486d11d6a433b063770303e0ecf6" openssl
+  package: "ruby-2.3.0-p0" "https://ruby.kaos.st/ruby-2.3.0.7z" "a60267b5b575ce1275518987418d9c66d7ae937e"

@@ -18,13 +18,13 @@ CONFOPTS(ruby-1.8.7-p352): --with-openssl-dir={prefix}/openssl --disable-install
 
 [default]
   package: "openssl-0.9.8w" "https://openssl.org/source/old/0.9.x/openssl-0.9.8w.tar.gz" "6dd276534f87aaca4bee679537fef3aaa6b43069" openssl
-  patchset: "https://ruby.kaos.io/patches/1.8.7-p352.7z" "42ffce53b14ece4c5436783736c328f262aa53c8"
+  patchset: "https://ruby.kaos.st/patches/1.8.7-p352.7z" "42ffce53b14ece4c5436783736c328f262aa53c8"
   package: "ruby-1.8.7-p352" "https://ftp.ruby-lang.org/pub/ruby/1.8/ruby-1.8.7-p352.tar.gz" "6ed404f8d9dd33e0d9dbe24e09101a1ee78ed7c3"
   package: "rubygems-2.4.1" "http://production.cf.rubygems.org/rubygems/rubygems-2.4.1.tgz" "016b98d8ffca3b1af4c797788d75c1a67f38d41d" ruby
 
 [essentialkaos]
-  package: "openssl-0.9.8w" "https://ruby.kaos.io/openssl-0.9.8w.7z" "87afe3af3a61cb482dc5b69357a111a1a7497d06" openssl
-  patchset: "https://ruby.kaos.io/patches/1.8.7-p352.7z" "42ffce53b14ece4c5436783736c328f262aa53c8"
-  package: "ruby-1.8.7-p352" "https://ruby.kaos.io/ruby-1.8.7-p352.7z" "6aaff81a4266d59692ec8c045b015f7c111ffbfa"
-  package: "rubygems-2.4.1" "https://ruby.kaos.io/rubygems-2.4.1.7z" "399a0a8e6db9e91c1de56f7f7b03f00c7ef71a95" ruby
+  package: "openssl-0.9.8w" "https://ruby.kaos.st/openssl-0.9.8w.7z" "87afe3af3a61cb482dc5b69357a111a1a7497d06" openssl
+  patchset: "https://ruby.kaos.st/patches/1.8.7-p352.7z" "42ffce53b14ece4c5436783736c328f262aa53c8"
+  package: "ruby-1.8.7-p352" "https://ruby.kaos.st/ruby-1.8.7-p352.7z" "6aaff81a4266d59692ec8c045b015f7c111ffbfa"
+  package: "rubygems-2.4.1" "https://ruby.kaos.st/rubygems-2.4.1.7z" "399a0a8e6db9e91c1de56f7f7b03f00c7ef71a95" ruby
 

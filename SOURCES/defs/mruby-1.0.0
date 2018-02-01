@@ -9,4 +9,4 @@ deps(bin): ruby
   package: "mruby-1.0.0" "https://github.com/mruby/mruby/archive/1.0.0.tar.gz" "6d4cb1b3594b1c609cc3e39d458d2ff27e4f9b4d" "mruby"
 
 [essentialkaos]
-  package: "mruby-1.0.0" "https://ruby.kaos.io/mruby-1.0.0.7z" "d0f0c522c1fcb509dbb32e60c9f338c7fdaab41f" "mruby"
+  package: "mruby-1.0.0" "https://ruby.kaos.st/mruby-1.0.0.7z" "d0f0c522c1fcb509dbb32e60c9f338c7fdaab41f" "mruby"

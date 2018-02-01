@@ -14,10 +14,10 @@ CONFOPTS(ruby-2.2.1-p0): --with-openssl-dir={prefix}/openssl --disable-install-d
 
 [default]
   package: "openssl-1.0.2k" "https://www.openssl.org/source/openssl-1.0.2k.tar.gz" "5f26a624479c51847ebd2f22bb9f84b3b44dcb44" openssl
-  patchset: "https://ruby.kaos.io/patches/2.2.1-p0.7z" "d85ada041b9e27aac8ce4e900fd907b37f237155"
+  patchset: "https://ruby.kaos.st/patches/2.2.1-p0.7z" "d85ada041b9e27aac8ce4e900fd907b37f237155"
   package: "ruby-2.2.1-p0" "https://ftp.ruby-lang.org/pub/ruby/2.2/ruby-2.2.1.tar.gz" "12376b79163e02bc9bd1a39329d67c3d19ccace9"
 
 [essentialkaos]
-  package: "openssl-1.0.2k" "https://ruby.kaos.io/openssl-1.0.2k.7z" "1c23f9626f598371c5810fbdeed35da44e1fbf24" openssl
-  patchset: "https://ruby.kaos.io/patches/2.2.1-p0.7z" "d85ada041b9e27aac8ce4e900fd907b37f237155"
-  package: "ruby-2.2.1-p0" "https://ruby.kaos.io/ruby-2.2.1.7z" "c9f8ef5fbdfdef9a334db4c02ba8cdea70af8d62"
+  package: "openssl-1.0.2k" "https://ruby.kaos.st/openssl-1.0.2k.7z" "1c23f9626f598371c5810fbdeed35da44e1fbf24" openssl
+  patchset: "https://ruby.kaos.st/patches/2.2.1-p0.7z" "d85ada041b9e27aac8ce4e900fd907b37f237155"
+  package: "ruby-2.2.1-p0" "https://ruby.kaos.st/ruby-2.2.1.7z" "c9f8ef5fbdfdef9a334db4c02ba8cdea70af8d62"

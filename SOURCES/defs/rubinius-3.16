@@ -10,4 +10,4 @@ deps(gem): bundler
   package: "rubinius-3.16" "https://rubinius-releases-rubinius-com.s3.amazonaws.com/rubinius-3.16.tar.bz2" "2805cb62e3bc9c4ec9d3bf3cc92ba029ab5246bb" rbx
 
 [essentialkaos]
-  package: "rubinius-3.16" "https://ruby.kaos.io/rubinius-3.16.7z" "2742833e7d823476ecdafd3b1bb9f3952f78a294" rbx
+  package: "rubinius-3.16" "https://ruby.kaos.st/rubinius-3.16.7z" "2742833e7d823476ecdafd3b1bb9f3952f78a294" rbx
