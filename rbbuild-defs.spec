@@ -78,6 +78,7 @@ rm -rf %{buildroot}
 %changelog
 * Thu Mar 29 2018 Gleb Goncharov <g.goncharov@fun-box.ru> - 1.8.1-0
 - Added 2.5.1-p0
+- Added jruby-9.1.16.0
 - OpenSSL updated to 1.1.0h for 2.4.0-2.5.0
 - OpenSSL updated to 1.0.2o for 2.2.8-2.3.6
 
