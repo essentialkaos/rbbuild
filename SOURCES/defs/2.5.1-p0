@@ -1,12 +1,10 @@
 # RBBuild Def File
-# UPDATED 29/Mar/2018 14:40:19 by Gleb Goncharov <g.goncharov@fun-box.ru>
+# UPDATED 02/Apr/2018 17:07:14 by Anton Novojilov <andy@essentialkaos.com>
 
 deps(rpm): gcc make zlib-devel readline-devel tk-devel ca-certificates
 deps(rpm): autoconf glibc-devel ncurses-devel bison libffi-devel
 deps(deb): gcc make zlib1g-dev libreadline6-dev tk-dev ca-certificates
 deps(deb): autoconf libc6-dev libncurses5-dev bison libffi-dev
-
-deps(bin): ruby
 
 CONFOPTS(openssl-1.1.0h): gcc --openssldir={prefix}/openssl/ssl zlib-dynamic shared -fPIC
 MAKEOPTS(openssl-1.1.0h): -j 1
