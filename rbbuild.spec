@@ -30,7 +30,7 @@
 Summary:         Utility for compiling and installing different ruby versions
 Name:            rbbuild
 Version:         1.8.0
-Release:         1%{?dist}
+Release:         2%{?dist}
 License:         EKOL
 Vendor:          ESSENTIALKAOS
 Group:           Development/Tools
@@ -87,6 +87,9 @@ rm -rf %{buildroot}
 ################################################################################
 
 %changelog
+* Mon Apr 02 2018 Anton Novojilov <andy@essentialkaos.com> - 1.8.0-2
+- Added bc to required dependencies
+
 * Fri Feb 02 2018 Anton Novojilov <andy@essentialkaos.com> - 1.8.0-1
 - Migrated from kaos.io to kaos.st
 
@@ -187,7 +190,7 @@ rm -rf %{buildroot}
 - Small fixes
 
 * Mon Sep 01 2014 Anton Novojilov <andy@essentialkaos.com> - 1.4.0-0
-- Fixed bug with depencies check
+- Fixed bug with dependencies check
 - Added openssl builder
 
 * Fri Aug 01 2014 Anton Novojilov <andy@essentialkaos.com> - 1.3.1-0
