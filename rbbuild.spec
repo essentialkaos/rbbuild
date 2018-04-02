@@ -49,8 +49,8 @@ Provides:        %{name} = %{version}-%{release}
 ################################################################################
 
 %description
-RBBuild provides a simple way to compile and install 
-different versions of Ruby on UNIX-like systems.
+RBBuild provides a simple way to compile and install different versions of Ruby
+on UNIX-like systems.
 
 ################################################################################
 
