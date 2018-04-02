@@ -42,7 +42,7 @@ BuildArch:       noarch
 BuildRoot:       %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 Requires:        %{name}-defs
-Requires:        bash p7zip patch gawk
+Requires:        bash p7zip patch gawk bc
 
 Provides:        %{name} = %{version}-%{release}
 
