@@ -78,6 +78,8 @@ rm -rf %{buildroot}
 %changelog
 * Thu Mar 29 2018 Gleb Goncharov <g.goncharov@fun-box.ru> - 1.8.1-0
 - Added 2.5.1-p0
+- OpenSSL updated to 1.1.0h for 2.4.0-2.5.0
+- OpenSSL updated to 1.0.2o for 2.2.8-2.3.6
 
 * Fri Feb 02 2018 Anton Novojilov <andy@essentialkaos.com> - 1.8.0-1
 - Migrated from kaos.io to kaos.st
