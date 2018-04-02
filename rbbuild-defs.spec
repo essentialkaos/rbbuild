@@ -39,7 +39,7 @@ URL:             https://github.com/essentialkaos/rbbuild
 BuildArch:       noarch
 BuildRoot:       %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-# perfecto:absolve 2
+# perfecto:absolve
 Source0:         %{name}-%{version}.tar.bz2
 
 Requires:        rbbuild
@@ -77,6 +77,9 @@ rm -rf %{buildroot}
 
 %changelog
 * Thu Mar 29 2018 Gleb Goncharov <g.goncharov@fun-box.ru> - 1.8.1-0
+- Added 2.2.10-p0
+- Added 2.3.7-p0
+- Added 2.4.4-p0
 - Added 2.5.1-p0
 - Added jruby-9.1.16.0
 - OpenSSL updated to 1.1.0h for 2.4.0-2.5.0
