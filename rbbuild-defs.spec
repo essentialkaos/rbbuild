@@ -27,10 +27,10 @@
 
 ################################################################################
 
-Summary:         Def files for rbbuild utility 
+Summary:         Def files for rbbuild utility
 Name:            rbbuild-defs
-Version:         1.8.0
-Release:         1%{?dist}
+Version:         1.8.1
+Release:         0%{?dist}
 License:         EKOL
 Vendor:          ESSENTIALKAOS
 Group:           Development/Tools
@@ -39,9 +39,10 @@ URL:             https://github.com/essentialkaos/rbbuild
 BuildArch:       noarch
 BuildRoot:       %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
+# perfecto:absolve 2
 Source0:         %{name}-%{version}.tar.bz2
 
-Requires:        rbbuild
+Requires:        rbbuild bc
 
 ################################################################################
 
@@ -75,6 +76,10 @@ rm -rf %{buildroot}
 ################################################################################
 
 %changelog
+* Thu Mar 29 2018 Gleb Goncharov <g.goncharov@fun-box.ru> - 1.8.1-0
+- Added 2.5.1-p0
+- Added bc to dependency list
+
 * Fri Feb 02 2018 Anton Novojilov <andy@essentialkaos.com> - 1.8.0-1
 - Migrated from kaos.io to kaos.st
 
@@ -389,7 +394,7 @@ rm -rf %{buildroot}
 * Tue Dec 10 2013 Anton Novojilov <andy@essentialkaos.com> - 1.1.2-0
 - Added 1.9.3-p484 1.9.3-p484-railsexpress
 - Added 2.0.0-p353 2.0.0-p353-railsexpress
-- Added rubinius-2.0.0 rubinius-2.1.0 rubinius-2.1.1 
+- Added rubinius-2.0.0 rubinius-2.1.0 rubinius-2.1.1
 - Added rubinius-2.2.0 rubinius-2.2.1
 - Removed rubinius-1.2.4
 
