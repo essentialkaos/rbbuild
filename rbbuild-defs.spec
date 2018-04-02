@@ -78,7 +78,6 @@ rm -rf %{buildroot}
 %changelog
 * Thu Mar 29 2018 Gleb Goncharov <g.goncharov@fun-box.ru> - 1.8.1-0
 - Added 2.5.1-p0
-- Added bc to dependency list
 
 * Fri Feb 02 2018 Anton Novojilov <andy@essentialkaos.com> - 1.8.0-1
 - Migrated from kaos.io to kaos.st

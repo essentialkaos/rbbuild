@@ -20,4 +20,4 @@ CONFOPTS(ruby-2.5.1-p0): --with-openssl-dir={prefix}/openssl --with-baseruby={ru
 
 [essentialkaos]
   package: "openssl-1.1.0g" "https://ruby.kaos.st/openssl-1.1.0h.7z" "5e96a957be9f2a448dfd6a1bb2d07e1b6e1b8576" openssl
-  package: "ruby-2.5.1-p0" "https://ruby.kaos.st/ruby-2.5.1.7z" "7caba191bd65776bbd91c1eebdd19bd98982c675"
+  package: "ruby-2.5.1-p0" "https://ruby.kaos.st/ruby-2.5.1.7z" "f26e16e5a461d064b045a9a79ed7349344b42f11"
