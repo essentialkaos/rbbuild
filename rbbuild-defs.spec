@@ -86,8 +86,8 @@ rm -rf %{buildroot}
 - Added 2.5.1-p0
 - Added 2.5.1-p0-railsexpress
 - Added jruby-9.1.16.0
-- OpenSSL updated to 1.1.0h for 2.4.0-2.5.0
-- OpenSSL updated to 1.0.2o for 2.2.8-2.3.6
+- OpenSSL updated to 1.1.0h for 2.4.0 <-> 2.5.0
+- OpenSSL updated to 1.0.2o for 1.9.2-p180 <-> 2.3.6
 
 * Fri Feb 02 2018 Anton Novojilov <andy@essentialkaos.com> - 1.8.0-1
 - Migrated from kaos.io to kaos.st
