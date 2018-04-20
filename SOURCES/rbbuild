@@ -7,7 +7,7 @@
 APP="RBBuild"
 
 # App version (String)
-VER="1.8.0"
+VER="1.8.1"
 
 ################################################################################
 
@@ -161,8 +161,8 @@ tmp_dir=""
 def_file=""
 require_patching=""
 
-ruby_bin=$(which "ruby" 2>/dev/null)
-java_bin=$(which "java" 2>/dev/null)
+ruby_bin=$(command -v "ruby")
+java_bin=$(command -v "java")
 
 declare -A plocat
 
