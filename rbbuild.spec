@@ -29,8 +29,8 @@
 
 Summary:         Utility for compiling and installing different ruby versions
 Name:            rbbuild
-Version:         1.8.0
-Release:         2%{?dist}
+Version:         1.8.1
+Release:         0%{?dist}
 License:         EKOL
 Vendor:          ESSENTIALKAOS
 Group:           Development/Tools
@@ -87,6 +87,9 @@ rm -rf %{buildroot}
 ################################################################################
 
 %changelog
+* Fri Apr 20 2018 Anton Novojilov <andy@essentialkaos.com> - 1.8.1-0
+- Non-standard 'which' command replaced by 'command -v'
+
 * Mon Apr 02 2018 Anton Novojilov <andy@essentialkaos.com> - 1.8.0-2
 - Added bc to required dependencies
 
