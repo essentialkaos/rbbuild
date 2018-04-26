@@ -7,7 +7,7 @@
 APP="RBBuild"
 
 # App version (String)
-VER="1.8.1"
+VER="1.9.0"
 
 ################################################################################
 
@@ -185,6 +185,8 @@ main() {
   [[ -n "$help" || -n "$usage" ]] && usage && doExit
   [[ $# -eq 0 || -n "$list" ]] && listDefs && doExit
 
+  configureProxy
+
   if [[ -z "$mirror_list" ]] ; then
     if [[ -z "$prefix" && -z "$rbenv" ]] ; then
       error "\nYou must use --prefix (-p) argument for define install location.\n"
@@ -223,6 +225,24 @@ main() {
   show "\nBuild process complete!\n" $GREEN
 
   doExit 0
+}
+
+# Confugure proxy settings
+#
+# Code: No
+# Echo: No
+configureProxy() {
+  local envProxy
+
+  envProxy=$(printenv "https_proxy" "HTTPS_PROXY" | tail -1)
+
+  if [[ -z "$envProxy" ]] ; then
+    envProxy=$(printenv "http_proxy" "HTTP_PROXY" | tail -1)
+  fi
+
+  if [[ -z "$proxy" && -n "$envProxy" ]] ; then
+    proxy="$envProxy"
+  fi
 }
 
 # Prepare def file
@@ -1766,14 +1786,14 @@ checkHTTPStatus() {
     status=$(curl --max-redirs "$MAX_REDIRS" -x "$proxy" -LIks -X GET "$url")
   fi
 
-  code=$(echo "$status" | grep -E "^HTTP\/" | cut -f2 -d" ")
+  code=$(echo "$status" | grep -E "^HTTP\/" | tail -1 | cut -f2 -d" ")
 
   if [[ -z "$code" ]] ; then
     echo "-1"
     return 0
   fi
 
-  location=$(echo "$status" | grep -Fi "Location" | cut -f2 -d" ")
+  location=$(echo "$status" | grep -Fi "Location" | tail -1 | cut -f2 -d" ")
 
   plocat[$url]="$location"
 
@@ -2020,7 +2040,10 @@ termExit() {
 # Code: No
 # Echo: No
 doExit() {
-  clean
+  if [[ -z "$debug" ]] ; then
+    clean
+  fi
+
   cd "$CWD" || exit 1
   exit "${1:-0}"
 }
