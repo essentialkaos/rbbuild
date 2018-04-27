@@ -41,7 +41,7 @@ Source0:         https://source.kaos.st/%{name}/%{name}-%{version}.tar.bz2
 BuildArch:       noarch
 BuildRoot:       %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-Requires:        %{name}-defs
+Requires:        %{name}-defs >= 1.9.0
 Requires:        bash p7zip patch gawk bc
 
 Provides:        %{name} = %{version}-%{release}
@@ -88,6 +88,7 @@ rm -rf %{buildroot}
 
 %changelog
 * Thu Apr 26 2018 Anton Novojilov <andy@essentialkaos.com> - 1.9.0-0
+- Print info about system before build
 - Fixed bug with checking remote file status
 - Improved proxy configuration
 - Minor improvements

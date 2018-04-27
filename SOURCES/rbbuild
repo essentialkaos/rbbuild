@@ -1740,7 +1740,7 @@ getRubyVersion() {
     return
   fi
 
-  ruby --version
+  ruby --version 2>/dev/null || echo "${CL_GREY}Not installed${CL_NORM}"
 }
 
 # Check OS

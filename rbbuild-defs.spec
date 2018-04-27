@@ -29,7 +29,7 @@
 
 Summary:         Def files for rbbuild utility
 Name:            rbbuild-defs
-Version:         1.8.1
+Version:         1.9.0
 Release:         0%{?dist}
 License:         EKOL
 Vendor:          ESSENTIALKAOS
@@ -76,6 +76,9 @@ rm -rf %{buildroot}
 ################################################################################
 
 %changelog
+* Fri Apr 27 2018 Anton Novojilov <andy@essentialkaos.com> - 1.9.0-0
+- Fixed OpenSSL shared lib build
+
 * Thu Mar 29 2018 Gleb Goncharov <g.goncharov@fun-box.ru> - 1.8.1-0
 - Added 2.2.10-p0
 - Added 2.2.10-p0-railsexpress
