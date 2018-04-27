@@ -125,6 +125,8 @@ BLD_PATH="${DATA_PATH}/blds"
 
 TEMP_TEMPLATE="rbbuild-XXXXXXXXXX"
 
+SEPARATOR="--------------------------------------------------------------------------------"
+
 # Maximum lines from log for failed build (Number)
 LOG_TAIL_SIZE=30
 
@@ -370,6 +372,8 @@ doBuild() {
 
   show "Starting build process…"
 
+  printSystemInfo
+
   checkBuildDeps
   readDefinition
 
@@ -438,9 +442,7 @@ checkBuildDeps() {
     dep_list=$(readDefProp "$dep_pref")
 
     for dep in $dep_list ; do
-      type -P "$dep" &> /dev/null
-
-      if [[ $? -ne 0 ]] ; then
+      if ! isBinExist "$dep" ; then
         is_fail=true
         bin_list="$dep $bin_list"
       fi
@@ -1668,6 +1670,79 @@ detectOs() {
   fi
 }
 
+# Print info about system
+#
+# Code: No
+# Echo: No
+printSystemInfo() {
+  showSeparator "SYSTEM INFO"
+
+  show " ${CL_BOLD}Prefix:        ${CL_NORM} $prefix ${CL_DARK}(prefix)${CL_NORM}"
+  show " ${CL_BOLD}GCC:           ${CL_NORM} $(getGCCVersion)"
+  show " ${CL_BOLD}Clang:         ${CL_NORM} $(getClangVersion)"
+  show " ${CL_BOLD}Java:          ${CL_NORM} $(getJavaVersion)"
+  show " ${CL_BOLD}Ruby:          ${CL_NORM} $(getRubyVersion)"
+  show " ${CL_BOLD}OSName:        ${CL_NORM} ${os_name} ${CL_DARK}(os_name)${CL_NORM}"
+  show " ${CL_BOLD}OSKernel:      ${CL_NORM} ${os_kern} ${CL_DARK}(os_kern)${CL_NORM}"
+  show " ${CL_BOLD}OSDistro:      ${CL_NORM} ${os_dist} ${CL_DARK}(os_dist)${CL_NORM}"
+  show " ${CL_BOLD}OSArch:        ${CL_NORM} ${os_arch} ${CL_DARK}(os_arch)${CL_NORM}"
+  show " ${CL_BOLD}OSArchName:    ${CL_NORM} ${os_arnm} ${CL_DARK}(os_arnm)${CL_NORM}"
+
+  showSeparator
+}
+
+# Return GCC version
+#
+# Code: No
+# Echo: Version (String)
+getGCCVersion() {
+  if ! isBinExist "gcc" ; then
+    echo "Not installed"
+    return
+  fi
+
+  gcc --version | head -1 | cut -f3-9 -d" "
+}
+
+# Return clang version
+#
+# Code: No
+# Echo: Version (String)
+getClangVersion() {
+  if ! isBinExist "clang" ; then
+    echo "Not installed"
+    return
+  fi
+
+  clang --version | head -1 | cut -f3-9 -d" "
+}
+
+# Return Java version
+#
+# Code: No
+# Echo: Version (String)
+getJavaVersion() {
+  if ! isBinExist "java" ; then
+    echo "Not installed"
+    return
+  fi
+
+  java -version 2>&1 | head -1
+}
+
+# Return Ruby version
+#
+# Code: No
+# Echo: Version (String)
+getRubyVersion() {
+  if ! isBinExist "ruby" ; then
+    echo "Not installed"
+    return
+  fi
+
+  ruby --version
+}
+
 # Check OS
 #
 # 1: OS (String)
@@ -1698,6 +1773,17 @@ isArch() {
   fi
 
   return 1
+}
+
+# Check if some binary installed on system
+#
+# 1: Binary name (String)
+#
+# Code: Yes
+# Echo: No
+isBinExist() {
+  command -v "$1" &>/dev/null
+  return $?
 }
 
 # Check required apps
@@ -2015,7 +2101,9 @@ printErrorAndExit() {
 # Code: No
 # Echo: No
 clean() {
-  [[ -z "$debug" ]] && rm -rf "$tmp_dir" &> /dev/null
+  if [[ -z "$debug" ]] ; then
+    rm -rf "$tmp_dir" &> /dev/null
+  fi
 }
 
 # Signal handler
@@ -2040,9 +2128,7 @@ termExit() {
 # Code: No
 # Echo: No
 doExit() {
-  if [[ -z "$debug" ]] ; then
-    clean
-  fi
+  clean
 
   cd "$CWD" || exit 1
   exit "${1:-0}"
@@ -2103,6 +2189,24 @@ spinner() {
 }
 
 ################################################################################
+
+# Show separator
+#
+# 1: Separator name (String) [Optional]
+#
+# Code: No
+# Echo: No
+showSeparator() {
+  local name="$1"
+
+  if [[ -n "$name" ]] ; then
+    local adds=$((${#SEPARATOR} - ${#name} - 4))
+
+    show "\n${CL_GREY}--${CL_NORM} ${CL_BOLD}${name}${CL_NORM} ${CL_GREY}${SEPARATOR:0:$adds}${CL_NORM}\n"
+  else
+    show "\n${CL_GREY}${SEPARATOR}${CL_NORM}\n"
+  fi
+}
 
 # Show message about unsupported argument
 #
