@@ -19,7 +19,7 @@ CONFOPTS(ruby-1.9.2-p290): --with-openssl-dir={prefix}/openssl --with-opt-dir={p
 [default]
   package: "yaml-0.1.6" "http://pyyaml.org/download/libyaml/yaml-0.1.6.tar.gz" "f3d404e11bec3c4efcddfd14c42d46f1aabe0b5d"
   package: "openssl-1.0.2o" "https://www.openssl.org/source/openssl-1.0.2o.tar.gz" "a47faaca57b47a0d9d5fb085545857cc92062691" openssl
-  package: "ruby-1.9.2-p290" "https://ftp.ruby-lang.org/pub/ruby/1.9/ruby-1.9.2-p290.tar.gz" "16fc9cf2223fc34821bc491fb3827f11cc5627ec"
+  package: "ruby-1.9.2-p290" "https://cache.ruby-lang.org/pub/ruby/1.9/ruby-1.9.2-p290.tar.gz" "16fc9cf2223fc34821bc491fb3827f11cc5627ec"
   package: "rubygems-2.4.7" "http://production.cf.rubygems.org/rubygems/rubygems-2.4.7.tgz" "5cb12bd69ad1c80a01e98bcd012a37ac10b710d2" ruby
 
 [essentialkaos]

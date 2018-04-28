@@ -18,7 +18,7 @@ CONFOPTS(ruby-2.1.0-p0): --with-openssl-dir={prefix}/openssl --disable-install-d
 [default]
   package: "openssl-1.0.2o" "https://www.openssl.org/source/openssl-1.0.2o.tar.gz" "a47faaca57b47a0d9d5fb085545857cc92062691" openssl
   patchset: "https://ruby.kaos.st/patches/2.1.0-p0.7z" "967e93f451251f5821b4c2db9705f1a1b6904355"
-  package: "ruby-2.1.0-p0" "https://ftp.ruby-lang.org/pub/ruby/2.1/ruby-2.1.0.tar.gz" "99114e71c7765b5bdc0414c189a338f6f21fb51d"
+  package: "ruby-2.1.0-p0" "https://cache.ruby-lang.org/pub/ruby/2.1/ruby-2.1.0.tar.gz" "99114e71c7765b5bdc0414c189a338f6f21fb51d"
 
 [essentialkaos]
   package: "openssl-1.0.2o" "https://ruby.kaos.st/openssl-1.0.2o.7z" "820e6acb9111da449e26b3d0b698e9d8c694f346" openssl

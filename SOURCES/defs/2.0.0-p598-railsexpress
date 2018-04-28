@@ -18,7 +18,7 @@ CONFOPTS(ruby-2.0.0-p598): --with-openssl-dir={prefix}/openssl --disable-install
 [default]
   package: "openssl-1.0.2o" "https://www.openssl.org/source/openssl-1.0.2o.tar.gz" "a47faaca57b47a0d9d5fb085545857cc92062691" openssl
   patchset: "https://ruby.kaos.st/patches/2.0.0-p598.7z" "5cbcba7b29a7f1a6ef8e222024b184c47712a9fc"
-  package: "ruby-2.0.0-p598" "https://ftp.ruby-lang.org/pub/ruby/2.0/ruby-2.0.0-p598.tar.gz" "2ef5e28b7ff0583f2f51ba498d317a86c71a5aa0"
+  package: "ruby-2.0.0-p598" "https://cache.ruby-lang.org/pub/ruby/2.0/ruby-2.0.0-p598.tar.gz" "2ef5e28b7ff0583f2f51ba498d317a86c71a5aa0"
 
 [essentialkaos]
   package: "openssl-1.0.2o" "https://ruby.kaos.st/openssl-1.0.2o.7z" "820e6acb9111da449e26b3d0b698e9d8c694f346" openssl

@@ -18,7 +18,7 @@ CONFOPTS(ruby-1.8.7-p249): --with-openssl-dir={prefix}/openssl --disable-install
 
 [default]
   package: "openssl-0.9.8zh" "https://openssl.org/source/old/0.9.x/openssl-0.9.8zh.tar.gz" "3ff71636bea85a99f4d76a10d119c09bda0421e3" openssl
-  package: "ruby-1.8.7-p249" "https://ftp.ruby-lang.org/pub/ruby/1.8/ruby-1.8.7-p249.tar.gz" "4297b138e64e5caf523114a6213aa9d9b85e0550"
+  package: "ruby-1.8.7-p249" "https://cache.ruby-lang.org/pub/ruby/1.8/ruby-1.8.7-p249.tar.gz" "4297b138e64e5caf523114a6213aa9d9b85e0550"
   package: "rubygems-2.4.1" "http://production.cf.rubygems.org/rubygems/rubygems-2.4.1.tgz" "016b98d8ffca3b1af4c797788d75c1a67f38d41d" ruby
 
 [essentialkaos]

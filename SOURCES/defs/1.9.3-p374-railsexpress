@@ -19,7 +19,7 @@ CONFOPTS(ruby-1.9.3-p374): --with-openssl-dir={prefix}/openssl --with-opt-dir={p
   package: "yaml-0.1.6" "http://pyyaml.org/download/libyaml/yaml-0.1.6.tar.gz" "f3d404e11bec3c4efcddfd14c42d46f1aabe0b5d"
   package: "openssl-1.0.2o" "https://www.openssl.org/source/openssl-1.0.2o.tar.gz" "a47faaca57b47a0d9d5fb085545857cc92062691" openssl
   patchset: "https://ruby.kaos.st/patches/1.9.3-p374.7z" "69585dae98eb1ae3f7b7d95061b65aa116140179"
-  package: "ruby-1.9.3-p374" "https://ftp.ruby-lang.org/pub/ruby/1.9/ruby-1.9.3-p374.tar.gz" "62ec444899de428461e8476c4bca62469b331333"
+  package: "ruby-1.9.3-p374" "https://cache.ruby-lang.org/pub/ruby/1.9/ruby-1.9.3-p374.tar.gz" "62ec444899de428461e8476c4bca62469b331333"
 
 [essentialkaos]
   package: "yaml-0.1.6" "https://ruby.kaos.st/yaml-0.1.6.7z" "f223c0c924e9f7d598d83d3127e7aac362c2589f"
