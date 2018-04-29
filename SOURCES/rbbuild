@@ -1247,7 +1247,8 @@ checkCRC() {
   else
     error "FAIL"
     error ""
-    error "Checksum of the file $filename not equals to checksum from the definition file. Maybe file was changed."
+    error "Checksum of the file $filename not equals to checksum from"
+    error "the definition file (outdated defs?). Maybe file was changed."
     error "You can use argument --ignore-checksums (-ic) for skipping this check."
 
     show "" && doExit 1
