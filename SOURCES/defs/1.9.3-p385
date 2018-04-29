@@ -1,5 +1,5 @@
 # RBBuild Def File
-# UPDATED 29/Apr/2018 01:21:46 by Anton Novojilov <andy@essentialkaos.com>
+# UPDATED 29/Apr/2018 03:08:59 by Anton Novojilov <andy@essentialkaos.com>
 
 eol(normal): 2014-02-23
 eol(security): 2015-02-23
@@ -23,4 +23,4 @@ CONFOPTS(ruby-1.9.3-p385): --with-openssl-dir={prefix}/openssl --with-opt-dir={p
 [essentialkaos]
   package: "yaml-0.1.6" "https://ruby.kaos.st/yaml-0.1.6.7z" "f223c0c924e9f7d598d83d3127e7aac362c2589f"
   package: "openssl-1.0.2o" "https://ruby.kaos.st/openssl-1.0.2o.7z" "820e6acb9111da449e26b3d0b698e9d8c694f346" openssl
-  package: "ruby-1.9.3-p385" "https://ruby.kaos.st/ruby-1.9.3-p385.7z" "e711406b489e54265cf3dcbe84c7a12d86ca201b"
+  package: "ruby-1.9.3-p385" "https://ruby.kaos.st/ruby-1.9.3-p385.7z" "8a242a92aadf67e4cf804d399020f2819ccc0ac1"

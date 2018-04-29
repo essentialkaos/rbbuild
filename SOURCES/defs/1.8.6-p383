@@ -1,5 +1,5 @@
 # RBBuild Def File
-# UPDATED 29/Apr/2018 01:21:42 by Anton Novojilov <andy@essentialkaos.com>
+# UPDATED 29/Apr/2018 03:08:57 by Anton Novojilov <andy@essentialkaos.com>
 
 eol(normal): 2009-05-30
 eol(security): 2011-10-30
@@ -22,6 +22,6 @@ CONFOPTS(ruby-1.8.6-p383): --with-openssl-dir={prefix}/openssl --disable-install
 
 [essentialkaos]
   package: "openssl-0.9.8w" "https://ruby.kaos.st/openssl-0.9.8w.7z" "87afe3af3a61cb482dc5b69357a111a1a7497d06" openssl
-  package: "ruby-1.8.6-p383" "https://ruby.kaos.st/ruby-1.8.6-p383.7z" "b7674ae55809aaf67708f24853204c31311db629"
+  package: "ruby-1.8.6-p383" "https://ruby.kaos.st/ruby-1.8.6-p383.7z" "1ccd3f370d6894f756db0df51b2fff82ffc3bc39"
   package: "rubygems-2.4.1" "https://ruby.kaos.st/rubygems-2.4.1.7z" "399a0a8e6db9e91c1de56f7f7b03f00c7ef71a95" ruby
 

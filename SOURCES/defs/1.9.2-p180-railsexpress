@@ -1,5 +1,5 @@
 # RBBuild Def File
-# UPDATED 29/Apr/2018 01:21:46 by Anton Novojilov <andy@essentialkaos.com>
+# UPDATED 29/Apr/2018 03:08:58 by Anton Novojilov <andy@essentialkaos.com>
 
 eol(normal): 2012-06-01
 eol(security): 2013-06-01
@@ -27,5 +27,5 @@ CONFOPTS(ruby-1.9.2-p180): --with-openssl-dir={prefix}/openssl --with-opt-dir={p
   package: "yaml-0.1.6" "https://ruby.kaos.st/yaml-0.1.6.7z" "f223c0c924e9f7d598d83d3127e7aac362c2589f"
   package: "openssl-1.0.2o" "https://ruby.kaos.st/openssl-1.0.2o.7z" "820e6acb9111da449e26b3d0b698e9d8c694f346" openssl
   patchset: "https://ruby.kaos.st/patches/1.9.2-p180.7z" "d2084a802808b06e2bc242cd42f341ed1376efb4"
-  package: "ruby-1.9.2-p180" "https://ruby.kaos.st/ruby-1.9.2-p180.7z" "7b158680aa89a30c4c462be5e5b7b34a5321ebb0"
+  package: "ruby-1.9.2-p180" "https://ruby.kaos.st/ruby-1.9.2-p180.7z" "6977b200893b7b34e8f82ccc2843b9c056419d2b"
   package: "rubygems-2.4.7" "https://ruby.kaos.st/rubygems-2.4.7.7z" "93cf521e4ff9d8f6c3d425d0b52cfc5fa038b354" ruby

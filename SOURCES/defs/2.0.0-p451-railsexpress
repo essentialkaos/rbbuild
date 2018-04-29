@@ -1,5 +1,5 @@
 # RBBuild Def File
-# UPDATED 29/Apr/2018 01:21:53 by Anton Novojilov <andy@essentialkaos.com>
+# UPDATED 29/Apr/2018 03:09:29 by Anton Novojilov <andy@essentialkaos.com>
 
 eol(normal): 2016-02-24
 eol(security): 2016-02-24
@@ -23,4 +23,4 @@ CONFOPTS(ruby-2.0.0-p451): --with-openssl-dir={prefix}/openssl --disable-install
 [essentialkaos]
   package: "openssl-1.0.2o" "https://ruby.kaos.st/openssl-1.0.2o.7z" "820e6acb9111da449e26b3d0b698e9d8c694f346" openssl
   patchset: "https://ruby.kaos.st/patches/2.0.0-p451.7z" "1e9bd7e88a229c54b82024f2e63e6e1c2fb9a830"
-  package: "ruby-2.0.0-p451" "https://ruby.kaos.st/ruby-2.0.0-p451.7z" "d10203f5affd6f23096fee3e0ed621b34d96c0a2"
+  package: "ruby-2.0.0-p451" "https://ruby.kaos.st/ruby-2.0.0-p451.7z" "22d1eaadfac357fe5c71a55d5bfd579ece3fb22f"
