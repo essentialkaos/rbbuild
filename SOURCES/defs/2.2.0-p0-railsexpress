@@ -1,5 +1,5 @@
 # RBBuild Def File
-# UPDATED 29/Apr/2018 03:09:30 by Anton Novojilov <andy@essentialkaos.com>
+# UPDATED 29/Apr/2018 13:41:44 by Anton Novojilov <andy@essentialkaos.com>
 
 eol(normal): 2018-03-31
 
@@ -16,10 +16,10 @@ CONFOPTS(ruby-2.2.0-p0): --with-openssl-dir={prefix}/openssl --disable-install-d
 
 [default]
   package: "openssl-1.0.2o" "https://www.openssl.org/source/openssl-1.0.2o.tar.gz" "a47faaca57b47a0d9d5fb085545857cc92062691" openssl
-  patchset: "https://ruby.kaos.st/patches/2.2.0-p0.7z" "fe7402810387b5744b1552bd73cf55992e0434b1"
+  patchset: "https://ruby.kaos.st/patches/2.2.0-p0.7z" "102778e65705e9177e7c41a0d4201dec14bc77a4"
   package: "ruby-2.2.0-p0" "https://cache.ruby-lang.org/pub/ruby/2.2/ruby-2.2.0.tar.gz" "680302104b24f850fddfe93ee37396de01765b37"
 
 [essentialkaos]
   package: "openssl-1.0.2o" "https://ruby.kaos.st/openssl-1.0.2o.7z" "820e6acb9111da449e26b3d0b698e9d8c694f346" openssl
-  patchset: "https://ruby.kaos.st/patches/2.2.0-p0.7z" "fe7402810387b5744b1552bd73cf55992e0434b1"
+  patchset: "https://ruby.kaos.st/patches/2.2.0-p0.7z" "102778e65705e9177e7c41a0d4201dec14bc77a4"
   package: "ruby-2.2.0-p0" "https://ruby.kaos.st/ruby-2.2.0.7z" "75474ae076a855709cc1a8f0bcc9710e93cb2ef4"
