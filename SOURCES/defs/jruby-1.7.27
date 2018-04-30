@@ -1,6 +1,8 @@
 # RBBuild Def File
 # UPDATED 08/Oct/2017 01:56:53 by Anton Novojilov <andy@essentialkaos.com>
 
+eol(normal): 2017-11-11
+
 deps(rpm): make gcc gcc-c++
 deps(deb): make gcc build-essentials
 deps(bin): java
