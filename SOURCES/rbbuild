@@ -572,7 +572,7 @@ checkEOLDates() {
     if [[ $normal_ts -lt $now ]] ; then
       expired=true
       normal_rd=$(date -d "@$normal_ts" +'%d %B %Y')
-      show "Normal maintenance finished $normal_rd." $YELLOW
+      show "Normal maintenance finished $normal_rd" $YELLOW
     fi
   fi
 
