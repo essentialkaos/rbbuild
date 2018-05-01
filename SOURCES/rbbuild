@@ -7,7 +7,7 @@
 APP="RBBuild"
 
 # App version (String)
-VER="1.8.1"
+VER="1.9.0"
 
 ################################################################################
 
@@ -125,6 +125,8 @@ BLD_PATH="${DATA_PATH}/blds"
 
 TEMP_TEMPLATE="rbbuild-XXXXXXXXXX"
 
+SEPARATOR="--------------------------------------------------------------------------------"
+
 # Maximum lines from log for failed build (Number)
 LOG_TAIL_SIZE=30
 
@@ -185,6 +187,8 @@ main() {
   [[ -n "$help" || -n "$usage" ]] && usage && doExit
   [[ $# -eq 0 || -n "$list" ]] && listDefs && doExit
 
+  configureProxy
+
   if [[ -z "$mirror_list" ]] ; then
     if [[ -z "$prefix" && -z "$rbenv" ]] ; then
       error "\nYou must use --prefix (-p) argument for define install location.\n"
@@ -223,6 +227,24 @@ main() {
   show "\nBuild process complete!\n" $GREEN
 
   doExit 0
+}
+
+# Confugure proxy settings
+#
+# Code: No
+# Echo: No
+configureProxy() {
+  local envProxy
+
+  envProxy=$(printenv "https_proxy" "HTTPS_PROXY" | tail -1)
+
+  if [[ -z "$envProxy" ]] ; then
+    envProxy=$(printenv "http_proxy" "HTTP_PROXY" | tail -1)
+  fi
+
+  if [[ -z "$proxy" && -n "$envProxy" ]] ; then
+    proxy="$envProxy"
+  fi
 }
 
 # Prepare def file
@@ -350,6 +372,8 @@ doBuild() {
 
   show "Starting build process…"
 
+  printSystemInfo
+
   checkBuildDeps
   readDefinition
 
@@ -418,9 +442,7 @@ checkBuildDeps() {
     dep_list=$(readDefProp "$dep_pref")
 
     for dep in $dep_list ; do
-      type -P "$dep" &> /dev/null
-
-      if [[ $? -ne 0 ]] ; then
+      if ! isBinExist "$dep" ; then
         is_fail=true
         bin_list="$dep $bin_list"
       fi
@@ -550,7 +572,7 @@ checkEOLDates() {
     if [[ $normal_ts -lt $now ]] ; then
       expired=true
       normal_rd=$(date -d "@$normal_ts" +'%d %B %Y')
-      show "Normal maintenance finished $normal_rd." $YELLOW
+      show "Normal maintenance finished $normal_rd" $YELLOW
     fi
   fi
 
@@ -1225,7 +1247,8 @@ checkCRC() {
   else
     error "FAIL"
     error ""
-    error "Checksum of the file $filename not equals to checksum from the definition file. Maybe file was changed."
+    error "Checksum of the file $filename not equals to checksum from"
+    error "the definition file (outdated defs?). Maybe file was changed."
     error "You can use argument --ignore-checksums (-ic) for skipping this check."
 
     show "" && doExit 1
@@ -1648,6 +1671,79 @@ detectOs() {
   fi
 }
 
+# Print info about system
+#
+# Code: No
+# Echo: No
+printSystemInfo() {
+  showSeparator "SYSTEM INFO"
+
+  show " ${CL_BOLD}Prefix:        ${CL_NORM} $prefix ${CL_DARK}(prefix)${CL_NORM}"
+  show " ${CL_BOLD}GCC:           ${CL_NORM} $(getGCCVersion)"
+  show " ${CL_BOLD}Clang:         ${CL_NORM} $(getClangVersion)"
+  show " ${CL_BOLD}Java:          ${CL_NORM} $(getJavaVersion)"
+  show " ${CL_BOLD}Ruby:          ${CL_NORM} $(getRubyVersion)"
+  show " ${CL_BOLD}OSName:        ${CL_NORM} ${os_name} ${CL_DARK}(os_name)${CL_NORM}"
+  show " ${CL_BOLD}OSKernel:      ${CL_NORM} ${os_kern} ${CL_DARK}(os_kern)${CL_NORM}"
+  show " ${CL_BOLD}OSDistro:      ${CL_NORM} ${os_dist} ${CL_DARK}(os_dist)${CL_NORM}"
+  show " ${CL_BOLD}OSArch:        ${CL_NORM} ${os_arch} ${CL_DARK}(os_arch)${CL_NORM}"
+  show " ${CL_BOLD}OSArchName:    ${CL_NORM} ${os_arnm} ${CL_DARK}(os_arnm)${CL_NORM}"
+
+  showSeparator
+}
+
+# Return GCC version
+#
+# Code: No
+# Echo: Version (String)
+getGCCVersion() {
+  if ! isBinExist "gcc" ; then
+    echo "${CL_GREY}Not installed${CL_NORM}"
+    return
+  fi
+
+  gcc --version | head -1 | cut -f3-9 -d" "
+}
+
+# Return clang version
+#
+# Code: No
+# Echo: Version (String)
+getClangVersion() {
+  if ! isBinExist "clang" ; then
+    echo "${CL_GREY}Not installed${CL_NORM}"
+    return
+  fi
+
+  clang --version | head -1 | cut -f3-9 -d" "
+}
+
+# Return Java version
+#
+# Code: No
+# Echo: Version (String)
+getJavaVersion() {
+  if ! isBinExist "java" ; then
+    echo "${CL_GREY}Not installed${CL_NORM}"
+    return
+  fi
+
+  java -version 2>&1 | head -1
+}
+
+# Return Ruby version
+#
+# Code: No
+# Echo: Version (String)
+getRubyVersion() {
+  if ! isBinExist "ruby" ; then
+    echo "${CL_GREY}Not installed${CL_NORM}"
+    return
+  fi
+
+  ruby --version 2>/dev/null || echo "${CL_GREY}Not installed${CL_NORM}"
+}
+
 # Check OS
 #
 # 1: OS (String)
@@ -1678,6 +1774,17 @@ isArch() {
   fi
 
   return 1
+}
+
+# Check if some binary installed on system
+#
+# 1: Binary name (String)
+#
+# Code: Yes
+# Echo: No
+isBinExist() {
+  command -v "$1" &>/dev/null
+  return $?
 }
 
 # Check required apps
@@ -1766,14 +1873,14 @@ checkHTTPStatus() {
     status=$(curl --max-redirs "$MAX_REDIRS" -x "$proxy" -LIks -X GET "$url")
   fi
 
-  code=$(echo "$status" | grep -E "^HTTP\/" | cut -f2 -d" ")
+  code=$(echo "$status" | grep -E "^HTTP\/" | tail -1 | cut -f2 -d" ")
 
   if [[ -z "$code" ]] ; then
     echo "-1"
     return 0
   fi
 
-  location=$(echo "$status" | grep -Fi "Location" | cut -f2 -d" ")
+  location=$(echo "$status" | grep -Fi "Location" | tail -1 | cut -f2 -d" ")
 
   plocat[$url]="$location"
 
@@ -1995,7 +2102,9 @@ printErrorAndExit() {
 # Code: No
 # Echo: No
 clean() {
-  [[ -z "$debug" ]] && rm -rf "$tmp_dir" &> /dev/null
+  if [[ -z "$debug" ]] ; then
+    rm -rf "$tmp_dir" &> /dev/null
+  fi
 }
 
 # Signal handler
@@ -2021,6 +2130,7 @@ termExit() {
 # Echo: No
 doExit() {
   clean
+
   cd "$CWD" || exit 1
   exit "${1:-0}"
 }
@@ -2080,6 +2190,24 @@ spinner() {
 }
 
 ################################################################################
+
+# Show separator
+#
+# 1: Separator name (String) [Optional]
+#
+# Code: No
+# Echo: No
+showSeparator() {
+  local name="$1"
+
+  if [[ -n "$name" ]] ; then
+    local adds=$((${#SEPARATOR} - ${#name} - 4))
+
+    show "\n${CL_GREY}--${CL_NORM} ${CL_BOLD}${name}${CL_NORM} ${CL_GREY}${SEPARATOR:0:$adds}${CL_NORM}\n"
+  else
+    show "\n${CL_GREY}${SEPARATOR}${CL_NORM}\n"
+  fi
+}
 
 # Show message about unsupported argument
 #

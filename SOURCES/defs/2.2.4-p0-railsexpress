@@ -1,12 +1,14 @@
 # RBBuild Def File
-# UPDATED 02/Apr/2018 18:44:17 by Anton Novojilov <andy@essentialkaos.com>
+# UPDATED 29/Apr/2018 13:41:45 by Anton Novojilov <andy@essentialkaos.com>
+
+eol(normal): 2018-03-31
 
 deps(rpm): gcc git make zlib-devel readline-devel tk-devel ca-certificates
 deps(rpm): autoconf glibc-devel ncurses-devel bison libffi-devel
 deps(deb): gcc git make zlib1g-dev libreadline6-dev tk-dev ca-certificates
 deps(deb): autoconf libc6-dev libncurses5-dev bison libffi-dev
 
-CONFOPTS(openssl-1.0.2o): gcc --openssldir={prefix}/openssl/ssl zlib-dynamic no-krb5 shared -fPIC
+CONFOPTS(openssl-1.0.2o): {os_name}-{os_arch} --openssldir={prefix}/openssl/ssl zlib-dynamic no-ssl3 shared -fPIC
 MAKEOPTS(openssl-1.0.2o): -j 1
 PREFIX(openssl-1.0.2o): {prefix}/openssl
 
@@ -15,9 +17,9 @@ CONFOPTS(ruby-2.2.4-p0): --with-openssl-dir={prefix}/openssl --disable-install-d
 [default]
   package: "openssl-1.0.2o" "https://www.openssl.org/source/openssl-1.0.2o.tar.gz" "a47faaca57b47a0d9d5fb085545857cc92062691" openssl
   patchset: "https://ruby.kaos.st/patches/2.2.4-p0.7z" "3035ba413a8c9fd41408ea7a02f6722096721886"
-  package: "ruby-2.2.4-p0" "https://ftp.ruby-lang.org/pub/ruby/2.2/ruby-2.2.4.tar.gz" "818e5e157f76d4912ba3a7c7b4fc5156105e83c3"
+  package: "ruby-2.2.4-p0" "https://cache.ruby-lang.org/pub/ruby/2.2/ruby-2.2.4.tar.gz" "818e5e157f76d4912ba3a7c7b4fc5156105e83c3"
 
 [essentialkaos]
   package: "openssl-1.0.2o" "https://ruby.kaos.st/openssl-1.0.2o.7z" "820e6acb9111da449e26b3d0b698e9d8c694f346" openssl
   patchset: "https://ruby.kaos.st/patches/2.2.4-p0.7z" "3035ba413a8c9fd41408ea7a02f6722096721886"
-  package: "ruby-2.2.4-p0" "https://ruby.kaos.st/ruby-2.2.4.7z" "634e7accad66f852537efccfe63cd6bdd554a19a"
+  package: "ruby-2.2.4-p0" "https://ruby.kaos.st/ruby-2.2.4.7z" "85357355248efa80ca69bee26806039780a5a8a3"
