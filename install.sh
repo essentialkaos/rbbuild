@@ -132,7 +132,9 @@ doInstall() {
 
   require "p7zip"
   require "bash"
+  require "patch"
   require "gawk"
+  require "bc"
 
   if [[ $requireFailed ]] ; then
     show "" && exit 1
