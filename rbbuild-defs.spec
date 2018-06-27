@@ -78,7 +78,7 @@ rm -rf %{buildroot}
 %changelog
 * Fri Apr 27 2018 Anton Novojilov <andy@essentialkaos.com> - 1.9.0-0
 - Added jruby-9.1.17.0
-- Added EOL dates for 2.2.x and 2.3.x 
+- Added EOL dates for 2.2.x and 2.3.x
 - Added EOL dates for JRuby 1.6.x and 1.7.x
 - Fixed OpenSSL shared lib build
 - Added 'no-ssl3' option for OpenSSL
