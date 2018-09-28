@@ -7,7 +7,7 @@
 APP="RBBuild"
 
 # App version (String)
-VER="1.9.0"
+VER="1.9.1"
 
 ################################################################################
 
@@ -1895,18 +1895,18 @@ checkHTTPStatus() {
 # Code: Yes
 # Echo: No
 download() {
-  local args="--max-redirs $MAX_REDIRS -L"
+  local opts="--max-redirs $MAX_REDIRS -L"
 
   if [[ -n "$proxy" ]] ; then
-    args="$args -x $proxy"
+    opts="$opts -x $proxy"
   fi
 
   if [[ -n "$quiet" ]] ; then
     # shellcheck disable=SC2086
-    curl $args -s "$1" -o "$2"
+    curl $opts -s "$1" -o "$2"
   else
     # shellcheck disable=SC2086
-    curl $args -# "$1" -o "$2"
+    curl $opts -# "$1" -o "$2"
   fi
 
   return $?
