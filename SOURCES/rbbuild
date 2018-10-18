@@ -7,7 +7,7 @@
 APP="RBBuild"
 
 # App version (String)
-VER="1.9.1"
+VER="1.9.2"
 
 ################################################################################
 
@@ -1698,7 +1698,7 @@ printSystemInfo() {
 # Echo: Version (String)
 getGCCVersion() {
   if ! isBinExist "gcc" ; then
-    echo "${CL_GREY}Not installed${CL_NORM}"
+    echo "${CL_DARK}Not installed${CL_NORM}"
     return
   fi
 
@@ -1711,7 +1711,7 @@ getGCCVersion() {
 # Echo: Version (String)
 getClangVersion() {
   if ! isBinExist "clang" ; then
-    echo "${CL_GREY}Not installed${CL_NORM}"
+    echo "${CL_DARK}Not installed${CL_NORM}"
     return
   fi
 
@@ -1724,7 +1724,7 @@ getClangVersion() {
 # Echo: Version (String)
 getJavaVersion() {
   if ! isBinExist "java" ; then
-    echo "${CL_GREY}Not installed${CL_NORM}"
+    echo "${CL_DARK}Not installed${CL_NORM}"
     return
   fi
 
@@ -1737,11 +1737,11 @@ getJavaVersion() {
 # Echo: Version (String)
 getRubyVersion() {
   if ! isBinExist "ruby" ; then
-    echo "${CL_GREY}Not installed${CL_NORM}"
+    echo "${CL_DARK}Not installed${CL_NORM}"
     return
   fi
 
-  ruby --version 2>/dev/null || echo "${CL_GREY}Not installed${CL_NORM}"
+  ruby --version 2>/dev/null || echo "${CL_DARK}Not installed${CL_NORM}"
 }
 
 # Check OS
