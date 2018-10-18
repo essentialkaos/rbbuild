@@ -8,18 +8,18 @@ deps(deb): autoconf libc6-dev libncurses5-dev bison libffi-dev
 
 deps(bin): ruby
 
-CONFOPTS(openssl-1.1.0h): {os_name}-{os_arch} --openssldir={prefix}/openssl/ssl zlib-dynamic no-ssl3 shared -fPIC
-MAKEOPTS(openssl-1.1.0h): -j 1
-PREFIX(openssl-1.1.0h): {prefix}/openssl
+CONFOPTS(openssl-1.1.1): {os_name}-{os_arch} --openssldir={prefix}/openssl/ssl zlib-dynamic no-ssl3 shared -fPIC
+MAKEOPTS(openssl-1.1.1): -j 1
+PREFIX(openssl-1.1.1): {prefix}/openssl
 
 CONFOPTS(ruby-2.5.0-p0): --with-openssl-dir={prefix}/openssl --with-baseruby={ruby_bin} --disable-install-doc
 
 [default]
-  package: "openssl-1.1.0h" "https://www.openssl.org/source/openssl-1.1.0h.tar.gz" "0fc39f6aa91b6e7f4d05018f7c5e991e1d2491fd" openssl
+  package: "openssl-1.1.1" "https://www.openssl.org/source/openssl-1.1.1.tar.gz" "!" openssl
   patch: "https://github.com/ruby/ruby/commit/de11e472b447df6d45cd2eaa577d0f2f1efd4064.patch" "4bd7b9e2893f56b6833a16be52f64193b6c02ed1"
   package: "ruby-2.5.0-p0" "https://cache.ruby-lang.org/pub/ruby/2.5/ruby-2.5.0.tar.gz" "58f77301c891c1c4a08f301861c26b1ea46509f6"
 
 [essentialkaos]
-  package: "openssl-1.1.0h" "https://ruby.kaos.st/openssl-1.1.0h.7z" "5e96a957be9f2a448dfd6a1bb2d07e1b6e1b8576" openssl
+  package: "openssl-1.1.1" "https://ruby.kaos.st/openssl-1.1.1.7z" "!" openssl
   patch: "https://github.com/ruby/ruby/commit/de11e472b447df6d45cd2eaa577d0f2f1efd4064.patch" "4bd7b9e2893f56b6833a16be52f64193b6c02ed1"
   package: "ruby-2.5.0-p0" "https://ruby.kaos.st/ruby-2.5.0.7z" "018048c1ceb894762631393427ffcf354db40af7"
