@@ -9,18 +9,18 @@ deps(rpm): autoconf glibc-devel ncurses-devel bison libffi-devel git
 deps(deb): gcc make zlib1g-dev libreadline6-dev tk-dev ca-certificates
 deps(deb): autoconf libc6-dev libncurses5-dev bison libffi-dev git
 
-CONFOPTS(openssl-1.0.2o): {os_name}-{os_arch} --openssldir={prefix}/openssl/ssl zlib-dynamic no-ssl3 shared -fPIC
-MAKEOPTS(openssl-1.0.2o): -j 1
-PREFIX(openssl-1.0.2o): {prefix}/openssl
+CONFOPTS(openssl-1.0.2p): {os_name}-{os_arch} --openssldir={prefix}/openssl/ssl zlib-dynamic no-ssl3 shared -fPIC
+MAKEOPTS(openssl-1.0.2p): -j 1
+PREFIX(openssl-1.0.2p): {prefix}/openssl
 
 CONFOPTS(ruby-2.0.0-p481): --with-openssl-dir={prefix}/openssl --disable-install-doc
 
 [default]
-  package: "openssl-1.0.2o" "https://www.openssl.org/source/openssl-1.0.2o.tar.gz" "a47faaca57b47a0d9d5fb085545857cc92062691" openssl
+  package: "openssl-1.0.2p" "https://www.openssl.org/source/openssl-1.0.2p.tar.gz" "!" openssl
   patchset: "https://ruby.kaos.st/patches/2.0.0-p481.7z" "3bfe65aac5980780f83dbcc89a6a5cc089ca2943"
   package: "ruby-2.0.0-p481" "https://cache.ruby-lang.org/pub/ruby/2.0/ruby-2.0.0-p481.tar.gz" "dded7b7349d59feb83d4f774b2ddec23eeab7978"
 
 [essentialkaos]
-  package: "openssl-1.0.2o" "https://ruby.kaos.st/openssl-1.0.2o.7z" "820e6acb9111da449e26b3d0b698e9d8c694f346" openssl
+  package: "openssl-1.0.2p" "https://ruby.kaos.st/openssl-1.0.2p.7z" "!" openssl
   patchset: "https://ruby.kaos.st/patches/2.0.0-p481.7z" "3bfe65aac5980780f83dbcc89a6a5cc089ca2943"
   package: "ruby-2.0.0-p481" "https://ruby.kaos.st/ruby-2.0.0-p481.7z" "989d930f832cc54be5465e99631b3e204eed7a4b"
