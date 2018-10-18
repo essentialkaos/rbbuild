@@ -1,5 +1,5 @@
 # RBBuild Def File
-# UPDATED 29/Apr/2018 03:09:32 by Anton Novojilov <andy@essentialkaos.com>
+# UPDATED 18/Oct/2018 12:16:20 by Anton Novojilov <andy@essentialkaos.com>
 
 deps(rpm): gcc make ruby zlib-devel readline-devel tk-devel ca-certificates
 deps(rpm): autoconf glibc-devel ncurses-devel bison libffi-devel git
@@ -13,9 +13,9 @@ PREFIX(openssl-1.1.1): {prefix}/openssl
 CONFOPTS(ruby-2.6.0-dev): --with-openssl-dir={prefix}/openssl --disable-install-doc
 
 [default]
-  package: "openssl-1.1.1" "https://www.openssl.org/source/openssl-1.1.1.tar.gz" "!" openssl
+  package: "openssl-1.1.1" "https://www.openssl.org/source/openssl-1.1.1.tar.gz" "e4559f31dca37ce815e0c7135488b747745a056d" openssl
   git: "ruby-2.6.0-dev" "https://github.com/ruby/ruby.git" "!" "trunk" "autoconf"
 
 [essentialkaos]
-  package: "openssl-1.1.1" "https://ruby.kaos.st/openssl-1.1.1.7z" "!" openssl
+  package: "openssl-1.1.1" "https://ruby.kaos.st/openssl-1.1.1.7z" "35b1d6ade0551b4fc1ff62bd9b9042fff5ee3b2a" openssl
   git: "ruby-2.6.0-dev" "https://github.com/ruby/ruby.git" "!" "trunk" "autoconf"

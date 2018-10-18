@@ -1,5 +1,5 @@
 # RBBuild Def File
-# UPDATED 29/Apr/2018 13:41:48 by Anton Novojilov <andy@essentialkaos.com>
+# UPDATED 18/Oct/2018 12:16:19 by Anton Novojilov <andy@essentialkaos.com>
 
 deps(rpm): gcc git make zlib-devel readline-devel tk-devel ca-certificates
 deps(rpm): autoconf glibc-devel ncurses-devel bison libffi-devel
@@ -13,11 +13,11 @@ PREFIX(openssl-1.1.1): {prefix}/openssl
 CONFOPTS(ruby-2.4.2-p0): --with-openssl-dir={prefix}/openssl --disable-install-doc
 
 [default]
-  package: "openssl-1.1.1" "https://www.openssl.org/source/openssl-1.1.1.tar.gz" "!" openssl
+  package: "openssl-1.1.1" "https://www.openssl.org/source/openssl-1.1.1.tar.gz" "e4559f31dca37ce815e0c7135488b747745a056d" openssl
   patchset: "https://ruby.kaos.st/patches/2.4.2-p0.7z" "9753df86aaa42e5f0262fbd7ea6449bed8f2a29a"
   package: "ruby-2.4.2-p0" "https://cache.ruby-lang.org/pub/ruby/2.4/ruby-2.4.2.tar.gz" "b096124469e31e4fc3d00d2b61b11d36992e6bbd"
 
 [essentialkaos]
-  package: "openssl-1.1.1" "https://ruby.kaos.st/openssl-1.1.1.7z" "!" openssl
+  package: "openssl-1.1.1" "https://ruby.kaos.st/openssl-1.1.1.7z" "35b1d6ade0551b4fc1ff62bd9b9042fff5ee3b2a" openssl
   patchset: "https://ruby.kaos.st/patches/2.4.2-p0.7z" "9753df86aaa42e5f0262fbd7ea6449bed8f2a29a"
   package: "ruby-2.4.2-p0" "https://ruby.kaos.st/ruby-2.4.2.7z" "eeaca7e29fb059dec33e1bb41c25eec80f577266"

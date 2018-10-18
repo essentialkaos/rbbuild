@@ -1,5 +1,5 @@
 # RBBuild Def File
-# UPDATED 29/Apr/2018 03:09:29 by Anton Novojilov <andy@essentialkaos.com>
+# UPDATED 18/Oct/2018 12:16:16 by Anton Novojilov <andy@essentialkaos.com>
 
 eol(normal): 2016-03-31
 eol(security): 2016-09-30
@@ -16,9 +16,9 @@ PREFIX(openssl-1.0.2p): {prefix}/openssl
 CONFOPTS(ruby-2.1.0-p0): --with-openssl-dir={prefix}/openssl --disable-install-doc
 
 [default]
-  package: "openssl-1.0.2p" "https://www.openssl.org/source/openssl-1.0.2p.tar.gz" "!" openssl
+  package: "openssl-1.0.2p" "https://www.openssl.org/source/openssl-1.0.2p.tar.gz" "f34b5322e92415755c7d58bf5d0d5cf37666382c" openssl
   package: "ruby-2.1.0-p0" "https://cache.ruby-lang.org/pub/ruby/2.1/ruby-2.1.0.tar.gz" "99114e71c7765b5bdc0414c189a338f6f21fb51d"
 
 [essentialkaos]
-  package: "openssl-1.0.2p" "https://ruby.kaos.st/openssl-1.0.2p.7z" "!" openssl
+  package: "openssl-1.0.2p" "https://ruby.kaos.st/openssl-1.0.2p.7z" "05a943d15d98a266911c0c1565f1c8a4034f6904" openssl
   package: "ruby-2.1.0-p0" "https://ruby.kaos.st/ruby-2.1.0.7z" "ca121697fc6b17752bff72f6257f58933531556e"
