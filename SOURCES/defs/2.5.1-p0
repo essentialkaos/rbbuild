@@ -1,21 +1,23 @@
 # RBBuild Def File
-# UPDATED 29/Apr/2018 03:09:32 by Anton Novojilov <andy@essentialkaos.com>
+# UPDATED 18/Oct/2018 12:16:19 by Anton Novojilov <andy@essentialkaos.com>
 
 deps(rpm): gcc make zlib-devel readline-devel tk-devel ca-certificates
 deps(rpm): autoconf glibc-devel ncurses-devel bison libffi-devel
 deps(deb): gcc make zlib1g-dev libreadline6-dev tk-dev ca-certificates
 deps(deb): autoconf libc6-dev libncurses5-dev bison libffi-dev
 
-CONFOPTS(openssl-1.1.0h): {os_name}-{os_arch} --openssldir={prefix}/openssl/ssl zlib-dynamic no-ssl3 shared -fPIC
-MAKEOPTS(openssl-1.1.0h): -j 1
-PREFIX(openssl-1.1.0h): {prefix}/openssl
+deps(bin): ruby
+
+CONFOPTS(openssl-1.1.1): {os_name}-{os_arch} --openssldir={prefix}/openssl/ssl zlib-dynamic no-ssl3 shared -fPIC
+MAKEOPTS(openssl-1.1.1): -j 1
+PREFIX(openssl-1.1.1): {prefix}/openssl
 
 CONFOPTS(ruby-2.5.1-p0): --with-openssl-dir={prefix}/openssl --disable-install-doc
 
 [default]
-  package: "openssl-1.1.0h" "https://www.openssl.org/source/openssl-1.1.0h.tar.gz" "0fc39f6aa91b6e7f4d05018f7c5e991e1d2491fd" openssl
+  package: "openssl-1.1.1" "https://www.openssl.org/source/openssl-1.1.1.tar.gz" "e4559f31dca37ce815e0c7135488b747745a056d" openssl
   package: "ruby-2.5.1-p0" "https://cache.ruby-lang.org/pub/ruby/2.5/ruby-2.5.1.tar.gz" "93fafd57a724974b951957c522cdc4478a6bdc2e"
 
 [essentialkaos]
-  package: "openssl-1.1.0h" "https://ruby.kaos.st/openssl-1.1.0h.7z" "5e96a957be9f2a448dfd6a1bb2d07e1b6e1b8576" openssl
+  package: "openssl-1.1.1" "https://ruby.kaos.st/openssl-1.1.1.7z" "35b1d6ade0551b4fc1ff62bd9b9042fff5ee3b2a" openssl
   package: "ruby-2.5.1-p0" "https://ruby.kaos.st/ruby-2.5.1.7z" "324911ba95363737825c0c748da6552d7a33f114"

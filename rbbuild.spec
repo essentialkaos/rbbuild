@@ -29,7 +29,7 @@
 
 Summary:         Utility for compiling and installing different ruby versions
 Name:            rbbuild
-Version:         1.9.1
+Version:         1.9.2
 Release:         0%{?dist}
 License:         EKOL
 Vendor:          ESSENTIALKAOS
@@ -87,6 +87,9 @@ rm -rf %{buildroot}
 ################################################################################
 
 %changelog
+* Thu Oct 18 2018 Anton Novojilov <andy@essentialkaos.com> - 1.9.2-0
+- [rbbuild] Minor UI improvements
+
 * Sat Sep 29 2018 Anton Novojilov <andy@essentialkaos.com> - 1.9.1-0
 - [rbbuild] Code refactoring
 
