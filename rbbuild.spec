@@ -87,6 +87,9 @@ rm -rf %{buildroot}
 ################################################################################
 
 %changelog
+* Fri Jan 04 2019 Anton Novojilov <andy@essentialkaos.com> - 1.9.3-0
+- [rbbuild] Code refactoring
+
 * Thu Oct 18 2018 Anton Novojilov <andy@essentialkaos.com> - 1.9.2-0
 - [rbbuild] Minor UI improvements
 
