@@ -1,23 +1,23 @@
 # RBBuild Def File
-# UPDATED 18/Oct/2018 12:16:19 by Anton Novojilov <andy@essentialkaos.com>
+# UPDATED 07/Jan/2019 01:04:59 by Anton Novojilov <andy@essentialkaos.com>
 
 deps(rpm): gcc make zlib-devel readline-devel tk-devel ca-certificates
 deps(rpm): autoconf glibc-devel ncurses-devel bison libffi-devel
 deps(deb): gcc make zlib1g-dev libreadline6-dev tk-dev ca-certificates
 deps(deb): autoconf libc6-dev libncurses5-dev bison libffi-dev
 
-CONFOPTS(openssl-1.1.1): {os_name}-{os_arch} --openssldir={prefix}/openssl/ssl zlib-dynamic no-ssl3 shared -fPIC
-MAKEOPTS(openssl-1.1.1): -j 1
-PREFIX(openssl-1.1.1): {prefix}/openssl
+CONFOPTS(openssl-1.1.1a): {os_name}-{os_arch} --openssldir={prefix}/openssl/ssl zlib-dynamic no-ssl3 shared -fPIC
+MAKEOPTS(openssl-1.1.1a): -j 1
+PREFIX(openssl-1.1.1a): {prefix}/openssl
 
 CONFOPTS(ruby-2.4.3-p0): --with-openssl-dir={prefix}/openssl --disable-install-doc
 
 [default]
-  package: "openssl-1.1.1" "https://www.openssl.org/source/openssl-1.1.1.tar.gz" "e4559f31dca37ce815e0c7135488b747745a056d" openssl
+  package: "openssl-1.1.1a" "https://www.openssl.org/source/openssl-1.1.1a.tar.gz" "8fae27b4f34445a5500c9dc50ae66b4d6472ce29" openssl
   patchset: "https://ruby.kaos.st/patches/2.4.3-p0.7z" "82a23b845ece89ac05cc36008a9de22dea6a0f2d"
   package: "ruby-2.4.3-p0" "https://cache.ruby-lang.org/pub/ruby/2.4/ruby-2.4.3.tar.gz" "787b7f4e90fb4b39a61bc1a31eb7765f875a590c"
 
 [essentialkaos]
-  package: "openssl-1.1.1" "https://ruby.kaos.st/openssl-1.1.1.7z" "35b1d6ade0551b4fc1ff62bd9b9042fff5ee3b2a" openssl
+  package: "openssl-1.1.1a" "https://ruby.kaos.st/openssl-1.1.1a.7z" "e1a2e02390bffccd263249a17ab347d9a9c49d8e" openssl
   patchset: "https://ruby.kaos.st/patches/2.4.3-p0.7z" "82a23b845ece89ac05cc36008a9de22dea6a0f2d"
   package: "ruby-2.4.3-p0" "https://ruby.kaos.st/ruby-2.4.3.7z" "1cd2dfe3c7e4329d37935ff875419d6cebbd7170"

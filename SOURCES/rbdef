@@ -7,7 +7,7 @@
 APP="RBBuild Def Utils"
 
 # App version (String)
-VER="1.5.1"
+VER="1.5.2"
 
 ################################################################################
 
@@ -169,7 +169,7 @@ repack() {
       url=$(parseArgsInString "$file")
       file_name=$(basename "$url")
 
-      show "Downloading ${CL_BOLD}$file_name${CL_NORM}... "
+      show "Downloading ${CL_BOLD}$file_name${CL_NORM}… "
 
       curl -k --max-redirs 10 -L -# "$url" -o "$file_name"
     elif checkPerms "FR" "$file" ; then
@@ -179,18 +179,18 @@ repack() {
       doExit 1
     fi
 
-    showm "Unpacking file ${CL_BOLD}$file_name${CL_NORM}... "
+    showm "Unpacking file ${CL_BOLD}$file_name${CL_NORM}… "
 
     arch_dir=$(unpack "$file_name")
 
     if [[ -z "$arch_dir" ]] ; then
       error "FAIL"
-      error "Can't unpack file $file_name. Exiting..."
+      error "Can't unpack file $file_name. Exiting…"
       doExit 1
     fi
 
     show "DONE" $GREEN
-    showm "Packing to ${CL_BOLD}$arch_dir.7z${CL_NORM}... "
+    showm "Packing to ${CL_BOLD}$arch_dir.7z${CL_NORM}… "
 
     rm -rf "$arch_dir.7z" &> /dev/null
     7za a -t7z -mx=9 "$arch_dir.7z" "$arch_dir" &> /dev/null
@@ -223,7 +223,7 @@ getRecord() {
   file_type=$(getFileType "$file_name")
 
   if [[ "$file_name" != "git" && "$file_name" != "hg" && "$file_name" != "svn" ]] ; then
-    show "Downloading ${CL_BOLD}$file_name${CL_NORM}... "
+    show "Downloading ${CL_BOLD}$file_name${CL_NORM}… "
 
     curl -k --max-redirs 10 -L -# "$url" -o "$file_name"
 
@@ -264,7 +264,7 @@ replace() {
   for file in "$@" ; do
     target_name=$(basename "$file")
 
-    showm "Processing file ${CL_BOLD}$target_name${CL_NORM}... "
+    showm "Processing file ${CL_BOLD}$target_name${CL_NORM}… "
 
     if ! checkPerms "FRW" "$file" ; then
       error "FAIL"
@@ -311,7 +311,7 @@ proc() {
   for file in "$@" ; do
     target_name=$(basename "$file")
 
-    showm "Processing file ${CL_BOLD}${target_name}${CL_NORM}... "
+    showm "Processing file ${CL_BOLD}${target_name}${CL_NORM}… "
 
     if ! checkPerms "FRW" "$file" ; then
       error "FAIL"
@@ -392,7 +392,7 @@ crc() {
     url=$(parseArgsInString "$1")
     file_name=$(basename "$url")
 
-    show "Downloading $file_name... "
+    show "Downloading $file_name… "
 
     curl -k --max-redirs 10 -L -# "$url" -o "$file_name"
     crc=$(makeCRC "$file_name")
@@ -450,7 +450,7 @@ upload() {
     doExit 1
   fi
 
-  show "Uploading files to $bucket..."
+  show "Uploading files to $bucket…"
   show ""
 
   local file adds
@@ -799,7 +799,7 @@ error() {
 # Echo: No
 usage() {
   show ""
-  show "${CL_BOLD}Usage:${CL_NORM} rbdef ${CL_GREEN}{options}${CL_NORM} ${CL_YELLOW}{command}${CL_NORM} arguments..."
+  show "${CL_BOLD}Usage:${CL_NORM} rbdef ${CL_GREEN}{options}${CL_NORM} ${CL_YELLOW}{command}${CL_NORM} arguments…"
   show ""
   show "Commands:" $BOLD
   show ""
