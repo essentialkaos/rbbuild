@@ -78,6 +78,13 @@ rm -rf %{buildroot}
 %changelog
 * Mon Jan 07 2019 Anton Novojilov <andy@essentialkaos.com> - 1.9.3-0
 - Added 2.6.0-p0
+- Added 2.6.0-p0-railsexpress
+- Added jruby-9.2.1.0
+- Added jruby-9.2.2.0
+- Added jruby-9.2.3.0
+- Added jruby-9.2.4.0
+- Added jruby-9.2.4.1
+- Added jruby-9.2.5.0
 - OpenSSL updated to 1.1.1a for 2.4.0 <-> 2.5.3
 - OpenSSL updated to 1.0.2q for 1.9.2-p180 <-> 2.3.8
 
