@@ -39,7 +39,7 @@ rbxBuilder() {
 
     spinnerOn
 
-    if [[ $verbose ]] ; then
+    if [[ -n "$verbose" ]] ; then
       {
 
         if [[ -z "$fail" ]] ; then
@@ -78,7 +78,7 @@ rbxBuilder() {
 
     spinnerOff
 
-    if [[ $fail ]] ; then
+    if [[ -n "$fail" ]] ; then
       unset exit_protect
       buildFailed "$prfx"
       return 1
