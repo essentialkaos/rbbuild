@@ -66,8 +66,6 @@ rubyBuilder() {
       return 1
     fi
 
-    fixDLDFlags "$prfx"
-
     end_time=$(now)
     grc_time=$(getGraceTime "$start_time" "$end_time")
 
@@ -78,23 +76,4 @@ rubyBuilder() {
     unset exit_protect
 
   popd &> /dev/null || printErrorAndExit "Can't set working dir"
-}
-
-# Fix DLDFLAGS for Ruby 2.4+
-#
-# 1: Prefix dir (String)
-#
-# Code: No
-# Echo: No
-fixDLDFlags() {
-	local prfx="$1"
-	local config
-
-	config=$(find "$prfx" -name "rbconfig.rb")
-
-	if [[ -z "$config" ]] ; then
-		return
-	fi
-
-	sed -i '/CONFIG\["DLDFLAGS"\]/c \ \ CONFIG["DLDFLAGS"]=""' "$config" &> /dev/null
 }
