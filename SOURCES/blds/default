@@ -138,5 +138,5 @@ fixDLDFlags() {
     return
   fi
 
-  sed -i '/CONFIG\["DLDFLAGS"\]/c \ \ CONFIG["DLDFLAGS"]=""' "$config" &> /dev/null
+  sed -i '/CONFIG\["DLDFLAGS"\]/c \ \ CONFIG["DLDFLAGS"] = ""' "$config" &> /dev/null
 }
