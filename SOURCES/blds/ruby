@@ -58,8 +58,6 @@ rubyBuilder() {
       } &>> "$log"
     fi
 
-    fixDLDFlags "$prfx"
-
     spinnerOff
 
     if [[ -n "$fail" ]] ; then
@@ -67,6 +65,8 @@ rubyBuilder() {
       buildFailed "$prfx"
       return 1
     fi
+
+    fixDLDFlags "$prfx"
 
     end_time=$(now)
     grc_time=$(getGraceTime "$start_time" "$end_time")
@@ -90,11 +90,11 @@ fixDLDFlags() {
 	local prfx="$1"
 	local config
 
-	config=$(find "$prefix" -name "rbconfig.rb")
+	config=$(find "$prfx" -name "rbconfig.rb")
 
 	if [[ -z "$config" ]] ; then
 		return
 	fi
 
-	sed -i '/CONFIG\["DLDFLAGS"\]/c CONFIG["DLDFLAGS"]=""' "$config" &> /dev/null
+	sed -i '/CONFIG\["DLDFLAGS"\]/c \ \ CONFIG["DLDFLAGS"]=""' "$config" &> /dev/null
 }
