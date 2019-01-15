@@ -134,7 +134,7 @@ fixDLDFlags() {
 
   config=$(find "$prfx" -name "rbconfig.rb")
 
-  if [[ -z "$config" ]] ; then
+  if [[ -z "$config" || ! -w "$config" ]] ; then
     return
   fi
 
