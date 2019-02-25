@@ -29,7 +29,7 @@
 
 Summary:         Def files for rbbuild utility
 Name:            rbbuild-defs
-Version:         1.9.3
+Version:         1.9.4
 Release:         0%{?dist}
 License:         EKOL
 Vendor:          ESSENTIALKAOS
@@ -76,6 +76,11 @@ rm -rf %{buildroot}
 ################################################################################
 
 %changelog
+* Tue Feb 26 2019 Anton Novojilov <andy@essentialkaos.com> - 1.9.4-0
+- Added 2.6.1-p0
+- Added 2.6.1-p0-railsexpress
+- Added jruby-9.2.6.0
+
 * Mon Jan 07 2019 Anton Novojilov <andy@essentialkaos.com> - 1.9.3-0
 - Added 2.6.0-p0
 - Added 2.6.0-p0-railsexpress
