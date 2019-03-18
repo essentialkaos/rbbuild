@@ -1,0 +1,21 @@
+# RBBuild Def File
+# UPDATED 07/Jan/2019 01:40:52 by Anton Novojilov <andy@essentialkaos.com>
+
+eol(normal): 2019-03-31
+
+deps(rpm): gcc make zlib-devel readline-devel tk-devel ca-certificates
+deps(rpm): autoconf glibc-devel ncurses-devel bison libffi-devel jemalloc-devel
+
+CONFOPTS(openssl-1.0.2q): {os_name}-{os_arch} --openssldir={prefix}/openssl/ssl zlib-dynamic no-ssl3 shared -fPIC
+MAKEOPTS(openssl-1.0.2q): -j 1
+PREFIX(openssl-1.0.2q): {prefix}/openssl
+
+CONFOPTS(ruby-2.3.1-p0): --with-jemalloc --with-openssl-dir={prefix}/openssl --disable-install-doc
+
+[default]
+  package: "openssl-1.0.2q" "https://www.openssl.org/source/openssl-1.0.2q.tar.gz" "692f5f2f1b114f8adaadaa3e7be8cce1907f38c5" openssl
+  package: "ruby-2.3.1-p0" "https://cache.ruby-lang.org/pub/ruby/2.3/ruby-2.3.1.tar.gz" "c39b4001f7acb4e334cb60a0f4df72d434bef711"
+
+[essentialkaos]
+  package: "openssl-1.0.2q" "https://ruby.kaos.st/openssl-1.0.2q.7z" "c6d9efb9917a1efa716f1ca7e97a8a55d9e68d02" openssl
+  package: "ruby-2.3.1-p0" "https://ruby.kaos.st/ruby-2.3.1.7z" "5fb212c92c1e68099f7fa3d6eb8ced053ee4af5b"
