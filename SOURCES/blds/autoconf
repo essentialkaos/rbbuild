@@ -35,6 +35,7 @@ autoconfBuilder() {
 
     if [[ -n "$verbose" ]] ; then
       {
+
         showe "autoconf"
         autoconf || fail=true
 

@@ -29,7 +29,7 @@
 
 Summary:         Utility for compiling and installing different ruby versions
 Name:            rbbuild
-Version:         1.9.4
+Version:         1.9.5
 Release:         0%{?dist}
 License:         EKOL
 Vendor:          ESSENTIALKAOS
@@ -87,6 +87,9 @@ rm -rf %{buildroot}
 ################################################################################
 
 %changelog
+* Thu Jun 06 2019 Anton Novojilov <andy@essentialkaos.com> - 1.9.5-0
+- [rbbuild] Improved build process for patched versions of Ruby
+
 * Tue Jan 15 2019 Anton Novojilov <andy@essentialkaos.com> - 1.9.4-0
 - [rbbuild] Added DLDFLAGS fixer for ruby builder
 
