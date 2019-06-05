@@ -20,4 +20,4 @@ CONFOPTS(ruby-2.6.3-p0): --with-openssl-dir={prefix}/openssl --disable-install-d
 
 [essentialkaos]
   package: "openssl-1.1.1c" "https://ruby.kaos.st/openssl-1.1.1c.7z" "d680ae9575de587ac320a189f49ed6493e4b5187" openssl
-  package: "ruby-2.6.3-p0" "https://ruby.kaos.st/ruby-2.6.3.7z" "c76b54231329fb63e0a9efd08b37b68f353824e2"
+  package: "ruby-2.6.3-p0" "https://ruby.kaos.st/ruby-2.6.3.7z" "f44751129cd806ebe6eeedddf336b6fb4823be13"
