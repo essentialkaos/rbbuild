@@ -13,14 +13,14 @@
 #### From [ESSENTIAL KAOS Public Repository](https://yum.kaos.st) for RHEL6/CentOS6
 
 ```
-[sudo] yum install -y https://yum.kaos.st/6/release/x86_64/kaos-repo-9.1-0.el6.noarch.rpm
+[sudo] yum install -y https://yum.kaos.st/6/release/x86_64/kaos-repo-9.2-0.el6.noarch.rpm
 [sudo] yum install rbbuild
 ```
 
 #### From [ESSENTIAL KAOS Public Repository](https://yum.kaos.st) for RHEL7/CentOS7
 
 ```
-[sudo] yum install -y https://yum.kaos.st/7/release/x86_64/kaos-repo-9.1-0.el7.noarch.rpm
+[sudo] yum install -y https://yum.kaos.st/7/release/x86_64/kaos-repo-9.2-0.el7.noarch.rpm
 [sudo] yum install rbbuild
 ```
 
