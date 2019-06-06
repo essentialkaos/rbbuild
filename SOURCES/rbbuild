@@ -7,7 +7,7 @@
 APP="RBBuild"
 
 # App version (String)
-VER="1.9.4"
+VER="1.9.5"
 
 ################################################################################
 
@@ -162,6 +162,7 @@ log=""
 tmp_dir=""
 def_file=""
 require_patching=""
+require_autoconf=""
 
 ruby_bin=$(command -v "ruby")
 java_bin=$(command -v "java")
@@ -795,7 +796,6 @@ checkRemoteFile() {
 installPatches() {
   local url file_name crc patch_type
 
-
   patch_type="$1"
   url=$(parseArgsInString "$2")
   crc="$3"
@@ -1143,6 +1143,8 @@ applyPatches() {
       done
     fi
 
+    require_autoconf=true
+
     unset require_patching
 
   popd &> $verb_output || printErrorAndExit "Can't set working dir"
@@ -1406,6 +1408,7 @@ buildPackage() {
 # Echo: No
 runBuilder() {
   local builder_func="${1}Builder"
+  local status
 
   # shellcheck disable=SC1090
   source "$BLD_PATH/$1"
@@ -1413,7 +1416,13 @@ runBuilder() {
   # shellcheck disable=SC2046,SC2116
   eval $(echo "$builder_func") "$pkg" "$pkg_dir" "$@"
 
-  return $?
+  status=$?
+
+  if [[ -n "$require_autoconf" ]] ; then
+    unset require_autoconf
+  fi
+
+  return $status
 }
 
 # Check that builder exist

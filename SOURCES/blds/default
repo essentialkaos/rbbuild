@@ -48,16 +48,16 @@ defaultBuilder() {
 
     start_time=$(now)
 
-    if checkPerms "FR" "configure" ; then
+    if checkPerms "FRX" "configure" ; then
       conf_file="configure"
-    elif checkPerms "FR" "Configure" ; then
+    elif checkPerms "FRX" "Configure" ; then
       conf_file="Configure"
-    elif checkPerms "FR" "config" ; then
+    elif checkPerms "FRX" "config" ; then
       conf_file="config"
     else
       show "FAIL" $RED
       show ""
-      show "Can't find configure file."
+      show "Can't find configure file"
       doExit 1
     fi
 
@@ -67,6 +67,11 @@ defaultBuilder() {
 
     if [[ -n "$verbose" ]] ; then
       {
+        if [[ -n "$require_autoconf" ]] ; then
+          showe "autoconf"
+          autoconf || fail=true
+        fi
+
         if [[ -z "$fail" ]] ; then
           showe "./$conf_file --prefix=$prfx $copts"
           ./$conf_file --prefix="$prfx" $copts || fail=true
