@@ -405,7 +405,7 @@ showArgWarn() {
   exit 1
 }
 
-## ARGUMENTS PARSING 3 #################################################################
+## ARGUMENTS PARSING 4 #################################################################
 
 [[ $# -eq 0 ]] && main && exit $?
 
@@ -466,13 +466,16 @@ while [[ -n "$1" ]] ; do
 
       unset argm && shift && continue
     else
+      # shellcheck disable=SC2178
       arg=${arg//-/_}
 
       if [[ -z "$argn" ]] ; then
+        # shellcheck disable=SC2128
         argn=$arg
       else
         # shellcheck disable=SC2015
         [[ -z "$argk" ]] && ( declare -F showArgValWarn &>/dev/null && showArgValWarn "--$argn" ) || declare "$argn=true"
+        # shellcheck disable=SC2128
         argn=$arg
       fi
 
@@ -507,6 +510,6 @@ done
 unset arg argn argm argk
 
 # shellcheck disable=SC2015,SC2086
-[[ -n "$KEEP_ARGS" ]] && main $argv || main ${argt:1:9999}
+[[ -n "$KEEP_ARGS" ]] && main $argv || main ${argt:1}
 
 ########################################################################################
