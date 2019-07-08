@@ -2,6 +2,8 @@
 
 <p align="center"><a href="#usage-demo">Usage demo</a> • <a href="#installation">Installation</a> • <a href="#usage">Usage</a> • <a href="#build-status">Build Status</a> • <a href="#license">License</a></p>
 
+<br/>
+
 `rbbuild` is utility for compiling and installing different ruby versions.
 
 ### Usage demo
@@ -13,14 +15,14 @@
 #### From [ESSENTIAL KAOS Public Repository](https://yum.kaos.st) for RHEL6/CentOS6
 
 ```
-[sudo] yum install -y https://yum.kaos.st/6/release/x86_64/kaos-repo-9.2-0.el6.noarch.rpm
+[sudo] yum install -y https://yum.kaos.st/kaos-repo-latest.el6.noarch.rpm
 [sudo] yum install rbbuild
 ```
 
 #### From [ESSENTIAL KAOS Public Repository](https://yum.kaos.st) for RHEL7/CentOS7
 
 ```
-[sudo] yum install -y https://yum.kaos.st/7/release/x86_64/kaos-repo-9.2-0.el7.noarch.rpm
+[sudo] yum install -y https://yum.kaos.st/kaos-repo-latest.el7.noarch.rpm
 [sudo] yum install rbbuild
 ```
 
