@@ -1,19 +1,19 @@
 # RBBuild Def File
-# UPDATED 05/Jun/2019 03:23:24 by Anton Novojilov <andy@essentialkaos.com>
+# UPDATED 21/Sep/2019 01:27:06 by Anton Novojilov <andy@essentialkaos.com>
 
 deps(rpm): gcc make zlib-devel readline-devel tk-devel ca-certificates
 deps(rpm): autoconf glibc-devel ncurses-devel bison libffi-devel jemalloc-devel
 
-CONFOPTS(openssl-1.1.1c): {os_name}-{os_arch} --openssldir={prefix}/openssl/ssl zlib-dynamic no-ssl3 shared -fPIC
-MAKEOPTS(openssl-1.1.1c): -j 1
-PREFIX(openssl-1.1.1c): {prefix}/openssl
+CONFOPTS(openssl-1.1.1d): {os_name}-{os_arch} --openssldir={prefix}/openssl/ssl zlib-dynamic no-ssl3 shared -fPIC
+MAKEOPTS(openssl-1.1.1d): -j 1
+PREFIX(openssl-1.1.1d): {prefix}/openssl
 
 CONFOPTS(ruby-2.4.1-p0): --with-jemalloc --with-openssl-dir={prefix}/openssl --disable-install-doc
 
 [default]
-  package: "openssl-1.1.1c" "https://www.openssl.org/source/openssl-1.1.1c.tar.gz" "71b830a077276cbeccc994369538617a21bee808" openssl
+  package: "openssl-1.1.1d" "https://www.openssl.org/source/openssl-1.1.1d.tar.gz" "056057782325134b76d1931c48f2c7e6595d7ef4" openssl
   package: "ruby-2.4.1-p0" "https://cache.ruby-lang.org/pub/ruby/2.4/ruby-2.4.1.tar.gz" "47909a0f77ea900573f027d27746960ad6d07d15"
 
 [essentialkaos]
-  package: "openssl-1.1.1c" "https://ruby.kaos.st/openssl-1.1.1c.7z" "d680ae9575de587ac320a189f49ed6493e4b5187" openssl
+  package: "openssl-1.1.1d" "https://ruby.kaos.st/openssl-1.1.1d.7z" "54929b947d9e077d2b282dd2a3082d347382d5ec" openssl
   package: "ruby-2.4.1-p0" "https://ruby.kaos.st/ruby-2.4.1.7z" "945e24c959c6a803d27448a7ee452119592dd132"
