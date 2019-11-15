@@ -13,7 +13,7 @@ env:
     - IMAGE=essentialkaos/perfecto:centos7
 
 before_install:
-  - wget https://storage.googleapis.com/shellcheck/shellcheck-latest.linux.x86_64.tar.xz
+  - wget https://storage.googleapis.com/shellcheck/shellcheck-stable.linux.x86_64.tar.xz
   - tar xf shellcheck-latest.linux.x86_64.tar.xz
   - ./shellcheck-latest/shellcheck --version
   - docker pull "$IMAGE"
