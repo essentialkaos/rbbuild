@@ -15,7 +15,7 @@ env:
 before_install:
   - wget https://storage.googleapis.com/shellcheck/shellcheck-stable.linux.x86_64.tar.xz
   - tar xf shellcheck-stable.linux.x86_64.tar.xz
-  - ./shellcheck-latest/shellcheck --version
+  - ./shellcheck-stable/shellcheck --version
   - docker pull "$IMAGE"
   - wget https://kaos.sh/perfecto/perfecto-docker
   - chmod +x perfecto-docker
