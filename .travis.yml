@@ -21,8 +21,8 @@ before_install:
   - chmod +x perfecto-docker
 
 script:
- - bash -c 'shopt -s globstar; ./shellcheck-latest/shellcheck install.sh'
- - bash -c 'shopt -s globstar; ./shellcheck-latest/shellcheck SOURCES/rbdef'
- - bash -c 'shopt -s globstar; ./shellcheck-latest/shellcheck SOURCES/rbbuild SOURCES/blds/*'
+ - bash -c 'shopt -s globstar; ./shellcheck-stable/shellcheck install.sh'
+ - bash -c 'shopt -s globstar; ./shellcheck-stable/shellcheck SOURCES/rbdef'
+ - bash -c 'shopt -s globstar; ./shellcheck-stable/shellcheck SOURCES/rbbuild SOURCES/blds/*'
  - ./perfecto-docker rbbuild.spec
  - ./perfecto-docker rbbuild-defs.spec
