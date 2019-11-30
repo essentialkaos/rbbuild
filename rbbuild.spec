@@ -29,7 +29,7 @@
 
 Summary:         Utility for compiling and installing different ruby versions
 Name:            rbbuild
-Version:         1.9.5
+Version:         1.9.6
 Release:         0%{?dist}
 License:         EKOL
 Vendor:          ESSENTIALKAOS
@@ -87,6 +87,10 @@ rm -rf %{buildroot}
 ################################################################################
 
 %changelog
+* Sat Nov 30 2019 Anton Novojilov <andy@essentialkaos.com> - 1.9.6-0
+- Added handling of SCRIPT_DEBUG environment variable for enabling debug mode
+- Added handler for script errors
+
 * Thu Jun 06 2019 Anton Novojilov <andy@essentialkaos.com> - 1.9.5-0
 - [rbbuild] Improved build process for patched versions of Ruby
 
