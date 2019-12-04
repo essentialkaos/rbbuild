@@ -90,8 +90,8 @@ Examples:
 
 | Branch | Status |
 |--------|--------|
-| `master` | [![Build Status](https://travis-ci.org/essentialkaos/rbbuild.svg?branch=master)](https://travis-ci.org/essentialkaos/rbbuild) |
-| `develop` | [![Build Status](https://travis-ci.org/essentialkaos/rbbuild.svg?branch=develop)](https://travis-ci.org/essentialkaos/rbbuild) |
+| `master` | [![Build Status](https://travis-ci.com/essentialkaos/rbbuild.svg?branch=master)](https://travis-ci.com/essentialkaos/rbbuild) |
+| `develop` | [![Build Status](https://travis-ci.com/essentialkaos/rbbuild.svg?branch=develop)](https://travis-ci.com/essentialkaos/rbbuild) |
 
 ### License
 
