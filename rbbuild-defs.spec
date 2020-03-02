@@ -29,12 +29,12 @@
 
 Summary:         Def files for rbbuild utility
 Name:            rbbuild-defs
-Version:         1.9.9
+Version:         1.9.10
 Release:         0%{?dist}
 License:         EKOL
 Vendor:          ESSENTIALKAOS
 Group:           Development/Tools
-URL:             https://github.com/essentialkaos/rbbuild
+URL:             https://kaos.sh/rbbuild
 
 BuildArch:       noarch
 BuildRoot:       %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
@@ -76,6 +76,13 @@ rm -rf %{buildroot}
 ################################################################################
 
 %changelog
+* Tue Mar 03 2020 Anton Novojilov <andy@essentialkaos.com> - 1.9.10-0
+- Added 2.7.0-p0
+- Added 2.7.0-p0-jemalloc
+- Added 2.7.0-p0-railsexpress
+- Added jruby-9.2.10.0
+- Added jruby-9.2.11.0
+
 * Thu Oct 31 2019 Anton Novojilov <andy@essentialkaos.com> - 1.9.9-0
 - Added 2.4.9-p0
 - Added 2.4.9-p0-jemalloc

@@ -30,11 +30,11 @@
 Summary:         Utility for compiling and installing different ruby versions
 Name:            rbbuild
 Version:         1.9.7
-Release:         0%{?dist}
+Release:         1%{?dist}
 License:         EKOL
 Vendor:          ESSENTIALKAOS
 Group:           Development/Tools
-URL:             https://github.com/essentialkaos/rbbuild
+URL:             https://kaos.sh/rbbuild
 
 Source0:         https://source.kaos.st/%{name}/%{name}-%{version}.tar.bz2
 
@@ -87,6 +87,9 @@ rm -rf %{buildroot}
 ################################################################################
 
 %changelog
+* Tue Mar 03 2020 Anton Novojilov <andy@essentialkaos.com> - 1.9.7-1
+- Minor improvements for rbdef
+
 * Wed Dec 04 2019 Anton Novojilov <andy@essentialkaos.com> - 1.9.7-0
 - Removed handler for script errors
 
