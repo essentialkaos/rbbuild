@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# shellcheck disable=SC1117,SC2034,SC2154
+# shellcheck disable=SC1117,SC2034,SC2154,SC2181
 
 ################################################################################
 
@@ -13,7 +13,7 @@ fi
 APP="RBBuild Def Utils"
 
 # App version (String)
-VER="1.5.4"
+VER="1.5.5"
 
 ################################################################################
 
@@ -185,6 +185,11 @@ repack() {
       doExit 1
     fi
 
+    if ! checkArch "$file_name" ; then
+      rm -f "$file_name"
+      doExit 1
+    fi
+
     showm "Unpacking file ${CL_BOLD}$file_name${CL_NORM}… "
 
     arch_dir=$(unpack "$file_name")
@@ -352,7 +357,7 @@ proc() {
         file_name=$(basename "$url")
 
         if ! checkPerms "FR" "$file_name" || [[ -n "$force" ]] ; then
-          curl -k --max-redirs 10 -L -# "$url" -o "$file_name"
+          curl -s -k --max-redirs 10 -L -# "$url" -o "$file_name"
         fi
 
         new_crc=$(makeCRC "$file_name")
@@ -412,6 +417,26 @@ crc() {
   fi
 }
 
+# Check archive
+#
+# 1: Archive file (String)
+#
+# Code: Yes
+# Echo: No
+checkArch() {
+  local file_size
+  local arch="$1"
+
+  file_size=$(stat -c '%s' "$arch")
+
+  if [[ $file_size -lt 1024 ]] ; then
+    error "Looks like file $arch is not an archive file"
+    return 1
+  fi
+
+  return 0
+}
+
 # Unpack archive
 #
 # 1: Archive file (String)
@@ -427,12 +452,16 @@ unpack() {
   mkdir .tmp &> /dev/null
 
   if [[ $arch =~ .tar.gz$|.tgz$ ]] ; then
-    tar xzvf "$arch" -C .tmp &> /dev/null
+    tar xzf "$arch" -C .tmp &> /dev/null
   elif [[ $arch =~ .tar.bz2$|.tbz2$ ]] ; then
-    tar xjvf "$arch" -C .tmp &> /dev/null
+    tar xjf "$arch" -C .tmp &> /dev/null
   elif [[ $arch =~ .zip$ ]] ; then
     unzip "$arch" -d .tmp &> /dev/null
   else
+    echo "" && return 1
+  fi
+
+  if [[ $? -ne 0 ]] ; then
     echo "" && return 1
   fi
 
