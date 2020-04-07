@@ -88,6 +88,8 @@ rm -rf %{buildroot}
 - Added 2.5.8-p0-railsexpress
 - Added jruby-9.2.11.1
 - Fixed jruby-9.2.11.0
+- Fixed 2.7.0-p0-railsexpress
+- OpenSSL updated to 1.1.1f for 2.4.0 <-> 2.6.3
 
 * Tue Mar 03 2020 Anton Novojilov <andy@essentialkaos.com> - 1.9.10-0
 - Added 2.7.0-p0
