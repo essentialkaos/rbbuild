@@ -1,0 +1,25 @@
+# RBBuild Def File
+# UPDATED 31/Oct/2019 13:14:48 by Anton Novojilov <andy@essentialkaos.com>
+
+deps(rpm): gcc make zlib-devel readline-devel tk-devel ca-certificates
+deps(rpm): autoconf glibc-devel ncurses-devel bison libffi-devel
+deps(deb): gcc make zlib1g-dev libreadline6-dev tk-dev ca-certificates
+deps(deb): autoconf libc6-dev libncurses5-dev bison libffi-dev
+
+deps(bin): ruby
+
+CONFOPTS(openssl-1.1.1f): {os_name}-{os_arch} --openssldir={prefix}/openssl/ssl zlib-dynamic no-ssl3 shared -fPIC
+MAKEOPTS(openssl-1.1.1f): -j 1
+PREFIX(openssl-1.1.1f): {prefix}/openssl
+
+CONFOPTS(ruby-2.5.8-p0): --with-openssl-dir={prefix}/openssl --disable-install-doc
+
+[default]
+  package: "openssl-1.1.1f" "https://www.openssl.org/source/openssl-1.1.1f.tar.gz" "!" openssl
+  patchset: "https://ruby.kaos.st/patches/2.5.8-p0.7z" "!"
+  package: "ruby-2.5.8-p0" "https://cache.ruby-lang.org/pub/ruby/2.5/ruby-2.5.8.tar.gz" "!"
+
+[essentialkaos]
+  package: "openssl-1.1.1f" "https://ruby.kaos.st/openssl-1.1.1f.7z" "!" openssl
+  patchset: "https://ruby.kaos.st/patches/2.5.8-p0.7z" "!"
+  package: "ruby-2.5.8-p0" "https://ruby.kaos.st/ruby-2.5.8.7z" "!"
