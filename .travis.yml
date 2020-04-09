@@ -20,7 +20,7 @@ before_install:
   - chmod +x perfecto-docker
 
 script:
- - .travis/script.sh ../SOURCES/defs
+ - .travis/script.sh SOURCES/defs
  - bash -c 'shopt -s globstar; ./shellcheck-latest/shellcheck install.sh'
  - bash -c 'shopt -s globstar; ./shellcheck-latest/shellcheck SOURCES/rbdef'
  - bash -c 'shopt -s globstar; ./shellcheck-latest/shellcheck SOURCES/rbbuild SOURCES/blds/*'
