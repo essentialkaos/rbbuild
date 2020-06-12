@@ -1,10 +1,15 @@
 <p align="center"><a href="#readme"><img src="https://gh.kaos.st/rbbuild.svg"/></a></p>
 
+<p align="center">
+  <a href="https://travis-ci.com/essentialkaos/rbbuild"><img src="https://travis-ci.com/essentialkaos/rbbuild.svg"></a>
+  <a href="https://essentialkaos.com/ekol"><img src="https://gh.kaos.st/ekol.svg"></a>
+</p>
+
 <p align="center"><a href="#usage-demo">Usage demo</a> • <a href="#installation">Installation</a> • <a href="#usage">Usage</a> • <a href="#build-status">Build Status</a> • <a href="#license">License</a></p>
 
 <br/>
 
-`rbbuild` is utility for compiling and installing different ruby versions.
+`rbbuild` is utility for compiling and installing different Ruby versions.
 
 ### Usage demo
 
@@ -12,36 +17,29 @@
 
 ### Installation
 
-#### From [ESSENTIAL KAOS Public Repository](https://yum.kaos.st) for RHEL6/CentOS6
+#### From [ESSENTIAL KAOS Public Repository](https://yum.kaos.st)
 
-```
-[sudo] yum install -y https://yum.kaos.st/kaos-repo-latest.el6.noarch.rpm
-[sudo] yum install rbbuild
-```
-
-#### From [ESSENTIAL KAOS Public Repository](https://yum.kaos.st) for RHEL7/CentOS7
-
-```
-[sudo] yum install -y https://yum.kaos.st/kaos-repo-latest.el7.noarch.rpm
-[sudo] yum install rbbuild
+```bash
+sudo yum install -y https://yum.kaos.st/get/$(uname -r).rpm
+sudo yum install rbbuild
 ```
 
 #### Using `install.sh`
 We provide simple bash script `script.sh` for installing app from the sources.
 
-```
-... install p7zip, bash and gawk
+```bash
+# install p7zip, bash and gawk
 
 git clone https://github.com/essentialkaos/rbbuild.git
 cd rbbuild
 
-[sudo] ./install.sh
+sudo ./install.sh
 ```
 
 If you have some issues with installing, try to use script in debug mode:
 
-```
-[sudo] ./install.sh --debug
+```bash
+sudo ./install.sh --debug
 ```
 
 ### Usage
