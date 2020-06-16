@@ -29,7 +29,7 @@
 
 Summary:         Def files for rbbuild utility
 Name:            rbbuild-defs
-Version:         1.9.11
+Version:         1.10.0
 Release:         0%{?dist}
 License:         EKOL
 Vendor:          ESSENTIALKAOS
@@ -76,6 +76,16 @@ rm -rf %{buildroot}
 ################################################################################
 
 %changelog
+* Wed Jun 17 2020 Anton Novojilov <andy@essentialkaos.com> - 1.10.0-0
+- Removed all versions of Maglev
+- Removed all versions of MRuby
+- Removed all versions of REE
+- Removed all versions of Rubinius
+- Removed all versions of Topaz Ruby
+- Added truffleruby-19.3.2
+- Added truffleruby-20.0.0
+- Added truffleruby-20.1.0
+
 * Wed Apr 08 2020 Anton Novojilov <andy@essentialkaos.com> - 1.9.11-0
 - Added 2.7.1-p0
 - Added 2.7.1-p0-jemalloc

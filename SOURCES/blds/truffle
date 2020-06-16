@@ -1,14 +1,14 @@
 #!/bin/bash
 # shellcheck disable=SC1117,SC2034,SC2154
 
-# Start JRuby builder
+# Start TruffleRuby builder
 #
 # 1: Package name (String)
 # 2: Package build dir (String)
 #
 # Code: No
 # Echo: No
-jrubyBuilder() {
+truffleBuilder() {
   checkVersionCompatibility "1.6.0"
 
   local pkg pkg_dir prfx fail
@@ -40,19 +40,6 @@ jrubyBuilder() {
         if [[ -z "$fail" ]] ; then
           cp -r . "$prfx" || fail=true
         fi
-
-        pushd "$prfx/bin" || printErrorAndExit "Can't set working dir to $prfx/bin"
-
-          if [[ -z "$fail" ]] ; then
-            ln -fs jruby ruby || fail=true
-          fi
-
-          if [[ -z "$fail" ]] ; then
-            showe "./ruby gem install jruby-launcher"
-            ./ruby gem install jruby-launcher || fail=true
-          fi
-
-        popd || printErrorAndExit "Can't set working dir"
       } >> "$output"
     else
       {
@@ -63,18 +50,6 @@ jrubyBuilder() {
         if [[ -z "$fail" ]] ; then
           cp -r . "$prfx"
         fi
-
-        pushd "$prfx/bin" || printErrorAndExit "Can't set working dir to $prfx/bin"
-
-          if [[ -z "$fail" ]] ; then
-            ln -fs jruby ruby || fail=true
-          fi
-
-          if [[ -z "$fail" ]] ; then
-            ./ruby gem install jruby-launcher &> "$verb_output" || fail=true
-          fi
-
-        popd || printErrorAndExit "Can't set working dir"
       } > "$log" 2>> "$output"
     fi
 
@@ -85,10 +60,6 @@ jrubyBuilder() {
       buildFailed "$prfx"
       return 1
     fi
-
-    rm -f "$prfx"/bin/*.bat
-    rm -f "$prfx"/bin/*.exe
-    rm -f "$prfx"/bin/*.dll
 
     end_time=$(now)
     grc_time=$(getGraceTime "$start_time" "$end_time")
