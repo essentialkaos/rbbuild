@@ -13,7 +13,7 @@ fi
 APP="RBBuild Def Utils"
 
 # App version (String)
-VER="1.5.5"
+VER="1.6.0"
 
 ################################################################################
 
@@ -210,7 +210,7 @@ repack() {
     new_size=$(getHumanFileSize "$arch_dir.7z")
     size_diff=$(getSizeDiff "$file_name" "$arch_dir.7z")
 
-    show "${CL_GREEN}DONE${CL_NORM} ${CL_DARK}(${prev_size} → ${new_size} / ${size_diff}%)${CL_NORM}"
+    show "${CL_GREEN}DONE${CL_NORM} ${CL_DARK}(${prev_size} → ${new_size} / -${size_diff}%)${CL_NORM}"
 
     [[ -n "$remove" ]] && rm -rf "$file_name" &> /dev/null
 
@@ -467,7 +467,13 @@ unpack() {
 
   name=$(ls .tmp)
 
-  mv ".tmp/$name" .
+  if [[ $name =~ truffleruby ]] ; then
+    mv ".tmp/$name" ./${name//-linux-amd64/}
+    name=${name//-linux-amd64/}
+  else
+    mv ".tmp/$name" .
+  fi
+
   rm -rf .tmp &> /dev/null
 
   echo "$name" && return 0
@@ -717,7 +723,7 @@ getSizeDiff() {
   size1=$(stat -c '%s' "$1")
   size2=$(stat -c '%s' "$2")
 
-  echo "scale=3; 100-((${size1}/${size2})*100)" | bc | sed 's/00$//'
+  echo "scale=3; 100-((${size2}/${size1})*100)" | bc | sed 's/00$//'
 }
 
 # Print human size of file
