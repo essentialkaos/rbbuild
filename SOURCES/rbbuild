@@ -13,7 +13,7 @@ fi
 APP="RBBuild"
 
 # App version (String)
-VER="1.9.7"
+VER="1.10.0"
 
 ################################################################################
 
@@ -95,7 +95,10 @@ os_name=""
 # Current OS arch (String)
 os_arch=""
 
-# Current OS arch name (String)
+# Current OS arch alternative name (String)
+os_arch_alt=""
+
+# Current OS basic arch name (String)
 os_arnm=""
 
 # Current OS distr (String)
@@ -1680,6 +1683,7 @@ detectOs() {
   os_arch=$(uname -p)
 
   if [[ "$os_arch" == "x86_64" && "$os_name" == "$OS_LINUX" ]] ; then
+    os_arch_alt="amd64"
     os_arnm="linux64"
   elif [[ "$os_arch" == "i386" && "$os_name" == "$OS_LINUX" ]]; then
     os_arnm="linux32"
@@ -1702,6 +1706,7 @@ printSystemInfo() {
   show " ${CL_BOLD}OSKernel:      ${CL_NORM} ${os_kern} ${CL_DARK}(os_kern)${CL_NORM}"
   show " ${CL_BOLD}OSDistro:      ${CL_NORM} ${os_dist} ${CL_DARK}(os_dist)${CL_NORM}"
   show " ${CL_BOLD}OSArch:        ${CL_NORM} ${os_arch} ${CL_DARK}(os_arch)${CL_NORM}"
+  show " ${CL_BOLD}OSArchAlt:     ${CL_NORM} ${os_arch_alt} ${CL_DARK}(os_arch_alt)${CL_NORM}"
   show " ${CL_BOLD}OSArchName:    ${CL_NORM} ${os_arnm} ${CL_DARK}(os_arnm)${CL_NORM}"
 
   showSeparator
