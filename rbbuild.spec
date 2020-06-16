@@ -29,8 +29,8 @@
 
 Summary:         Utility for compiling and installing different ruby versions
 Name:            rbbuild
-Version:         1.9.7
-Release:         1%{?dist}
+Version:         1.10.0
+Release:         0%{?dist}
 License:         EKOL
 Vendor:          ESSENTIALKAOS
 Group:           Development/Tools
@@ -41,7 +41,7 @@ Source0:         https://source.kaos.st/%{name}/%{name}-%{version}.tar.bz2
 BuildArch:       noarch
 BuildRoot:       %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-Requires:        %{name}-defs >= 1.9.0
+Requires:        %{name}-defs >= 1.10.0
 Requires:        bash p7zip patch gawk bc
 
 Provides:        %{name} = %{version}-%{release}
@@ -87,6 +87,9 @@ rm -rf %{buildroot}
 ################################################################################
 
 %changelog
+* Wed Jun 17 2020 Anton Novojilov <andy@essentialkaos.com> - 1.10.0-0
+- Added TruffleRuby support
+
 * Tue Mar 03 2020 Anton Novojilov <andy@essentialkaos.com> - 1.9.7-1
 - Minor improvements for rbdef
 
