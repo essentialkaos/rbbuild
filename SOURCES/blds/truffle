@@ -1,0 +1,76 @@
+#!/bin/bash
+# shellcheck disable=SC1117,SC2034,SC2154
+
+# Start TruffleRuby builder
+#
+# 1: Package name (String)
+# 2: Package build dir (String)
+#
+# Code: No
+# Echo: No
+truffleBuilder() {
+  checkVersionCompatibility "1.6.0"
+
+  local pkg pkg_dir prfx fail
+  local start_time end_time grc_time
+
+  pkg="$1"
+  pkg_dir="$2"
+
+  prfx="${XPREFIX:-${prefix}}"
+
+  exportCompilerOpts
+
+  pushd "$pkg_dir" &> /dev/null || printErrorAndExit "Can't set working dir to $pkg_dir"
+
+    showm "Building… "
+
+    [[ -n "$verbose" ]] && show ""
+
+    start_time=$(now)
+
+    exit_protect=true
+
+    spinnerOn
+
+    if [[ -n "$verbose" ]] ; then
+      {
+        if [[ -z "$fail" ]] ; then
+          mkdir -p "$prfx" || fail=true
+        fi
+
+        if [[ -z "$fail" ]] ; then
+          cp -r . "$prfx" || fail=true
+        fi
+      } >> "$output"
+    else
+      {
+        if [[ -z "$fail" ]] ; then
+          mkdir -p "$prfx"
+        fi
+
+        if [[ -z "$fail" ]] ; then
+          cp -r . "$prfx"
+        fi
+      } > "$log" 2>> "$output"
+    fi
+
+    spinnerOff
+
+    if [[ -n "$fail" ]] ; then
+      unset exit_protect
+      buildFailed "$prfx"
+      return 1
+    fi
+
+    end_time=$(now)
+    grc_time=$(getGraceTime "$start_time" "$end_time")
+
+    show "${CL_GREEN}DONE${CL_NORM} ${CL_DARK}($grc_time)${CL_NORM}"
+
+  popd &> /dev/null || printErrorAndExit "Can't set working dir"
+
+  echo -n > "$log"
+
+  unset exit_protect
+}
