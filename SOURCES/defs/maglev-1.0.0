@@ -1,8 +1,0 @@
-# RBBuild Def File
-# UPDATED 18/Oct/2018 12:16:21 by Anton Novojilov <andy@essentialkaos.com>
-
-[default]
-  package: "MagLev-1.0.0" "http://glass-downloads.gemstone.com/maglev/MagLev-1.0.0.tar.gz" "4c8990663836685c749217ac128efd2899912eab" maglev
-
-[essentialkaos]
-  package: "MagLev-1.0.0" "https://ruby.kaos.st/MagLev-1.0.0.7z" "b7edbdd131957bf49604cba115bdfcc72580c27c" maglev

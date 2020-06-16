@@ -1,9 +1,0 @@
-# RBBuild Def File
-# UPDATED 18/Oct/2018 12:16:21 by Anton Novojilov <andy@essentialkaos.com>
-
-deps(rpm): git make gcc gperf byacc
-deps(deb): git make gcc gperf byacc
-deps(bin): ruby
-
-[default]
-  git: "mruby-dev" "https://github.com/mruby/mruby.git" "!" "trunk" "mruby"
