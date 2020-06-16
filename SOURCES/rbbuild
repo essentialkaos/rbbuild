@@ -1516,7 +1516,7 @@ showMirrorList() {
 # Echo: No
 listDefs() {
   local defs_dir bindir instdir shrdir
-  local def all_list ruby_list jruby_list ree_list rbx_list oth_list
+  local def ruby_list jruby_list truf_list oth_list
 
   defs_dir="$DEF_PATH"
 
@@ -1534,19 +1534,16 @@ listDefs() {
     fi
   fi
 
-  all_list=$(ls "$defs_dir")
-
-  for def in $all_list ; do
+  for def in $(ls "$defs_dir") ; do
     [[ -h "$defs_dir/$def" ]] && continue
+    [[ $def =~ .*-railsexpress || $def =~ .*-jemalloc ]] && continue
 
-    if [[ $def =~ ^(1|2).[0-9]{1,}.[0-9]{1,}* ]] ; then
+    if [[ $def =~ ^(1|2).[0-9]+.[0-9]+ ]] ; then
       ruby_list+=("$def")
     elif [[ $def =~ ^jruby-* ]] ; then
       jruby_list+=("$def")
-    elif [[ $def =~ ^ree-* ]] ; then
-      ree_list+=("$def")
-    elif [[ $def =~ ^rubinius-* ]] ; then
-      rbx_list+=("$def")
+    elif [[ $def =~ ^truffleruby-* ]] ; then
+      truf_list+=("$def")
     else
       oth_list+=("$def")
     fi
@@ -1554,37 +1551,33 @@ listDefs() {
 
   IFS=" " read -r -a ruby_list <<< "$(sortVersionArray "${ruby_list[@]}")"
   IFS=" " read -r -a jruby_list <<< "$(sortVersionArray "${jruby_list[@]}")"
-  IFS=" " read -r -a ree_list <<< "$(sortVersionArray "${ree_list[@]}")"
-  IFS=" " read -r -a rbx_list <<< "$(sortVersionArray "${rbx_list[@]}")"
+  IFS=" " read -r -a truf_list <<< "$(sortVersionArray "${truf_list[@]}")"
 
-  local ruby_ver jruby_ver ree_ver rbx_ver oth_ver all_ver count ruby_count ruby_next
+  local ruby_ver jruby_ver truf_ver oth_ver all_ver ruby_count
 
-  count=0
-  ruby_count=0
-  ruby_next=0
-
-  printf "\n${CL_BOLD}${CL_BG_YELLOW} %-26s${CL_NORM} ${CL_BOLD}${CL_BG_CYAN} %-26s${CL_NORM} ${CL_BOLD}${CL_BG_GREEN} %-26s${CL_NORM} ${CL_BOLD}${CL_BG_MAG} %-24s${CL_NORM} ${CL_BOLD}${CL_BG_GREY} %-22s${CL_NORM}\n\n" "RUBY" "JRUBY" "REE" "RUBINIUS" "OTHER"
+  printf "\n${CL_BOLD}${CL_BG_MAG} %-26s${CL_NORM} ${CL_BOLD}${CL_BG_CYAN} %-26s${CL_NORM} ${CL_BOLD}${CL_BG_YELLOW} %-26s${CL_NORM} ${CL_BOLD}${CL_BG_GREY} %-22s${CL_NORM}\n\n" "RUBY" "JRUBY" "TRUFFLE" "OTHER"
 
   while : ; do
-    ruby_next=$((ruby_count+1))
-
-    # shellcheck disable=SC1001
-    if [[ "${ruby_list[$ruby_next]}" =~ \-railsexpress ]] ; then
-      ruby_ver=$(getAlignedColoredText "${ruby_list[$ruby_count]}${CL_DARK}-railsexpress${CL_NORM}" "${ruby_list[$ruby_count]}-railsexpress" 26)
-      ruby_count=$((ruby_count+2))
-    else
-      ruby_ver="${ruby_list[$ruby_count]}"
-      ((ruby_count++))
-    fi
-
+    ruby_ver="${ruby_list[$count]}"
     jruby_ver="${jruby_list[$count]}"
-    ree_ver="${ree_list[$count]}"
-    rbx_ver="${rbx_list[$count]}"
+    truf_ver="${truf_list[$count]}"
     oth_ver="${oth_list[$count]}"
 
-    printf " %-26b  %-26s  %-26s  %-24s  %-22s\n" "$ruby_ver" "$jruby_ver" "$ree_ver" "$rbx_ver" "$oth_ver"
+    if [[ -n "$ruby_ver" ]] ; then
+      ruby_count=$(find "${defs_dir}" -name "${ruby_ver}*" | wc -l)
 
-    all_ver="${ruby_ver}${jruby_ver}${ree_ver}${rbx_ver}${oth_ver}"
+      if [[ $ruby_count -gt 1 ]] ; then
+        ruby_count=$(( ruby_count - 1 ))
+        ruby_ver=$(getAlignedColoredText "${ruby_ver} ${CL_DARK}+${ruby_count}${CL_NORM}" "${ruby_ver} +${ruby_count}" 26)
+      fi
+    fi
+
+    [[ $count -eq 0 && -z "$truf_ver" ]] && truf_ver="${CL_DARK}- none -${CL_NORM}"
+    [[ $count -eq 0 && -z "$oth_ver" ]] && oth_ver="${CL_DARK}- none -${CL_NORM}"
+
+    printf " %-26b  %-26b  %-26b  %-22b\n" "$ruby_ver" "$jruby_ver" "$truf_ver" "$oth_ver"
+
+    all_ver="${ruby_ver}${jruby_ver}${truf_ver}${oth_ver}"
 
     [[ ${#all_ver} -eq 0 ]] && break
 

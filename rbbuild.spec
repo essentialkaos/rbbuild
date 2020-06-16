@@ -89,6 +89,7 @@ rm -rf %{buildroot}
 %changelog
 * Wed Jun 17 2020 Anton Novojilov <andy@essentialkaos.com> - 1.10.0-0
 - Added TruffleRuby support
+- Improved UI
 
 * Tue Mar 03 2020 Anton Novojilov <andy@essentialkaos.com> - 1.9.7-1
 - Minor improvements for rbdef
