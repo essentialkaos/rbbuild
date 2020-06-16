@@ -1534,6 +1534,7 @@ listDefs() {
     fi
   fi
 
+  # shellcheck disable=SC2045
   for def in $(ls "$defs_dir") ; do
     [[ -h "$defs_dir/$def" ]] && continue
     [[ $def =~ .*-railsexpress || $def =~ .*-jemalloc ]] && continue

@@ -468,7 +468,7 @@ unpack() {
   name=$(ls .tmp)
 
   if [[ $name =~ truffleruby ]] ; then
-    mv ".tmp/$name" ./${name//-linux-amd64/}
+    mv ".tmp/$name" ."/${name//-linux-amd64/}"
     name=${name//-linux-amd64/}
   else
     mv ".tmp/$name" .
