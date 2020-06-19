@@ -40,6 +40,14 @@ truffleBuilder() {
         if [[ -z "$fail" ]] ; then
           cp -r . "$prfx" || fail=true
         fi
+
+        pushd "$prfx/lib/truffle" || printErrorAndExit "Can't set working dir to $prfx/lib/truffle"
+
+          if [[ -z "$fail" ]] ; then
+            ./post_install_hook.sh 2>&1 || fail=true
+          fi
+
+        popd || printErrorAndExit "Can't set working dir"
       } >> "$output"
     else
       {
@@ -50,6 +58,14 @@ truffleBuilder() {
         if [[ -z "$fail" ]] ; then
           cp -r . "$prfx"
         fi
+
+        pushd "$prfx/lib/truffle" || printErrorAndExit "Can't set working dir to $prfx/lib/truffle"
+
+          if [[ -z "$fail" ]] ; then
+            ./post_install_hook.sh 2>&1 || fail=true
+          fi
+
+        popd || printErrorAndExit "Can't set working dir"
       } > "$log" 2>> "$output"
     fi
 
