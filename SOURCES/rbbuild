@@ -13,7 +13,7 @@ fi
 APP="RBBuild"
 
 # App version (String)
-VER="1.10.1"
+VER="1.10.2"
 
 ################################################################################
 
@@ -208,15 +208,9 @@ main() {
 
   [[ -n "$quiet" ]] && output=/dev/null
   [[ -n "$verbose" ]] && verb_output=$output
-
-  if [[ -d "$tmp" ]] ; then
-    if ! checkPerms "DRW" "$tmp" ; then
-      error "\nYou don't have enough permissions to use directory $tmp\n"
-      doExit 1
-    fi
-  fi
-
   [[ -n "$rbenv" ]] && require "rbenv"
+
+  checkTMPDir
 
   tmp_dir=$(mktemp -d ${tmp}/$TEMP_TEMPLATE)
   log="${tmp_dir}/build.log"
@@ -254,6 +248,34 @@ configureProxy() {
 
   if [[ -z "$proxy" && -n "$envProxy" ]] ; then
     proxy="$envProxy"
+  fi
+}
+
+# Check temporary directory for problems
+#
+# Code: No
+# Echo: No
+checkTMPDir() {
+  if [[ -d "$tmp" ]] ; then
+    if ! checkPerms "DRW" "$tmp" ; then
+      error "\nYou don't have enough permissions to use directory $tmp\n"
+      doExit 1
+    fi
+  fi
+
+  local exec_output
+
+  echo -e "#!/usr/bin/env bash\necho 1\n" > "$tmp/rbbuild-exec-check.sh"
+  chmod 0700 "$tmp/rbbuild-exec-check.sh"
+
+  exec_output=$($tmp/rbbuild-exec-check.sh 2>/dev/null)
+
+  rm -f "$tmp/rbbuild-exec-check.sh" &> /dev/null
+
+  if [[ -z "$exec_output" ]] ; then
+    error "\nCan't execute the script inside of the temporary directory ($tmp)."
+    error "Directory mounted with noexec option?\n"
+    doExit 1
   fi
 }
 

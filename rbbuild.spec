@@ -29,7 +29,7 @@
 
 Summary:         Utility for compiling and installing different ruby versions
 Name:            rbbuild
-Version:         1.10.1
+Version:         1.10.2
 Release:         0%{?dist}
 License:         EKOL
 Vendor:          ESSENTIALKAOS
@@ -87,6 +87,9 @@ rm -rf %{buildroot}
 ################################################################################
 
 %changelog
+* Tue Jun 30 2020 Anton Novojilov <andy@essentialkaos.com> - 1.10.2-0
+- Added check for noexec flag for temporary directory
+
 * Fri Jun 19 2020 Anton Novojilov <andy@essentialkaos.com> - 1.10.1-0
 - Improved TruffleRuby builder
 
