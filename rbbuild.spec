@@ -31,7 +31,7 @@ Summary:         Utility for compiling and installing different ruby versions
 Name:            rbbuild
 Version:         1.10.2
 Release:         0%{?dist}
-License:         EKOL
+License:         Apache License, Version 2.0
 Vendor:          ESSENTIALKAOS
 Group:           Development/Tools
 URL:             https://kaos.sh/rbbuild
