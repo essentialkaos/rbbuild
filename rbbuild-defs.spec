@@ -31,7 +31,7 @@ Summary:         Def files for rbbuild utility
 Name:            rbbuild-defs
 Version:         1.10.1
 Release:         0%{?dist}
-License:         EKOL
+License:         Apache License, Version 2.0
 Vendor:          ESSENTIALKAOS
 Group:           Development/Tools
 URL:             https://kaos.sh/rbbuild
