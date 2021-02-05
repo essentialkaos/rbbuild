@@ -1,21 +1,21 @@
 # RBBuild Def File
-# UPDATED 06/Feb/2021 01:10:29 by Anton Novojilov <andy@essentialkaos.com>
+# UPDATED 06/Feb/2021 01:19:47 by Anton Novojilov <andy@essentialkaos.com>
 
 deps(rpm): gcc make zlib-devel readline-devel tk-devel ca-certificates
 deps(rpm): autoconf glibc-devel ncurses-devel bison libffi-devel jemalloc-devel
 
 deps(bin): ruby
 
-CONFOPTS(openssl-1.1.1f): {os_name}-{os_arch} --openssldir={prefix}/openssl/ssl zlib-dynamic no-ssl3 shared -fPIC
-MAKEOPTS(openssl-1.1.1f): -j 1
-PREFIX(openssl-1.1.1f): {prefix}/openssl
+CONFOPTS(openssl-1.1.1i): {os_name}-{os_arch} --openssldir={prefix}/openssl/ssl zlib-dynamic no-ssl3 shared -fPIC
+MAKEOPTS(openssl-1.1.1i): -j 1
+PREFIX(openssl-1.1.1i): {prefix}/openssl
 
 CONFOPTS(ruby-2.7.2-p0): --with-jemalloc --with-openssl-dir={prefix}/openssl --disable-install-doc
 
 [default]
-  package: "openssl-1.1.1f" "https://www.openssl.org/source/openssl-1.1.1f.tar.gz" "238e001ea1fbf19ede43e36209c37c1a636bb51f" openssl
+  package: "openssl-1.1.1i" "https://www.openssl.org/source/openssl-1.1.1i.tar.gz" "eb684ba4ed31fe2c48062aead75233ecd36882a6" openssl
   package: "ruby-2.7.2-p0" "https://cache.ruby-lang.org/pub/ruby/2.7/ruby-2.7.2.tar.gz" "cb9731a17487e0ad84037490a6baf8bfa31a09e8"
 
 [essentialkaos]
-  package: "openssl-1.1.1f" "https://ruby.kaos.st/openssl-1.1.1f.7z" "f6c558eba43c138b9971482e3a4b469bba074489" openssl
+  package: "openssl-1.1.1i" "https://ruby.kaos.st/openssl-1.1.1i.7z" "ef3fdabe962210eae4aa9c399be091c4d79ed698" openssl
   package: "ruby-2.7.2-p0" "https://ruby.kaos.st/ruby-2.7.2.7z" "3285ff509ce2a9825f9fbcd67b652cb894a5f2e8"
