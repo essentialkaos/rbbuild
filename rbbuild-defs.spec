@@ -83,9 +83,12 @@ rm -rf %{buildroot}
 - Added 3.0.0-p0
 - Added 3.0.0-p0-jemalloc
 - Added 3.0.0-p0-railsexpress
-- Fixed jruby-9.2.12.0
-- Fixed jruby-9.2.13.0
-- Fixed jruby-9.2.14.0
+- Added jruby-9.2.12.0
+- Added jruby-9.2.13.0
+- Added jruby-9.2.14.0
+- Added truffleruby-20.2.0
+- Added truffleruby-20.3.0
+- Added truffleruby-21.0.0
 - OpenSSL updated to 1.0.2u for 1.9.2 <-> 2.3.8
 - OpenSSL updated to 1.1.1f for 2.4.0 <-> 2.7.1
 
