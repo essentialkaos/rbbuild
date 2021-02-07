@@ -13,7 +13,7 @@ fi
 APP="RBBuild"
 
 # App version (String)
-VER="1.10.2"
+VER="1.10.3"
 
 ################################################################################
 
@@ -1232,9 +1232,17 @@ fetchRemoteFile() {
   file_name="$2"
 
   if [[ -n "$dl_cache" ]] ; then
-    cache_dir="$CWD/$dl_cache"
+    cache_dir="$dl_cache"
 
-    [[ ! -d "$cache_dir" ]] && mkdir -p "$cache_dir"
+    if [[ ! -d "$cache_dir" ]] ; then
+      if ! mkdir -p "$cache_dir" &> /dev/null ; then
+        printErrorAndExit "Can't create directory $dl_cache for download cache"
+      fi
+    fi
+
+    if ! checkPerms "DRWX" "$cache_dir" ; then
+      printErrorAndExit "Can't user directory $dl_cache for download cache"
+    fi
 
     if [[ ! -f "$cache_dir/$file_name" ]] ; then
       pushd "$cache_dir" &> $verb_output || printErrorAndExit "Can't set working dir to $cache_dir"
