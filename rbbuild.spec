@@ -29,7 +29,7 @@
 
 Summary:         Utility for compiling and installing different ruby versions
 Name:            rbbuild
-Version:         1.10.2
+Version:         1.10.3
 Release:         0%{?dist}
 License:         Apache License, Version 2.0
 Vendor:          ESSENTIALKAOS
@@ -87,6 +87,10 @@ rm -rf %{buildroot}
 ################################################################################
 
 %changelog
+* Mon Feb 08 2021 Anton Novojilov <andy@essentialkaos.com> - 1.10.3-0
+- Do not use current working directory for download cache
+- Use 0600 as default mode for all files in download cache
+
 * Tue Jun 30 2020 Anton Novojilov <andy@essentialkaos.com> - 1.10.2-0
 - Added check for noexec flag for temporary directory
 
