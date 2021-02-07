@@ -1953,6 +1953,10 @@ download() {
     curl $opts -# "$1" -o "$2"
   fi
 
+  if [[ -f "$2" ]] ; then
+    chmod 600 "$2"
+  fi
+
   return $?
 }
 
