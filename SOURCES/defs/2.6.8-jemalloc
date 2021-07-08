@@ -1,0 +1,21 @@
+# RBBuild Def File
+# UPDATED 08/Jul/2021 16:32:06 by Anton Novojilov <andy@essentialkaos.com>
+
+deps(rpm): gcc make zlib-devel readline-devel tk-devel ca-certificates
+deps(rpm): autoconf glibc-devel ncurses-devel bison libffi-devel jemalloc-devel
+
+deps(bin): ruby
+
+CONFOPTS(openssl-1.1.1k): {os_name}-{os_arch} --openssldir={prefix}/openssl/ssl zlib-dynamic no-ssl3 shared -fPIC
+MAKEOPTS(openssl-1.1.1k): -j 1
+PREFIX(openssl-1.1.1k): {prefix}/openssl
+
+CONFOPTS(ruby-2.6.8-p0): --with-jemalloc --with-openssl-dir={prefix}/openssl --disable-install-doc
+
+[default]
+  package: "openssl-1.1.1k" "https://www.openssl.org/source/openssl-1.1.1k.tar.gz" "bad9dc4ae6dcc1855085463099b5dacb0ec6130b" openssl
+  package: "ruby-2.6.8-p0" "https://cache.ruby-lang.org/pub/ruby/2.6/ruby-2.6.8.tar.gz" "949dce34bba3ae93fd302fe705017b03d13b69ab"
+
+[essentialkaos]
+  package: "openssl-1.1.1k" "https://ruby.kaos.st/openssl-1.1.1k.7z" "326b350d63ed6215ab2db873ace575cf15245d7d" openssl
+  package: "ruby-2.6.8-p0" "https://ruby.kaos.st/ruby-2.6.8.7z" "9a5f4cdebb7542e488dcc8f53938fc1a67f14eb1"

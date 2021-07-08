@@ -1,0 +1,11 @@
+# RBBuild Def File
+# UPDATED 08/Jul/2021 16:31:38 by Anton Novojilov <andy@essentialkaos.com>
+
+deps(rpm): gcc openssl-devel
+deps(deb): gcc libssl-dev
+
+[default]
+  package: "truffleruby-21.1.0" "https://github.com/oracle/truffleruby/releases/download/vm-21.1.0/truffleruby-21.1.0-linux-amd64.tar.gz" "3af6410727e5c4b2c58a606d87fe45c7fecc70a2" truffle
+
+[essentialkaos]
+  package: "truffleruby-21.1.0" "https://ruby.kaos.st/truffleruby-21.1.0.7z" "e0b239ee28c8311811f3d10f8c9d46e83d010f92" truffle
