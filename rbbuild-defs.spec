@@ -80,6 +80,7 @@ rm -rf %{buildroot}
 - Added 2.6.7-p0-railsexpress
 - Added 2.6.8-p0
 - Added 2.6.8-p0-jemalloc
+- Added 2.7.3-p0-railsexpress
 - Added 2.7.4-p0
 - Added 2.7.4-p0-jemalloc
 - Added 3.0.1-p0-railsexpress
@@ -87,6 +88,7 @@ rm -rf %{buildroot}
 - Added 3.0.2-p0-jemalloc
 - Added jruby-9.2.18.0
 - Added jruby-9.2.19.0
+- Added truffleruby-21.0.1
 
 * Wed Apr 07 2021 Anton Novojilov <andy@essentialkaos.com> - 1.10.4-0
 - OpenSSL updated to 1.1.1k for 2.4.0 <-> 3.0.0
