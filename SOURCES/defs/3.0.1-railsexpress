@@ -1,0 +1,23 @@
+# RBBuild Def File
+# UPDATED 08/Jul/2021 16:01:18 by Anton Novojilov <andy@essentialkaos.com>
+
+deps(rpm): gcc make zlib-devel readline-devel tk-devel ca-certificates
+deps(rpm): autoconf glibc-devel ncurses-devel bison libffi-devel
+deps(deb): gcc make zlib1g-dev libreadline6-dev tk-dev ca-certificates
+deps(deb): autoconf libc6-dev libncurses5-dev bison libffi-dev
+
+CONFOPTS(openssl-1.1.1k): {os_name}-{os_arch} --openssldir={prefix}/openssl/ssl zlib-dynamic no-ssl3 shared -fPIC
+MAKEOPTS(openssl-1.1.1k): -j 1
+PREFIX(openssl-1.1.1k): {prefix}/openssl
+
+CONFOPTS(ruby-3.0.1-p0): --with-openssl-dir={prefix}/openssl --disable-install-doc
+
+[default]
+  package: "openssl-1.1.1k" "https://www.openssl.org/source/openssl-1.1.1k.tar.gz" "bad9dc4ae6dcc1855085463099b5dacb0ec6130b" openssl
+  patchset: "https://ruby.kaos.st/patches/3.0.1-p0.7z" "6425ea09aa74b67ee153bb4263ab6644c95b69f3"
+  package: "ruby-3.0.1-p0" "https://cache.ruby-lang.org/pub/ruby/3.0/ruby-3.0.1.tar.gz" "60c72f3e501a3be9616385cad3e48bc89d6150a1"
+
+[essentialkaos]
+  package: "openssl-1.1.1k" "https://ruby.kaos.st/openssl-1.1.1k.7z" "326b350d63ed6215ab2db873ace575cf15245d7d" openssl
+  patchset: "https://ruby.kaos.st/patches/3.0.1-p0.7z" "6425ea09aa74b67ee153bb4263ab6644c95b69f3"
+  package: "ruby-3.0.1-p0" "https://ruby.kaos.st/ruby-3.0.1.7z" "372f820d72a2d8f16e8a8fb602cd44345858a1c8"
