@@ -22,31 +22,22 @@ jobs:
     name: Shellcheck
     runs-on: ubuntu-latest
 
-    env:
-      SHELLCHECK_VERSION: 0.7.1
+    needs: Defs
 
     steps:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Install Shellcheck
-        run: |
-          wget https://github.com/koalaman/shellcheck/releases/download/v${SHELLCHECK_VERSION}/shellcheck-v${SHELLCHECK_VERSION}.linux.x86_64.tar.xz
-          tar xf shellcheck-v${SHELLCHECK_VERSION}.linux.x86_64.tar.xz
-          mv shellcheck-v${SHELLCHECK_VERSION} shellcheck-latest
-
-      - name: Print Shellcheck version info
-        run: ./shellcheck-latest/shellcheck --version
-
-      - name: Check scripts
-        run: |
-          bash -c 'shopt -s globstar; ./shellcheck-latest/shellcheck install.sh'
-          bash -c 'shopt -s globstar; ./shellcheck-latest/shellcheck SOURCES/rbdef'
-          bash -c 'shopt -s globstar; ./shellcheck-latest/shellcheck SOURCES/rbbuild SOURCES/blds/*'
+      - name: Check scripts with Shellcheck
+        uses: essentialkaos/shellcheck-action@v1
+        with:
+          files: install.sh SOURCES/rbdef SOURCES/rbbuild SOURCES/blds/*
 
   Perfecto:
     name: Perfecto
     runs-on: ubuntu-latest
+
+    needs: Defs
 
     steps:
       - name: Code checkout
@@ -58,19 +49,7 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Run Perfecto docker image
-        uses: docker://essentialkaos/perfecto:micro
+      - name: Check specs with Perfecto
+        uses: essentialkaos/perfecto-action@v1
         with:
-          args: --version
-
-      - name: Install perfecto-docker
-        run: |
-          wget https://kaos.sh/perfecto/perfecto-docker
-          chmod +x perfecto-docker
-
-      - name: Run Perfecto check
-        env:
-          IMAGE: essentialkaos/perfecto:micro
-        run: |
-          ./perfecto-docker rbbuild.spec
-          ./perfecto-docker rbbuild-defs.spec
+          files: rbbuild.spec rbbuild-defs.spec
