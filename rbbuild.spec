@@ -30,7 +30,7 @@
 Summary:         Utility for compiling and installing different ruby versions
 Name:            rbbuild
 Version:         1.10.4
-Release:         0%{?dist}
+Release:         1%{?dist}
 License:         Apache License, Version 2.0
 Vendor:          ESSENTIAL KAOS
 Group:           Development/Tools
@@ -86,6 +86,9 @@ rm -rf %{buildroot}
 ################################################################################
 
 %changelog
+* Mon Dec 06 2021 Anton Novojilov <andy@essentialkaos.com> - 1.10.4-1
+- Code refactoring
+
 * Sun Dec 05 2021 Anton Novojilov <andy@essentialkaos.com> - 1.10.4-0
 - Fixed bug with listing 3.x versions
 - Code refactoring
