@@ -13,7 +13,7 @@ fi
 APP="RBBuild"
 
 # App version (String)
-VER="1.10.3"
+VER="1.10.4"
 
 ################################################################################
 
@@ -1453,7 +1453,7 @@ runBuilder() {
   source "$BLD_PATH/$1"
 
   # shellcheck disable=SC2046,SC2116
-  eval $(echo "$builder_func") "$pkg" "$pkg_dir" "$@"
+  eval "$builder_func" "$pkg" "$pkg_dir" "$@"
 
   status=$?
 
