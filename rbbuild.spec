@@ -87,6 +87,7 @@ rm -rf %{buildroot}
 
 %changelog
 * Sun Dec 05 2021 Anton Novojilov <andy@essentialkaos.com> - 1.10.4-0
+- Fixed bug with listing 3.x versions
 - Code refactoring
 
 * Mon Feb 08 2021 Anton Novojilov <andy@essentialkaos.com> - 1.10.3-0

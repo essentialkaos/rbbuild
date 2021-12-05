@@ -1453,7 +1453,7 @@ runBuilder() {
   source "$BLD_PATH/$1"
 
   # shellcheck disable=SC2046,SC2116
-  eval "$builder_func" "$pkg" "$pkg_dir" "$@"
+  "$builder_func" "$pkg" "$pkg_dir" "$@"
 
   status=$?
 
@@ -1569,7 +1569,7 @@ listDefs() {
     [[ -h "$defs_dir/$def" ]] && continue
     [[ $def =~ .*-railsexpress || $def =~ .*-jemalloc ]] && continue
 
-    if [[ $def =~ ^(1|2).[0-9]+.[0-9]+ ]] ; then
+    if [[ $def =~ ^([0-9]).[0-9]+.[0-9]+ ]] ; then
       ruby_list+=("$def")
     elif [[ $def =~ ^jruby-* ]] ; then
       jruby_list+=("$def")
