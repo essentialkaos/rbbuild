@@ -1,5 +1,5 @@
 # RBBuild Def File
-# UPDATED 05/Dec/2021 16:36:41 by Anton Novojilov <andy@essentialkaos.com>
+# UPDATED 05/Dec/2021 18:17:03 by Anton Novojilov <andy@essentialkaos.com>
 
 deps(rpm): gcc make zlib-devel readline-devel tk-devel ca-certificates
 deps(rpm): autoconf glibc-devel ncurses-devel bison libffi-devel
@@ -22,4 +22,4 @@ CONFOPTS(ruby-2.6.8-p0): --with-openssl-dir={prefix}/openssl --disable-install-d
 [essentialkaos]
   package: "openssl-1.1.1l" "https://ruby.kaos.st/openssl-1.1.1l.7z" "9c9790c8b71a3902465b62c234f02d213e647fb2" openssl
   patchset: "https://ruby.kaos.st/patches/2.6.8-p0.7z" "e6f206d4acf1b0533ba1836c0070e5848784e338"
-  package: "ruby-2.6.8-p0" "https://ruby.kaos.st/ruby-2.6.8.7z" "214ef80665ea3f9e1777ad336f1351795e4e4ace"
+  package: "ruby-2.6.8-p0" "https://ruby.kaos.st/ruby-2.6.8.7z" "9a5f4cdebb7542e488dcc8f53938fc1a67f14eb1"

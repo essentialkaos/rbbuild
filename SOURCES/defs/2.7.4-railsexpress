@@ -1,5 +1,5 @@
 # RBBuild Def File
-# UPDATED 05/Dec/2021 16:36:43 by Anton Novojilov <andy@essentialkaos.com>
+# UPDATED 05/Dec/2021 18:18:12 by Anton Novojilov <andy@essentialkaos.com>
 
 deps(rpm): gcc make zlib-devel readline-devel tk-devel ca-certificates
 deps(rpm): autoconf glibc-devel ncurses-devel bison libffi-devel
@@ -22,4 +22,4 @@ CONFOPTS(ruby-2.7.4-p0): --with-openssl-dir={prefix}/openssl --disable-install-d
 [essentialkaos]
   package: "openssl-1.1.1l" "https://ruby.kaos.st/openssl-1.1.1l.7z" "9c9790c8b71a3902465b62c234f02d213e647fb2" openssl
   patchset: "https://ruby.kaos.st/patches/2.7.4-p0.7z" "29259196d082cef95a00a80e4f8bbf5b81f77c1d"
-  package: "ruby-2.7.4-p0" "https://ruby.kaos.st/ruby-2.7.4.7z" "330050d4187c280be1496b3f004a64ff49451114"
+  package: "ruby-2.7.4-p0" "https://ruby.kaos.st/ruby-2.7.4.7z" "55cff86237ddb7948500c050aad941e4ba7b1220"
