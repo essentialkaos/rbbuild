@@ -87,6 +87,7 @@ rm -rf %{buildroot}
 - Added jruby-9.3.0.0
 - Added jruby-9.3.1.0
 - Added jruby-9.3.2.0
+- Added truffleruby-21.3.0
 
 * Wed Aug 25 2021 Anton Novojilov <andy@essentialkaos.com> - 1.10.6-0
 - OpenSSL updated to 1.1.1l for 2.4.0 <-> 3.0.0
