@@ -13,7 +13,7 @@ fi
 APP="RBBuild Def Utils"
 
 # App version (String)
-VER="1.6.0"
+VER="1.7.0"
 
 ################################################################################
 
@@ -177,7 +177,10 @@ repack() {
 
       show "Downloading ${CL_BOLD}$file_name${CL_NORM}… "
 
-      curl -k --max-redirs 10 -L -# "$url" -o "$file_name"
+      if ! download "$url" "$file_name" ; then
+        error "Can't download file"
+        doExit 1
+      fi
     elif checkPerms "FR" "$file" ; then
       file_name="$file"
     else
@@ -236,7 +239,10 @@ getRecord() {
   if [[ "$file_name" != "git" && "$file_name" != "hg" && "$file_name" != "svn" ]] ; then
     show "Downloading ${CL_BOLD}$file_name${CL_NORM}… "
 
-    curl -k --max-redirs 10 -L -# "$url" -o "$file_name"
+    if ! download "$url" "$file_name" ; then
+      error "Can't download file"
+      doExit
+    fi
 
     checksum=$(makeCRC "$file_name")
 
@@ -581,6 +587,42 @@ addHeader() {
 }
 
 ################################################################################
+
+# Download file
+#
+# 1: File URL (String)
+# 2: Output file (String)
+# 3: Avoid cache flag (Boolean)
+#
+# Code: Yes
+# Echo: No
+download() {
+  local path="$1"
+  local output="$2"
+  local avoid_cache="$3"
+
+  local rnd http_code http_code_tmp
+
+  http_code_tmp=$(mktemp)
+
+  if [[ -n "$avoid_cache" ]] ; then
+    rnd=$(tr -cd '[:alnum:]' < /dev/urandom | fold -w8 | head -n1)
+    curl -# -L --max-redirs 10 -w "%{http_code}" -o "$output" "${url}?r${rnd}" 1> "$http_code_tmp"
+  else
+    curl -# -L --max-redirs 10 -w "%{http_code}" -o "$output" "$url" 1> "$http_code_tmp"
+  fi
+
+  http_code=$(cat "$http_code_tmp")
+
+  rm -f "$http_code_tmp" &> /dev/null
+
+  if [[ "$http_code" != "200" ]] ; then
+    rm -f "$output" &> /dev/null
+    return 1
+  fi
+
+  return 0
+}
 
 # Check permissions for file or directory
 #
