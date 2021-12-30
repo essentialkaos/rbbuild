@@ -29,7 +29,7 @@
 
 Summary:         Def files for rbbuild utility
 Name:            rbbuild-defs
-Version:         1.10.8
+Version:         1.10.9
 Release:         0%{?dist}
 License:         Apache License, Version 2.0
 Vendor:          ESSENTIAL KAOS
@@ -76,6 +76,10 @@ rm -rf %{buildroot}
 ################################################################################
 
 %changelog
+* Mon Dec 27 2021 Anton Novojilov <andy@essentialkaos.com> - 1.10.9-0
+- Added 3.1.0
+- Added 3.1.0-jemalloc
+
 * Tue Dec 07 2021 Anton Novojilov <andy@essentialkaos.com> - 1.10.8-0
 - Added 2.6.9
 - Added 2.6.9-jemalloc
