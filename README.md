@@ -1,7 +1,7 @@
 <p align="center"><a href="#readme"><img src="https://gh.kaos.st/rbbuild.svg"/></a></p>
 
 <p align="center">
-  <a href="https://github.com/essentialkaos/rbbuild/actions"><img src="https://github.com/essentialkaos/rbbuild/workflows/CI/badge.svg" alt="GitHub Actions Status" /></a>
+  <a href="https://kaos.sh/w/rbbuild/ci"><img src="https://kaos.sh/w/rbbuild/ci.svg" alt="GitHub Actions CI Status" /></a>
   <a href="#license"><img src="https://gh.kaos.st/apache2.svg"></a>
 </p>
 
@@ -88,8 +88,8 @@ Examples:
 
 | Branch | Status |
 |--------|--------|
-| `master` | [![CI](https://github.com/essentialkaos/rbbuild/workflows/CI/badge.svg?branch=master)](https://github.com/essentialkaos/rbbuild/actions) |
-| `develop` | [![CI](https://github.com/essentialkaos/rbbuild/workflows/CI/badge.svg?branch=develop)](https://github.com/essentialkaos/rbbuild/actions) |
+| `master` | [![CI](https://kaos.sh/w/rbbuild/ci.svg?branch=master)](https://kaos.sh/w/rbbuild/ci?query=branch:master) |
+| `develop` | [![CI](https://kaos.sh/w/rbbuild/ci.svg?branch=master)](https://kaos.sh/w/rbbuild/ci?query=branch:develop) |
 
 ### License
 
