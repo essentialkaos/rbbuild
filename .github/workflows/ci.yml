@@ -50,6 +50,6 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Check spec with Perfecto
-        uses: essentialkaos/perfecto-action@v1
+        uses: essentialkaos/perfecto-action@v2
         with:
           files: rbbuild.spec rbbuild-defs.spec
