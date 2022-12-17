@@ -1,4 +1,4 @@
-# RBBuild Def File
+# -- [RBdef] --
 # UPDATED 16/Aug/2019 14:56:38 by Anton Novojilov <andy@essentialkaos.com>
 
 deps(rpm): make gcc gcc-c++

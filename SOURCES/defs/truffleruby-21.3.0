@@ -1,4 +1,4 @@
-# RBBuild Def File
+# -- [RBdef] --
 # UPDATED 05/Dec/2021 16:52:46 by Anton Novojilov <andy@essentialkaos.com>
 
 deps(rpm): gcc openssl-devel
