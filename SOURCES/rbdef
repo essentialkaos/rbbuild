@@ -187,13 +187,15 @@ repack() {
     showm "Packing to ${CL_BOLD}$arch_dir.tzst${CL_NORM}… "
 
     rm -rf "$arch_dir.tzst" &> /dev/null
-    ZSTD_CLEVEL=19 tar -I 'zstd' -cf "$arch_dir.tzst" "$arch_dir"
+
+    # Max compression using all cores
+    ZSTD_CLEVEL=19 ZSTD_NBTHREADS=$(getconf _NPROCESSORS_ONLN) tar -I 'zstd' -cf "$arch_dir.tzst" "$arch_dir"
 
     prev_size=$(getHumanFileSize "$file_name")
     new_size=$(getHumanFileSize "$arch_dir.tzst")
     size_diff=$(getSizeDiff "$file_name" "$arch_dir.tzst")
 
-    show "${CL_GREEN}DONE${CL_NORM} ${CL_DARK}(${prev_size} → ${new_size} / -${size_diff}%)${CL_NORM}"
+    show "${CL_GREEN}DONE${CL_NORM} ${CL_DARK}(${prev_size} → ${new_size} / ${size_diff}%)${CL_NORM}"
 
     [[ -n "$remove" ]] && rm -rf "$file_name" &> /dev/null
 
@@ -710,7 +712,14 @@ getSizeDiff() {
   size1=$(stat -c '%s' "$1")
   size2=$(stat -c '%s' "$2")
 
-  echo "scale=3; 100-((${size2}/${size1})*100)" | bc | sed 's/00$//'
+  diff=$(echo "scale=3; 100-((${size2}/${size1})*100)" | bc | sed 's/00$//')
+
+  if [[ "${diff:0:1}" == "-" ]] ; then
+    echo "+${diff:1:99}"
+    return
+  fi
+
+  echo "-$diff"
 }
 
 # Print human size of file
