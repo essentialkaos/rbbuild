@@ -1,50 +1,29 @@
 ################################################################################
 
-%define _root             /root
-%define _bin              /bin
-%define _sbin             /sbin
-%define _srv              /srv
-%define _logdir           %{_localstatedir}/log
-%define _rundir           %{_localstatedir}/run
-%define _lockdir          %{_localstatedir}/lock
-%define _cachedir         %{_localstatedir}/cache
-%define _loc_prefix       %{_prefix}/local
-%define _loc_exec_prefix  %{_loc_prefix}
-%define _loc_bindir       %{_loc_exec_prefix}/bin
-%define _loc_libdir       %{_loc_exec_prefix}/%{_lib}
-%define _loc_libexecdir   %{_loc_exec_prefix}/libexec
-%define _loc_sbindir      %{_loc_exec_prefix}/sbin
-%define _loc_bindir       %{_loc_exec_prefix}/bin
-%define _loc_datarootdir  %{_loc_prefix}/share
-%define _loc_includedir   %{_loc_prefix}/include
-%define _rpmstatedir      %{_sharedstatedir}/rpm-state
+%define install_dir  %{_loc_datarootdir}/%{name}
+%define defs_dir     %{install_dir}/defs
+%define builder_dir  %{install_dir}/blds
 
 ################################################################################
 
-%define install_dir       %{_loc_datarootdir}/%{name}
-%define defs_dir          %{install_dir}/defs
-%define blds_dir          %{install_dir}/blds
+Summary:    Utility for compiling and installing different ruby versions
+Name:       rbbuild
+Version:    1.10.4
+Release:    1%{?dist}
+License:    Apache License, Version 2.0
+Vendor:     ESSENTIAL KAOS
+Group:      Development/Tools
+URL:        https://kaos.sh/rbbuild
 
-################################################################################
+Source0:    https://source.kaos.st/%{name}/%{name}-%{version}.tar.bz2
 
-Summary:         Utility for compiling and installing different ruby versions
-Name:            rbbuild
-Version:         1.10.4
-Release:         1%{?dist}
-License:         Apache License, Version 2.0
-Vendor:          ESSENTIAL KAOS
-Group:           Development/Tools
-URL:             https://kaos.sh/rbbuild
+BuildArch:  noarch
+BuildRoot:  %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-Source0:         https://source.kaos.st/%{name}/%{name}-%{version}.tar.bz2
+Requires:   %{name}-defs >= 1.10.0
+Requires:   bash p7zip patch gawk bc
 
-BuildArch:       noarch
-BuildRoot:       %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-
-Requires:        %{name}-defs >= 1.10.0
-Requires:        bash p7zip patch gawk bc
-
-Provides:        %{name} = %{version}-%{release}
+Provides:   %{name} = %{version}-%{release}
 
 ################################################################################
 
@@ -62,14 +41,14 @@ on UNIX-like systems.
 rm -rf %{buildroot}
 
 install -dm 755 %{buildroot}%{_bindir}
-install -dm 755 %{buildroot}%{blds_dir}
+install -dm 755 %{buildroot}%{builder_dir}
 
 install -pm 755 rbdef %{buildroot}%{_bindir}/
 install -pm 755 rbbuild %{buildroot}%{_bindir}/
 
-cp blds/* %{buildroot}%{blds_dir}
+cp blds/* %{buildroot}%{builder_dir}
 
-chmod 644 %{buildroot}%{blds_dir}/*
+chmod 644 %{buildroot}%{builder_dir}/*
 
 %clean
 rm -rf %{buildroot}
@@ -81,7 +60,7 @@ rm -rf %{buildroot}
 %doc LICENSE
 %{_bindir}/rbbuild
 %{_bindir}/rbdef
-%{blds_dir}
+%{builder_dir}
 
 ################################################################################
 
