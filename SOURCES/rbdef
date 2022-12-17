@@ -454,7 +454,7 @@ unpack() {
   elif [[ $arch =~ .tar.xz$|.txz$ ]] ; then
     tar xJf "$arch" -C .tmp &> /dev/null
   elif [[ $arch =~ .7z$ ]] ; then
-    7za x "$arch" -o .tmp &> /dev/null
+    7za x "$arch" -o.tmp &> /dev/null
   elif [[ $arch =~ .zip$ ]] ; then
     unzip "$arch" -d .tmp &> /dev/null
   else
@@ -463,6 +463,7 @@ unpack() {
 
   # shellcheck disable=SC2181
   if [[ $? -ne 0 ]] ; then
+    rm -rf .tmp &> /dev/null
     echo "" && return 1
   fi
 
