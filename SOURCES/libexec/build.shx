@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC2034,SC2086,SC2154
 
 ################################################################################
 
@@ -293,6 +294,7 @@ build.runBuilder() {
 
   "builder.$builder_name" "$pkg_name" "$pkg_dir" "$@"
 
+  # shellcheck disable=SC2181
   if [[ $? -ne 0 ]] ; then
     return 1
   fi

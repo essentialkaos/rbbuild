@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# shellcheck disable=SC2154
+# shellcheck disable=SC2086,SC2154
 
 ################################################################################
 
@@ -35,6 +35,7 @@ unpack.archive() {
     return 1
   fi
 
+  # shellcheck disable=SC2181
   if [[ $? -ne 0 ]] ; then
     show "ERROR\n" $RED
     error "Can't unpack archive"
