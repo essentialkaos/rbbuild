@@ -55,7 +55,8 @@ rm -rf %{buildroot}
 - Added 2.7.7-jemalloc
 - Added 2.7.7-railsexpress
 - Added 3.0.5
-- Added 3.0.5-jemalloc3.0.5-railsexpress
+- Added 3.0.5-jemalloc
+- Added 3.0.5-railsexpress
 - Added 3.1.2-railsexpress
 - Added 3.1.3
 - Added 3.1.3-jemalloc
