@@ -1,0 +1,173 @@
+#!/usr/bin/env bash
+# shellcheck disable=SC2034,SC2086,SC2154
+
+################################################################################
+
+require "build"
+
+################################################################################
+
+# OpenSSL builder
+#
+# 1: Package name (String)
+# 2: Package directory (String)
+# *: Arguments
+#
+# Code: Yes
+# Echo: No
+builder.openssl() {
+  local pkg_name="$1"
+  local pkg_dir="$2"
+
+  local mopts copts iopts prfx
+  local conf_file start_time failed
+
+  mopts="${MAKEOPTS}"
+  copts="${CONFOPTS}"
+  iopts="${INSTOPTS}"
+  prfx="${XPREFIX:-$prefix}"
+
+  if [[ ! $mopts =~ \-j\  ]] ; then
+    mopts="${mopts} -j $(build.getBuildThreadsNum)"
+  fi
+
+  pushd "$pkg_dir" &> "$verb_output" || build.cancel "Can't set working directory to $pkg_dir"
+
+    showm "Building… "
+
+    start_time=$(time.now)
+
+    [[ -n "$verbose" ]] && show ""
+
+    exit_protection=true
+
+    spinner.show
+
+    if [[ -n "$verbose" ]] ; then
+      {
+        if [[ -z "$failed" ]] ; then
+          showc "./Configure --prefix=$prfx $copts"
+          if ! ./Configure --prefix="$prfx" $copts ; then
+            failed=true
+          fi
+        fi
+
+        if [[ -z "$failed" ]] ; then
+          showc "make $mopts"
+          if ! make $mopts ; then
+            failed=true
+          fi
+        fi
+
+        if [[ -z "$failed" ]] ; then
+          showc "make install_sw $iopts"
+          if ! make install_sw $iopts ; then
+            failed=true
+          fi
+        fi
+      } &>> "$output"
+    else
+      {
+        if [[ -z "$failed" ]] ; then
+          if ! ./Configure --prefix="$prfx" $copts ; then
+            failed=true
+          fi
+        fi
+
+        if [[ -z "$failed" ]] ; then
+          if ! make $mopts ; then
+            failed=true
+          fi
+        fi
+
+        if [[ -z "$failed" ]] ; then
+          if ! make install_sw ; then
+            failed=true
+          fi
+        fi
+
+      } &>> "$log"
+    fi
+
+    if [[ -n "$failed" ]] ; then
+      spinner.hide
+      unset exit_protection
+      build.fail
+      return 1
+    fi
+
+    spinner.hide
+
+    show "${CL_GREEN}DONE${CL_NORM} ${CL_DARK}$(time.getGraceDurationShort "$start_time")${CL_NORM}"
+
+    rm -f "$log"
+
+    unset exit_protection
+
+  popd &> "$verb_output" || build.cancel "Can't set working directory"
+
+  builder.opensslUseSystemCerts "$prfx"
+  builder.opensslRemoveStaticLibs "$prfx"
+  builder.opensslInstallWrapper "$prfx"
+
+  return 0
+}
+
+# Configure OpenSSL to use system certificates
+#
+# 1: Installation directory (String)
+#
+# Code: No
+# Echo: No
+builder.opensslUseSystemCerts() {
+  if [[ ! -f "/etc/pki/tls/cert.pem" ]] ; then
+    return
+  fi
+
+  local prfx="$1"
+  local ssl_dir="$prfx/ssl"
+
+  if [[ -d "$ssl_dir/certs" ]] ; then
+    rm -rf "$ssl_dir/certs" &> /dev/null
+  fi
+
+  mkdir -p "$ssl_dir/certs"
+
+  ln -sf "/etc/pki/tls/cert.pem" "$ssl_dir/cert.pem" &> /dev/null
+  ln -sf "/etc/pki/tls/certs" "$ssl_dir/certs" &> /dev/null
+}
+
+# Remove OpenSSL static libs
+#
+# 1: Installation directory (String)
+#
+# Code: No
+# Echo: No
+builder.opensslRemoveStaticLibs() {
+  local prfx="$1"
+  local ssl_dir="ssl"
+
+  rm -f "$prfx/lib/"*.a &> /dev/null
+}
+
+# Install wrapper for OpenSSL binary
+#
+# 1: Installation directory (String)
+#
+# Code: No
+# Echo: No
+builder.opensslInstallWrapper() {
+  local prfx="$1"
+  local bin_dir="$prfx/bin"
+
+  mv "$bin_dir/openssl" "$bin_dir/openssl_bin"
+
+  {
+    echo -e "#!/usr/bin/env bash\n"
+    echo -e "export LD_LIBRARY_PATH=$prfx/lib"
+    echo -e "$bin_dir/openssl_bin \"\$@\""
+    echo -e "exit \$?\n"
+  } > "$bin_dir/openssl"
+
+  chmod +x "$bin_dir/openssl"
+}

@@ -1,0 +1,70 @@
+#!/usr/bin/env bash
+# shellcheck disable=SC2034,SC2154
+
+################################################################################
+
+require "build"
+
+################################################################################
+
+# Autoconf builder
+#
+# 1: Package name (String)
+# 2: Package directory (String)
+# *: Arguments
+#
+# Code: Yes
+# Echo: No
+builder.autoconf() {
+  local pkg_name="$1"
+  local pkg_dir="$2"
+
+  local start_time failed
+
+  pushd "$pkg_dir" &> "$verb_output" || build.cancel "Can't set working directory to $pkg_dir"
+
+    showm "Autoconf… "
+
+    start_time=$(time.now)
+
+    [[ -n "$verbose" ]] && show ""
+
+    exit_protection=true
+
+    spinner.show
+
+    if [[ -n "$verbose" ]] ; then
+      {
+        showc "autoconf"
+        if ! autoconf ; then
+          failed=true
+        fi
+      } >> "$output"
+    else
+      {
+        if ! autoconf ; then
+          failed=true
+        fi
+      } &>> "$log"
+    fi
+
+    if [[ -n "$failed" ]] ; then
+      spinner.hide
+      unset exit_protection
+      build.fail
+      return 1
+    fi
+
+    spinner.hide
+
+    show "${CL_GREEN}DONE${CL_NORM} ${CL_DARK}$(time.getGraceDurationShort "$start_time")${CL_NORM}"
+
+    rm -f "$log"
+
+  popd &> "$verb_output" || build.cancel "Can't set working directory"
+
+  require "builders/default"
+  builder.default "$@"
+
+  return $?
+}

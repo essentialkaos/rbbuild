@@ -1,0 +1,197 @@
+#!/usr/bin/env bash
+# shellcheck disable=SC2034,SC2154
+
+################################################################################
+
+# Name of Linux OS (String)
+OS_LINUX="linux"
+
+# Name of Solaris OS (String)
+OS_SOLARIS="solaris"
+
+# Name of BSD OS (String)
+OS_BSD="bsd"
+
+# Name of linux distr (String)
+DIST_ARCH="arch"
+
+# Name of linux distr (String)
+DIST_CENTOS="centos"
+
+# Name of linux distr (String)
+DIST_DEBIAN="debian"
+
+# Name of linux distr (String)
+DIST_FEDORA="fedora"
+
+# Name of linux distr (String)
+DIST_GENTOO="gentoo"
+
+# Name of linux distr (String)
+DIST_RHEL="rhel"
+
+# Name of linux distr (String)
+DIST_UBUNTU="ubuntu"
+
+################################################################################
+
+# Current OS name (String)
+os_name=""
+
+# Current OS arch (String)
+os_arch=""
+
+# Current OS arch alternative name (String)
+os_arch_alt=""
+
+# Current OS basic arch name (String)
+os_arnm=""
+
+# Current OS distr (String)
+os_dist=""
+
+# Current OS kernel version (String)
+os_kern=""
+
+# GCC version (String)
+gcc_version=""
+
+# Clang version (String)
+clang_version=""
+
+# Java version (String)
+java_version=""
+
+# Ruby version (String)
+ruby_version=""
+
+################################################################################
+
+require "utils"
+
+################################################################################
+
+# Collect info about system
+#
+# Code: No
+# Echo: No
+facts.collect() {
+  if [[ -n "$os_name" ]] ; then
+    return
+  fi
+
+  os_name=$(uname -s)
+
+  if [[ "$os_name" == "SunOS" ]] ; then
+    os_name=$OS_SOLARIS
+  elif [[ "$os_name" == "Darwin" ]]; then
+    os_name=$OS_MACOSX
+  elif [[ "$os_name" == "Linux" ]] ; then
+    os_name="$OS_LINUX"
+    os_kern=$(uname -r)
+
+    if [[ -f /etc/arch-release ]] ; then
+      os_dist=$DIST_ARCH
+    elif [[ -f /etc/fedora-release ]] ; then
+      os_dist=$DIST_FEDORA
+    elif [[ -f /etc/gentoo-release ]] ; then
+      os_dist=$DIST_GENTOO
+    elif [[ -f /etc/redhat-release ]] ; then
+      os_dist=$DIST_RHEL
+    elif [[ -f /etc/SuSE-release ]] ; then
+      os_dist=$DIST_SUSE
+    elif [[ -f /etc/lsb-release ]] ; then
+      os_dist=$DIST_UBUNTU
+    fi
+  fi
+
+  os_arch=$(uname -p)
+
+  if [[ "$os_arch" == "x86_64" && "$os_name" == "$OS_LINUX" ]] ; then
+    os_arch_alt="amd64"
+    os_arnm="linux64"
+  elif [[ "$os_arch" == "i386" && "$os_name" == "$OS_LINUX" ]]; then
+    os_arnm="linux32"
+  fi
+
+  gcc_version=$(facts.getGCCVersion)
+  clang_version=$(facts.getClangVersion)
+  java_version=$(facts.getJavaVersion)
+  ruby_version=$(facts.getRubyVersion)
+}
+
+# Check system OS
+#
+# 1: OS (String)
+#
+# Code: Yes
+# Echo: No
+facts.isOS() {
+  if [[ -z "$os_name" ]] ; then
+    facts.collect
+  fi
+
+  if [[ "$os_name" == "$1" ]] ; then
+    return 0
+  fi
+
+  return 1
+}
+
+# Check system arch
+#
+# 1: Arch (String)
+#
+# Code: Yes
+# Echo: No
+facts.isArch() {
+  if [[ -z "$os_arch" ]] ; then
+    facts.collect
+  fi
+
+  if [[ "$os_arch" == "$1" ]] ; then
+    return 0
+  fi
+
+  return 1
+}
+
+# Find GCC version
+#
+# Code: No
+# Echo: Version (String)
+facts.getGCCVersion() {
+  if system.hasApp "gcc" ; then
+    gcc -dumpversion
+  fi
+}
+
+# Find clang version
+#
+# Code: No
+# Echo: Version (String)
+facts.getClangVersion() {
+  if system.hasApp "clang" ; then
+    clang -dumpversion
+  fi
+}
+
+# Find Java version
+#
+# Code: No
+# Echo: Version (String)
+facts.getJavaVersion() {
+  if system.hasApp "java" ; then
+    java -version 2>&1 | head -1 | tr -d '"' | cut -f3 -d' '
+  fi
+}
+
+# Find Ruby version
+#
+# Code: No
+# Echo: Version (String)
+facts.getRubyVersion() {
+  if system.hasApp "ruby" ; then
+    ruby --version 2>/dev/null | cut -f2 -d' '
+  fi
+}

@@ -1,12 +1,12 @@
 # -- [RBdef] --
-# UPDATED 06/Feb/2021 01:30:44 by Anton Novojilov <andy@essentialkaos.com>
+# UPDATED 29/Dec/2022 18:20:58 by Anton Novojilov <andy@essentialkaos.com>
 
 eol(normal): 2016-02-24
 eol(security): 2016-02-24
 
-deps(rpm): gcc make zlib-devel readline-devel tk-devel ca-certificates
+deps(rpm): make gcc gcc-c++ zlib-devel readline-devel tk-devel ca-certificates
 deps(rpm): autoconf glibc-devel ncurses-devel bison libffi-devel git
-deps(deb): gcc make zlib1g-dev libreadline6-dev tk-dev ca-certificates
+deps(deb): build-essential zlib1g-dev libreadline6-dev tk-dev ca-certificates
 deps(deb): autoconf libc6-dev libncurses5-dev bison libffi-dev git
 
 CONFOPTS(openssl-1.0.2u): {os_name}-{os_arch} --openssldir={prefix}/openssl/ssl zlib-dynamic no-ssl3 shared -fPIC
@@ -17,10 +17,10 @@ CONFOPTS(ruby-2.0.0-p353): --with-openssl-dir={prefix}/openssl --disable-install
 
 [default]
   package: "openssl-1.0.2u" "https://www.openssl.org/source/old/1.0.2/openssl-1.0.2u.tar.gz" "740916d79ab0d209d2775277b1c6c3ec2f6502b2" openssl
-  patchset: "https://ruby.kaos.st/patches/2.0.0-p353.7z" "3b2647a634975629735ecac491523ace636b1678"
+  patchset: "https://ruby.kaos.st/patches/2.0.0-p353.tzst" "b7d785148f0c5f8b1555652e093af37e09017c23"
   package: "ruby-2.0.0-p353" "https://cache.ruby-lang.org/pub/ruby/2.0/ruby-2.0.0-p353.tar.gz" "7f2c8b8f5682aabc1114f44d36d314c6c37c11b8"
 
 [essentialkaos]
-  package: "openssl-1.0.2u" "https://ruby.kaos.st/openssl-1.0.2u.7z" "d69744009cbcbeeedcc5825bfc65fa44361215ce" openssl
-  patchset: "https://ruby.kaos.st/patches/2.0.0-p353.7z" "3b2647a634975629735ecac491523ace636b1678"
-  package: "ruby-2.0.0-p353" "https://ruby.kaos.st/ruby-2.0.0-p353.7z" "d6b46d2e7e7d552eee143fa0d07a645dbd1d9773"
+  package: "openssl-1.0.2u" "https://ruby.kaos.st/openssl-1.0.2u.tzst" "acb25bd9b4a00c7c17b29788aade55dd7fea3057" openssl
+  patchset: "https://ruby.kaos.st/patches/2.0.0-p353.tzst" "b7d785148f0c5f8b1555652e093af37e09017c23"
+  package: "ruby-2.0.0-p353" "https://ruby.kaos.st/ruby-2.0.0-p353.tzst" "89c43fd1197d6e9043a2a05b327764bddaef732b"

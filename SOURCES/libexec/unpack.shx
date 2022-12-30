@@ -1,0 +1,128 @@
+#!/usr/bin/env bash
+# shellcheck disable=SC2154
+
+################################################################################
+
+# Unpack archive
+#
+# 1: Path to archive (String)
+#
+# Code: Yes
+# Echo: No
+unpack.archive() {
+  local arch_file="$1"
+
+  if [[ $arch_file =~ .tar.gz$|.tgz$|.tar.gzip$ ]] ; then
+    showm "Unpacking ${CL_BOLD}tar.gz${CL_NORM} archive… "
+    unpack.TGZ "$arch_file"
+  elif [[ $arch_file =~ .tar.bz2$|.tbz2$|.tbz2$|.tb2$|.tbz$ ]] ; then
+    showm "Unpacking ${CL_BOLD}tar.bz2${CL_NORM} archive… "
+    unpack.TBZ2 "$arch_file"
+  elif [[ $arch_file =~ .tar.xz$|.txz$ ]] ; then
+    showm "Unpacking ${CL_BOLD}tar.xz${CL_NORM} archive… "
+    unpack.TXZ "$arch_file"
+  elif [[ $arch_file =~ .tar.zst$|.tzst$ ]] ; then
+    showm "Unpacking ${CL_BOLD}tar.zst${CL_NORM} archive… "
+    unpack.TZST "$arch_file"
+  elif [[ $arch_file =~ .zip$ ]] ; then
+    showm "Unpacking ${CL_BOLD}zip${CL_NORM} archive… "
+    unpack.ZIP "$arch_file"
+  elif [[ $arch_file =~ .7z$ ]] ; then
+    showm "Unpacking ${CL_BOLD}7z${CL_NORM} archive… "
+    unpack.7Z "$arch_file"
+  else
+    error "Unknown or unsupported archive format"
+    return 1
+  fi
+
+  if [[ $? -ne 0 ]] ; then
+    show "ERROR\n" $RED
+    error "Can't unpack archive"
+    return 1
+  fi
+
+  show "DONE" $GREEN
+
+  return 0
+}
+
+# Unpack tar.gz file
+#
+# 1: Path to archive file (String)
+#
+# Code: Yes
+# Echo: No
+unpack.TGZ() {
+  tar xzvf "$1" &> "$verb_output"
+  return $?
+}
+
+# Unpack tar.bz2 file
+#
+# 1: Path to archive file (String)
+#
+# Code: Yes
+# Echo: No
+unpack.TBZ2() {
+  tar xjvf "$1" &> "$verb_output"
+  return $?
+}
+
+# Unpack tar.xz file
+#
+# 1: Path to archive file (String)
+#
+# Code: Yes
+# Echo: No
+unpack.TXZ() {
+  tar xJfv "$1" &> "$verb_output"
+  return $?
+}
+
+# Unpack tar.zst file
+#
+# 1: Path to archive file (String)
+#
+# Code: Yes
+# Echo: No
+unpack.TZST() {
+  if ! system.hasApp "zstd" ; then
+    return 1
+  fi
+
+  tar -I 'unzstd' -xvf "$1" &> "$verb_output"
+
+  return $?
+}
+
+# Unpack zip file
+#
+# 1: Path to archive file (String)
+#
+# Code: Yes
+# Echo: No
+unpack.ZIP() {
+  if ! system.hasApp "unzip" ; then
+    return 1
+  fi
+
+  unzip "$1" &> "$verb_output"
+
+  return $?
+}
+
+# Unpack 7z file
+#
+# 1: Path to archive file (String)
+#
+# Code: Yes
+# Echo: No
+unpack.7Z() {
+  if ! system.hasApp "7za" ; then
+    return 1
+  fi
+
+  7za x "$1" &> "$verb_output"
+
+  return $?
+}

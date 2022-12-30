@@ -51,13 +51,13 @@ CL_BL_GREY="\e[1;${GREY};49m"
 ################################################################################
 
 # List of supported options (String)
-SUPPORTED_OPTS="!help !usage !version !ver !remove !force author !no_colors"
+SUPPORTED_OPTS="!help !version !remove !force author !no_colors"
 
 # List of supported short options (String)
 SHORT_OPTS="h:!help v:!version r:!remove f:!force a:author nc:!no_colors"
 
 # Path to configuration file (String)
-PREFS_FILE="$HOME/.rbdef"
+PREFS_FILE="$HOME/.config/rbbuild/rbdef.conf"
 
 # Current working dir (String)
 CWD=$(pwd)
@@ -317,7 +317,11 @@ proc() {
 
     if ! checkPerms "FRW" "$file" ; then
       show "FAIL" $RED
-      error "You don't have enough permissions for modify file $file"
+      if [[ ! -e "$file" ]] ; then
+        error "There is no file $file"
+      else
+        error "You don't have enough permissions for modify file $file"
+      fi
       continue
     fi
 
@@ -348,9 +352,12 @@ proc() {
         file_name=$(basename "$url")
 
         if ! checkPerms "FR" "$file_name" || [[ -n "$force" ]] ; then
-          if ! download "$url" "$file_name" ; then
+          if ! download "$url" "$file_name" true ; then
+            show "FAIL" $RED
             error "Can't download file $url"
-            doExit 1
+            continue
+          else
+            showm "↓ " $GREY
           fi
         fi
 
@@ -550,7 +557,7 @@ addHeader() {
   file="$1"
   date=$(date +"%d/%b/%Y %R:%S")
 
-  echo "# RBBuild Def File" >> "$file"
+  echo '# -- [RBdef] --' >> "$file"
   echo "# UPDATED $date by $author" >> "$file"
 }
 
@@ -567,17 +574,16 @@ addHeader() {
 download() {
   local path="$1"
   local output="$2"
-  local avoid_cache="$3"
+  local quite="$3"
 
-  local rnd http_code http_code_tmp
+  local http_code http_code_tmp
 
   http_code_tmp=$(mktemp)
 
-  if [[ -n "$avoid_cache" ]] ; then
-    rnd=$(tr -cd '[:alnum:]' < /dev/urandom | fold -w8 | head -n1)
-    curl -# -L --max-redirs 10 -w "%{http_code}" -o "$output" "${url}?r${rnd}" 1> "$http_code_tmp"
-  else
+  if [[ -z "$quite" ]] ; then
     curl -# -L --max-redirs 10 -w "%{http_code}" -o "$output" "$url" 1> "$http_code_tmp"
+  else
+    curl -s -L --max-redirs 10 -w "%{http_code}" -o "$output" "$url" 1> "$http_code_tmp"
   fi
 
   http_code=$(cat "$http_code_tmp")
@@ -713,6 +719,12 @@ getSizeDiff() {
   size2=$(stat -c '%s' "$2")
 
   diff=$(echo "scale=3; 100-((${size2}/${size1})*100)" | bc | sed 's/00$//')
+
+  if [[ ${diff:0:2} == "-." ]] ; then
+    diff="-0${diff}"
+  elif [[ ${diff:0:1} == "." ]] ; then
+    diff="0${diff}"
+  fi
 
   if [[ "${diff:0:1}" == "-" ]] ; then
     echo "+${diff:1:99}"

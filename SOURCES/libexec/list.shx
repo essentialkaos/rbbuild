@@ -1,0 +1,124 @@
+#!/usr/bin/env bash
+
+################################################################################
+
+require "def"
+require "fmt"
+
+################################################################################
+
+# List all definition files
+#
+# Code: Yes
+# Echo: No
+list.defs() {
+  local def info count
+  local ruby_list jruby_list truf_list oth_list
+
+  # shellcheck disable=SC2044
+  for def in $(find "$DEFS_DIR" -type f -printf "%f\n") ; do
+    # Skip variations
+    if [[ $def =~ .*-railsexpress || $def =~ .*-jemalloc ]] ; then
+      continue
+    fi
+
+    if [[ $def =~ ^([0-9]).[0-9]+.[0-9]+ ]] ; then
+      ruby_list+=("$def")
+    elif [[ $def =~ ^jruby-* ]] ; then
+      jruby_list+=("$def")
+    elif [[ $def =~ ^truffleruby-* ]] ; then
+      truf_list+=("$def")
+    else
+      oth_list+=("$def")
+    fi
+  done
+
+  IFS=" " read -r -a ruby_list <<< "$(fmt.sortVersionArray "${ruby_list[@]}")"
+  IFS=" " read -r -a jruby_list <<< "$(fmt.sortVersionArray "${jruby_list[@]}")"
+  IFS=" " read -r -a truf_list <<< "$(fmt.sortVersionArray "${truf_list[@]}")"
+  IFS=" " read -r -a oth_list <<< "$(fmt.sortVersionArray "${oth_list[@]}")"
+
+  local ruby_ver jruby_ver truf_ver oth_ver none_ver vari_count
+
+  printf "${CL_BOLD}${CL_REV}${CL_RUBY} %-26s${CL_NORM} ${CL_BOLD}${CL_REV}${CL_JRUBY} %-26s${CL_NORM} ${CL_BOLD}${CL_REV}${CL_TRUFFLE} %-26s${CL_NORM} ${CL_BOLD}${CL_BG_GREY} %-22s${CL_NORM}\n\n" "RUBY (${#ruby_list[@]})" "JRUBY (${#jruby_list[@]})" "TRUFFLE (${#truf_list[@]})" "OTHER (${#oth_list[@]})"
+  none_ver="${CL_DARK}- none -${CL_NORM}"
+
+  while : ; do
+    ruby_ver="${ruby_list[$count]}"
+    jruby_ver="${jruby_list[$count]}"
+    truf_ver="${truf_list[$count]}"
+    oth_ver="${oth_list[$count]}"
+
+    if [[ $count -eq 0 ]] ; then
+      ruby_ver=${ruby_ver:-$none_ver}
+      jruby_ver=${jruby_ver:-$none_ver}
+      truf_ver=${truf_ver:-$none_ver}
+      oth_ver=${oth_ver:-$none_ver}
+    fi
+
+    if [[ -n "$ruby_ver" ]] ; then
+      vari_count=0
+
+      if [[ -e "$DEFS_DIR/${ruby_ver}-railsexpress" ]] ; then
+        ((vari_count++))
+      fi
+
+      if [[ -e "$DEFS_DIR/${ruby_ver}-jemalloc" ]] ; then
+        ((vari_count++))
+      fi
+
+      if [[ $vari_count -ne 0 ]] ; then
+        ruby_ver=$(fmt.alignColoredText "${ruby_ver} ${CL_DARK}+${vari_count}${CL_NORM}" "${ruby_ver} +${vari_count}" 26)
+      fi
+    fi
+
+    if [[ -z "${ruby_ver}${jruby_ver}${truf_ver}${oth_ver}" ]] ; then
+      break
+    fi
+
+    printf " %-26b  %-26b  %-26b  %-22b\n" "$ruby_ver" "$jruby_ver" "$truf_ver" "$oth_ver"
+
+    ((count++))
+  done
+}
+
+# Show list of mirrors for given definition file
+#
+# 1: Path to defintion file (String)
+#
+# Code: Yes
+# Echo: No
+list.mirrors() {
+  local def_name="$1"
+  local def_file mirrors mirror
+
+  if [[ -z "$def_name" ]] ; then
+    error "You must provide name of definition file"
+    return 1
+  fi
+
+  def_file="$(def.getFile "$def_name")"
+
+  if ! def.check "$def_file" ; then
+    return 1
+  fi
+
+  mirrors=$(def.getMirrorList "$def_file")
+
+  if [[ -z "$mirrors" ]] ; then
+    error "Can't find info about mirrors in given def file"
+    return 1
+  fi
+
+  show "Available mirrors for ${CL_BOLD}$(def.formatWithColors "$def_name"):\n"
+
+  for mirror in $mirrors ; do
+    if [[ "$mirror" == "essentialkaos" || "$mirror" == "default" ]] ; then
+      show " ${CL_GREY}•${CL_NORM} ${mirror} ${CL_RUBY}★${CL_NORM}"
+    else
+      show " ${CL_GREY}•${CL_NORM} ${mirror}"
+    fi
+  done
+
+  return 0
+}

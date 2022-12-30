@@ -1,21 +1,19 @@
 # -- [RBdef] --
-# UPDATED 25/Apr/2022 14:47:28 by Anton Novojilov <andy@essentialkaos.com>
+# UPDATED 29/Dec/2022 18:21:01 by Anton Novojilov <andy@essentialkaos.com>
 
-deps(rpm): gcc make zlib-devel readline-devel tk-devel ca-certificates
+deps(rpm): make gcc gcc-c++ zlib-devel readline-devel tk-devel ca-certificates
 deps(rpm): autoconf glibc-devel ncurses-devel bison libffi-devel jemalloc-devel
 
-deps(bin): ruby
+CONFOPTS(openssl-1.1.1s): {os_name}-{os_arch} --openssldir={prefix}/openssl/ssl zlib-dynamic no-ssl3 shared -fPIC
+MAKEOPTS(openssl-1.1.1s): -j 1
+PREFIX(openssl-1.1.1s): {prefix}/openssl
 
-CONFOPTS(openssl-1.1.1n): {os_name}-{os_arch} --openssldir={prefix}/openssl/ssl zlib-dynamic no-ssl3 shared -fPIC
-MAKEOPTS(openssl-1.1.1n): -j 1
-PREFIX(openssl-1.1.1n): {prefix}/openssl
-
-CONFOPTS(ruby-2.6.1-p0): --with-jemalloc --with-openssl-dir={prefix}/openssl --disable-install-doc
+CONFOPTS(ruby-2.6.1): --with-jemalloc --with-openssl-dir={prefix}/openssl --disable-install-doc
 
 [default]
-  package: "openssl-1.1.1n" "https://www.openssl.org/source/openssl-1.1.1n.tar.gz" "4b0936dd798f60c97c68fc62b73033ecba6dfb0c" openssl
-  package: "ruby-2.6.1-p0" "https://cache.ruby-lang.org/pub/ruby/2.6/ruby-2.6.1.tar.gz" "416842bb5b4ca655610df1f0389b6e21d25154f8"
+  package: "openssl-1.1.1s" "https://www.openssl.org/source/openssl-1.1.1s.tar.gz" "d316e1523a609bbfc4ddd3abfa9861db99f17044" openssl
+  package: "ruby-2.6.1" "https://cache.ruby-lang.org/pub/ruby/2.6/ruby-2.6.1.tar.gz" "416842bb5b4ca655610df1f0389b6e21d25154f8"
 
 [essentialkaos]
-  package: "openssl-1.1.1n" "https://ruby.kaos.st/openssl-1.1.1.7z" "35b1d6ade0551b4fc1ff62bd9b9042fff5ee3b2a" openssl
-  package: "ruby-2.6.1-p0" "https://ruby.kaos.st/ruby-2.6.1.7z" "5048182d8fc4fc2b2c911ee5ca383a66ff2e14c7"
+  package: "openssl-1.1.1s" "https://ruby.kaos.st/openssl-1.1.1.tzst" "317299d5750cde489e1ce50aad3a2dd9f2b2ff4d" openssl
+  package: "ruby-2.6.1" "https://ruby.kaos.st/ruby-2.6.1.tzst" "6e0b2268ba99120a3d804b5ef148c4486a3e4812"

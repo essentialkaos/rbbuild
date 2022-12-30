@@ -1,0 +1,459 @@
+#!/usr/bin/env bash
+
+################################################################################
+
+ACTION_PATCH="patch"
+ACTION_PATCHSET="patchset"
+ACTION_PACKAGE="package"
+ACTION_GIT="git"
+
+################################################################################
+
+CL_RUBY="\e[38;5;197m"
+CL_JRUBY="\e[38;5;160m"
+CL_TRUFFLE="\e[38;5;214m"
+CL_REV="\e[7m"
+
+################################################################################
+
+check_passed=""
+
+################################################################################
+
+require "deps"
+require "facts"
+require "remote"
+require "spinner"
+require "time"
+require "utils"
+require "vars"
+
+################################################################################
+
+# Check definition file
+#
+# 1: Path to defintion file (String)
+# 2: Quiet check (Boolean) [Optional]
+#
+# Code: Yes
+# Echo: No
+def.check() {
+  if [[ -n "$check_passed" ]] ; then
+    return 0
+  fi
+
+  local def_file="$1"
+  local quiet_check="$2"
+  local def_name
+
+  if ! fs.checkPerms "F" "$def_file" ; then
+    if [[ -z "$quiet_check" ]] ; then
+      def_name=$(basename "$def_file")
+      error "Can't find definition file $def_name"
+    fi
+
+    return 1
+  fi
+
+  if ! fs.checkPerms "S" "$def_file" ; then
+    if [[ -z "$quiet_check" ]] ; then
+      def_name=$(basename "$def_file")
+      error "Definition file $def_name is empty"
+    fi
+
+    return 1
+  fi
+
+  if ! head -1 "$def_file" | grep -q '# \-\- \[RBdef\] \-\-' ; then
+    if [[ -z "$quiet_check" ]] ; then
+      def_name=$(basename "$def_file")
+      error "File $def_name doesn't contain default definition file header"
+    fi
+
+    return 1
+  fi
+
+  check_passed=true
+
+  return 0
+}
+
+# Get absolute path to defintion file
+#
+# 1: Path to file or name (String)
+#
+# Code: No
+# Echo: Absolute path to defintion file (String)
+def.getFile() {
+  local def_name="$1"
+  local def_file
+
+  if [[ -f "$def_name" ]] ; then
+    def_file="$def_name"
+  else
+    def_file="$DEFS_DIR/$def_name"
+  fi
+
+  if [[ -f "$def_file" ]] ; then
+    fs.getAbsPath "$def_file"
+  fi
+}
+
+# Get name of version
+#
+# 1: Path to file or name (String)
+#
+# Code: No
+# Echo: Name of version
+def.getName() {
+  basename "$1"
+}
+
+# Extract list of mirrors from def file
+#
+# 1: Path to defintion file (String)
+#
+# Code: No
+# Echo: List of mirrors (String)
+def.getMirrorList() {
+  local def_file="$1"
+
+  if ! def.check "$1" ; then
+    return
+  fi
+
+  grep -E "^\[" "$def_file" | sed 's/[][]//g' | tr '\n' ' '
+}
+
+# Check EOL dates in definition file
+#
+# 1: Path to defintion file (String)
+#
+# Code: Yes
+# Echo: No
+def.checkEOLDates() {
+  local def_file="$1"
+
+  if ! def.check "$1" ; then
+    return
+  fi
+
+  local normal security extended expired
+  local normal_ts security_ts extended_ts
+
+  normal=$(def.readProp "$def_file" "eol(normal)")
+  security=$(def.readProp "$def_file" "eol(security)")
+  extended=$(def.readProp "$def_file" "eol(extended)")
+
+  if [[ -n "$normal" ]] ; then
+    normal_ts=$(time.dateToTS "$normal")
+
+    if time.isBefore "$normal_ts" ; then
+      warn "Normal maintenance finished $(time.tsToDate "$normal_ts")"
+      expired=true
+    fi
+  fi
+
+  if [[ -n "$extended" ]] ; then
+    if time.isBefore "$extended_ts" ; then
+      error "Extended maintenance finished $(time.tsToDate "$extended_ts")"
+    fi
+  fi
+
+  if [[ -n $security ]] ; then
+    security_ts=$(time.dateToTS "$security")
+
+    if time.isBefore "$security_ts" ; then
+      error "Security maintenance finished $(time.tsToDate "$security_ts")"
+      expired=true
+    fi
+  fi
+
+  if [[ -n "$expired" ]] ; then
+    return 1
+  fi
+
+  return 0
+}
+
+# Check build dependencies
+#
+# 1: Path to defintion file (String)
+#
+# Code: Yes
+# Echo: No
+def.checkDeps() {
+  local def_file="$1"
+
+  facts.collect
+
+  local deb_list rpm_list bin_list lib_list pip_list gem_list
+
+  showm "Checking build dependencies… "
+
+  deb_list=$(def.readProp "$def_file" "deps(deb)")
+  rpm_list=$(def.readProp "$def_file" "deps(rpm)")
+  bin_list=$(def.readProp "$def_file" "deps(bin)")
+  lib_list=$(def.readProp "$def_file" "deps(lib)")
+  pip_list=$(def.readProp "$def_file" "deps(pip)")
+  gem_list=$(def.readProp "$def_file" "deps(gem)")
+
+  deb_list=$(deb.checkInstalled $deb_list)
+  rpm_list=$(rpm.checkInstalled $rpm_list)
+  bin_list=$(bin.checkInstalled $bin_list)
+  lib_list=$(lib.checkInstalled $lib_list)
+  pip_list=$(pip.checkInstalled $pip_list)
+  gem_list=$(gem.checkInstalled $gem_list)
+
+  if [[ -z "${deb_list}${rpm_list}${bin_list}${lib_list}${pip_list}${gem_list}" ]] ; then
+    show "OK" $GREEN
+    return 0
+  else
+    show "FAIL\n" $RED
+  fi
+
+  if [[ -n "$deb_list" ]] ; then
+    deb_list=$(fmt.sortList "$deb_list")
+    show "Necessary packages are not found. Install the required dependencies with this command:"
+    show "${CL_DARK}sudo${CL_NORM} ${CL_BOLD}apt install ${deb_list}${CL_NORM}"
+    show ""
+  fi
+
+  if [[ -n "$rpm_list" ]] ; then
+    rpm_list=$(fmt.sortList "$rpm_list")
+    show "Necessary packages are not found. Install the required dependencies with this command:"
+    if system.hasApp "dnf" ; then
+      show "${CL_DARK}sudo${CL_NORM} ${CL_BOLD}dnf install ${rpm_list}${CL_NORM}"
+    else
+      show "${CL_DARK}sudo${CL_NORM} ${CL_BOLD}yum install ${rpm_list}${CL_NORM}"
+    fi
+    show ""
+  fi
+
+  if [[ -n "$bin_list" ]] ; then
+    bin_list=$(fmt.sortList "$bin_list")
+    show "Necessary binaries are not found. Install applications or utilities with these binaries:"
+    show "${bin_list}" $BOLD
+    show ""
+  fi
+
+  if [[ -n "$lib_list" ]] ; then
+    lib_list=$(fmt.sortList "$lib_list")
+    show "Necessary libraries are not found. Install packages with these libraries:"
+    show "${lib_list}" $BOLD
+    show ""
+  fi
+
+  if [[ -n "$pip_list" ]] ; then
+    pip_list=$(fmt.sortList "$pip_list")
+    show "Necessary Python packages are not found. Install the required dependencies with this command:"
+    show "${CL_DARK}sudo${CL_NORM} ${CL_BOLD}pip install ${pip_list}${CL_NORM}"
+    show ""
+  fi
+
+  if [[ -n "$gem_list" ]] ; then
+    gem_list=$(fmt.sortList "$gem_list")
+    show "Necessary Ruby packages are not found. Install the required dependencies with this command:"
+    show "${CL_DARK}sudo${CL_NORM} ${CL_BOLD}gem install ${gem_list}${CL_NORM}"
+    show ""
+  fi
+
+  error "Required dependencies are not found"
+
+  return 1
+}
+
+# Check remote files availability
+#
+# 1: Path to defintion file (String)
+# 2: Mirror (String) [Optional]
+#
+# Code: Yes
+# Echo: No
+def.checkRemote() {
+  local def_file="$1"
+  local mirror="${2:-default}"
+
+  local line action url status_code start_time
+
+  start_time=$(time.now)
+
+  showm "Checking remote files availability on ${CL_BOLD}${CL_RUBY}${mirror}${CL_NORM}… "
+
+  spinner.show
+
+  for line in $(def.getActions "$def_file" "$mirror") ; do
+    IFS="|" read -r -a action <<< "$line"
+
+    case "${action[0]}" in
+      "$ACTION_PATCH"|"$ACTION_PATCHSET") url="${action[1]}" ;;
+      "$ACTION_PACKAGE")                  url="${action[2]}" ;;
+      *) continue ;;
+    esac
+
+    status_code=$(http.checkHTTPStatus "$url")
+
+    if [[ "$status_code" != "200" ]] ; then
+      spinner.hide
+      show "FAIL\n" $RED
+      error "Server return status code $status_code for file $url."
+      return 1
+    fi
+  done
+
+  spinner.hide
+
+  show "${CL_GREEN}OK${CL_NORM} ${CL_DARK}$(time.getGraceDurationShort "$start_time")${CL_NORM}"
+
+  return 0
+}
+
+# Validate actions in definition file
+#
+# 1: Path to defintion file (String)
+# 2: Mirror (String) [Optional]
+#
+# Code: Yes
+# Echo: No
+def.validate() {
+  local def_file="$1"
+  local mirror="${2:-default}"
+
+  local line action url crc builder
+
+  showm "Validating definition file… "
+
+  for line in $(def.getActions "$def_file" "$mirror") ; do
+    IFS="|" read -r -a action <<< "$line"
+
+    crc=""
+    builder=""
+
+    case "${action[0]}" in
+      "$ACTION_PATCH"|"$ACTION_PATCHSET") url="${action[1]}" ; crc="${action[2]}" ;;
+      "$ACTION_PACKAGE")                  url="${action[2]}" ; crc="${action[3]}" ; builder="${action[4]}" ;;
+      "$ACTION_GIT")                      url="${action[2]}" ; builder="${action[4]}" ;;
+      *) show "FAIL\n" $RED ; error "Unsupported action \"${action[0]}\"" ; return 1
+    esac
+
+    if ! http.isValidURL "$url" ; then
+      show "FAIL\n" $RED
+      error "URL \"$url\" is not valid"
+      return 1
+    fi
+
+    if [[ -z "$ignore_checksums" && -n "$crc" ]] ; then
+      if [[ ! "$crc" =~ ^[a-fA-F0-9]{40}$ ]] ; then
+        show "FAIL\n" $RED
+        error "Checksum \"$crc\" is not valid"
+        return 1
+      fi
+    fi
+
+    if [[ -n "$builder" ]] ; then
+      if ! build.hasBuilder "$builder" ; then
+        show "FAIL\n" $RED
+        error "Unknown builder \"$builder\""
+        return 1
+      fi
+    fi
+  done
+
+  show "PASS" $GREEN
+
+  return 0
+}
+
+# Check if definition file contains given mirror 
+#
+# 1: Path to defintion file (String)
+# 2: Mirror name (String)
+#
+# Code: Yes
+# Echo: No
+def.hasMirror() {
+  grep -qE "^\[$2\]$" "$1"
+}
+
+# Read actions
+#
+# 1: Path to defintion file (String)
+# 2: Mirror (String) [Optional]
+#
+# Code: No
+# Echo: Actions (String)
+def.getActions() {
+  local def_file="$1"
+  local mirror="${2:-default}"
+
+  local line actions_found
+
+  while read -r line ; do
+    if [[ -z "$actions_found" ]] ; then
+      if [[ "$line" != "[$mirror]" ]] ; then
+        continue
+      else
+        actions_found=true
+        continue
+      fi
+    fi
+
+    if [[ "${line:0:1}" == "[" ]] ; then
+      break
+    fi
+
+    echo "$line" | grep -v "#" | tr -s ' ' | sed 's/^ +//' | tr -d '"' | sed 's/: / /' | tr ' ' '|'
+  done < <(awk 1 "$def_file")
+}
+
+# Get colored name of definition file
+#
+# 1: Version name (String)
+#
+# Code: No
+# Echo: Colored name (String)
+def.formatWithColors() {
+  if [[ $1 =~ ^([0-9]).[0-9]+.[0-9]+ ]] ; then
+    echo -e "${CL_RUBY}${1}${CL_NORM}"
+  elif [[ $1 =~ ^jruby-* ]] ; then
+    echo -e "${CL_JRUBY}${1}${CL_NORM}"
+  elif [[ $1 =~ ^truffleruby-* ]] ; then
+    echo -e "${CL_TRUFFLE}${1}${CL_NORM}"
+  else
+    echo "$1"
+  fi
+}
+
+# Read property from definition file
+#
+# 1: Path to defintion file (String)
+# 2: Propery name (String)
+#
+# Code: No
+# Echo: Property value (String)
+def.readProp() {
+  if [[ -z "$1" || -z "$2" ]] ; then
+    return
+  fi
+
+  sed -n "s/$2://p" "$1" | sed -e 's/^[ \t]*//'
+}
+
+# Read flags from definition file
+#
+# 1: Path to defintion file (String)
+# 2: Variable name (String)
+#
+# Code: No
+# Echo: Variable value (String)
+def.readFlags() {
+  local def_file="$1"
+  local var_name="$2"
+  local value
+
+  value=$(def.readProp "$def_file" "$var_name")
+
+  if [[ -n "$value" ]] ; then
+    vars.eval "$value" | sed -e 's/^[ \t]*//'
+  fi
+}

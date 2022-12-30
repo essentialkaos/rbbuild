@@ -130,8 +130,7 @@ doInstall() {
 
   confirmInstall "RBBuild"
 
-  require "p7zip"
-  require "bash"
+  require "zstd"
   require "patch"
   require "gawk"
   require "bc"
@@ -140,22 +139,17 @@ doInstall() {
     show "" && exit 1
   fi
 
-  local install_dir="/usr/local/share/rbbuild"
-
-  action "Created install directory $install_dir" \
-         "mkdir" "-p" "$install_dir"
-
-  action "Created directory for builders" \
-         "mkdir" "$install_dir/blds"
+  action "Created directory for shared scripts" \
+         "mkdir" "-p" "/usr/libexec/rbbuild"
 
   action "Created directory for def files" \
-         "mkdir" "$install_dir/defs"
+         "mkdir" "-p" "/usr/local/share/rbbuild"
 
-  action "All builders copied to directory $install_dir/blds" \
-         "cp" "-r" "SOURCES/blds/*" "$install_dir/blds/"
+  action "All builders copied to directory /usr/libexec/rbbuild" \
+         "cp" "-r" "SOURCES/libexec/*" "/usr/libexec/rbbuild/"
 
-  action "All def files copied to directory $install_dir/defs" \
-         "cp" "-r" "SOURCES/defs/*" "$install_dir/defs/"
+  action "All def files copied to directory /usr/local/share/rbbuild" \
+         "cp" "-r" "SOURCES/defs/*" "/usr/local/share/rbbuild/"
 
   action "RBBuild copied to directory /usr/bin" \
          "cp" "SOURCES/rbbuild" "/usr/bin/"

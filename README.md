@@ -45,24 +45,20 @@ sudo ./install.sh --debug
 ### Usage
 
 ```
-Usage: rbbuild {definition-file} {options}...
+Usage: rbbuild {options} def-file target-dir
 
 Options:
 
-  --prefix, -p path           Path where you want to install selected ruby version
-  --dest-dir, -d path         Path where you want to install selected ruby version (used for 'make install')
   --threads, -t num           Number of threads for build process
   --no-patch, -np             Skip patch directives in definition file
   --cc-comp, -cc path/name    Path to C compiler
   --cxx-comp, -cxx path       Path to C++ compiler
-  --ignore-checksums, -ic     Skip checksum check (insecure!)
-  --list, -l                  List of all definition files
+  --ignore-checksums, -ic     Skip checksum check
   --mirror, -m name           Mirror name for downloading source archives from it
-  --mirror-list, -ml          Show list of all available mirrors
+  --mirror-list, -L           Show list of all available mirrors
   --dl-cache, -dc path        Path to download cache
-  --rbenv, -r                 Automatically install to rbenv (--prefix not required)
+  --rbenv, -r                 Automatically install to rbenv
   --name, -rn name            Define name of ruby in rbenv (--rbenv required)
-  --strict, -S                Fail build if configure stage return non zero exit code
   --proxy, -P url             Use HTTP proxy on given host and port
   --debug, -D                 Don't remove build directory and other build data after installation
   --output, -O path           Output path (default /dev/stdout)
@@ -71,17 +67,15 @@ Options:
   --tmp, -T path              Path to temporary directory (used for unpacking files and build process)
   --yes, -y                   Answer "yes" to all questions
   --no-colors, -nc            Don't use colors in output
+  --no-spinner, -ns           Don't show spinner
   --help, -h                  Show this help message
   --version, -v               Show information about version
 
 Examples:
 
-  rbbuild 2.1.1-p0 -t 4 -m somemirror
-  rbbuild 2.1.1-p0 -t 8 -r -cc clang
-  rbbuild 2.1.1-p0 -p /home/user/ruby-2.1.1
-  rbbuild 2.1.1-p0 -r mysuper-2.2.1
-  rbbuild 1.9.3
-
+  rbbuild 2.7.5 /home/user/ruby-2.7.5 -t 4 -m essentialkaos -y
+  rbbuild 3.0.5 /home/user/ruby-3.0.5
+  rbbuild 3.1.1 -r
 ```
 
 ### Build Status

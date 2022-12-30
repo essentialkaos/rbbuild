@@ -1,0 +1,412 @@
+#!/usr/bin/env bash
+
+################################################################################
+
+CCOPTS=""
+CXXOPTS=""
+CFLAGS=""
+CPPFLAGS=""
+LDFLAGS=""
+CONFOPTS=""
+MAKEOPTS=""
+INSTOPTS=""
+XPREFIX=""
+PREFIX=""
+
+################################################################################
+
+# Exit protection flag (Boolean)
+exit_protection=""
+
+# Prefix directory owner (String)
+prefix_owner=""
+
+################################################################################
+
+require "action"
+require "def"
+require "facts"
+require "fmt"
+require "prepare"
+require "terminal"
+require "utils"
+
+################################################################################
+
+# Start Ruby build
+#
+# 1: Path to defintion file (String)
+# 2: Target directory (String)
+#
+# Code: Yes
+# Echo: No
+build.start() {
+  local def_file="$1"
+  local target_dir="$2"
+
+  if [[ -z "$def_file" ]] ; then
+    error "You must provide name or path to definition file"
+    return 1
+  fi
+
+  prep.configureProxy
+
+  def_file=$(def.getFile "$def_file")
+  prefix=$(build.getPrefix "$def_file" "$target_dir")
+
+  if ! def.check "$def_file" ; then
+    return 1
+  fi
+
+  if ! def.hasMirror "$def_file" "$mirror" ; then
+    error "Definition file doesn't contain info about mirror \"$mirror\""
+    return 1
+  fi
+
+  if ! prep.checkSystem ; then
+    return 1
+  fi
+
+  facts.collect
+
+  trap build.interrupt SIGTERM SIGQUIT SIGINT
+
+  if ! def.checkEOLDates "$def_file" ; then
+    show ""
+    if ! terminal.readAnswer "Do you really want to build this version?" "N" ; then
+      return 1
+    fi
+  fi
+
+  if ! def.validate "$def_file" "$mirror" ; then
+    return 1
+  fi
+
+  if ! def.checkDeps "$def_file" ; then
+    return 1
+  fi
+
+  if ! def.checkRemote "$def_file" "$mirror" ; then
+    return 1
+  fi
+
+  if ! build.makePrefix ; then
+    return 1
+  fi
+
+  build.printEnvInfo
+
+  local start_time
+  start_time=$(time.now)
+
+  if ! build.exec "$def_file" "$mirror" ; then
+    return 1
+  fi
+
+  if ! build.restorePrefixOwner ; then
+    return 1
+  fi
+
+  build.rbenvRehash
+
+  show "\n${CL_BL_GREEN}Build successfully complete!${CL_NORM} ${CL_DARK}$(time.getGraceDurationShort "$start_time")${CL_NORM}"
+
+  return 0
+}
+
+# Return path to system for install
+#
+# 1: Path to defintion file (String)
+# 2: Target directory (String)
+#
+# Code: No
+# Echo: Prefix (String)
+build.getPrefix() {
+  if [[ -n "$2" ]] ; then
+    fs.getAbsPath "$2"
+    return
+  fi
+
+  if [[ -z "$rbenv" ]] ; then
+    return
+  fi
+
+  local file_name rbenv_prefix loc_rbenv_prefix
+
+  loc_rbenv_prefix=$(fs.getAbsPath "$HOME/.rbenv/versions")
+
+  if fs.checkPerms "DWRX" "$loc_rbenv_path" ; then
+    rbenv_prefix="$loc_rbenv_path"
+  fi
+
+  if fs.checkPerms "DWRX" "/usr/local/rbenv/versions" ; then
+    rbenv_prefix="/usr/local/rbenv/versions"
+  fi
+
+  if [[ -z "$rbenv_prefix" ]] ; then
+    return
+  fi
+
+  if [[ -z "$name" ]] ; then
+    file_name=$(def.getName "$1")
+    echo "$rbenv_prefix/$file_name"
+  else
+    echo "$rbenv_prefix/$name"
+  fi
+}
+
+# Create directory for installing Ruby to
+#
+# 1: Target directory (String)
+#
+# Code: Yes
+# Echo: No
+build.makePrefix() {
+  local prefix_root
+
+  prefix_root=$(dirname "$prefix")
+  prefix_owner=$(fs.getOwner "$prefix_root")
+
+  if ! fs.checkPerms "DRW" "$prefix_root" ; then
+    warn "You don't have enough permissions to create a target directory. Invoking sudo…"
+    if ! sudo mkdir -p "$prefix" 2> /dev/null ; then
+      error "Can't create directory $prefix"
+      return 1
+    fi
+    if ! sudo chown "$(user.current):" "$prefix" 2> /dev/null ; then
+      error "Can't change owner for directory $prefix"
+      return 1
+    fi
+
+    return 0  
+  fi
+
+  if ! mkdir -p "$prefix" 2> /dev/null ; then
+    error "Can't create target directory $prefix"
+    return 1
+  fi
+
+  return 0
+}
+
+# Restore owner of prefix directory
+#
+# Code: Yes
+# Echo: No
+build.restorePrefixOwner() {
+  if [[ $(user.current) == "$prefix_owner" ]] ; then
+    return 0
+  fi
+
+  warn "We have to restore owner of target directory. Invoking sudo…"
+
+  if ! sudo chown "$prefix_owner:" "$prefix" 2> /dev/null ; then
+    error "Can't change owner for directory $prefix"
+    return 1
+  fi
+
+  return 0
+}
+
+# Print info about build environment
+#
+# Code: No
+# Echo: No
+build.printEnvInfo() {
+  fmt.separator "BUILD ENVIRONMENT INFO"
+
+  show " ${CL_BOLD}Prefix:     ${CL_NORM} $prefix ${CL_DARK}(prefix)${CL_NORM}"
+  show " ${CL_BOLD}GCC:        ${CL_NORM} ${gcc_version:-${CL_GREY}—${CL_NORM}} ${CL_DARK}(gcc_version)${CL_NORM}"
+  show " ${CL_BOLD}Clang:      ${CL_NORM} ${clang_version:-${CL_GREY}—${CL_NORM}} ${CL_DARK}(clang_version)${CL_NORM}"
+  show " ${CL_BOLD}Java:       ${CL_NORM} ${java_version:-${CL_GREY}—${CL_NORM}} ${CL_DARK}(java_version)${CL_NORM}"
+  show " ${CL_BOLD}Ruby:       ${CL_NORM} ${ruby_version:-${CL_GREY}—${CL_NORM}} ${CL_DARK}(ruby_version)${CL_NORM}"
+  show " ${CL_BOLD}OSName:     ${CL_NORM} ${os_name} ${CL_DARK}(os_name)${CL_NORM}"
+  show " ${CL_BOLD}OSKernel:   ${CL_NORM} ${os_kern} ${CL_DARK}(os_kern)${CL_NORM}"
+  show " ${CL_BOLD}OSDistro:   ${CL_NORM} ${os_dist} ${CL_DARK}(os_dist)${CL_NORM}"
+  show " ${CL_BOLD}OSArch:     ${CL_NORM} ${os_arch} ${CL_DARK}(os_arch)${CL_NORM}"
+  show " ${CL_BOLD}OSArchAlt:  ${CL_NORM} ${os_arch_alt} ${CL_DARK}(os_arch_alt)${CL_NORM}"
+  show " ${CL_BOLD}OSArchName: ${CL_NORM} ${os_arnm} ${CL_DARK}(os_arnm)${CL_NORM}"
+
+  fmt.separator
+}
+
+# Start build process
+#
+# 1: Path to defintion file (String)
+# 2: Mirror (String) [Optional]
+#
+# Code: No
+# Echo: No
+build.exec() {
+  local def_file="$1"
+  local mirror="${2:-default}"
+
+  local line action
+
+  show "Executing definition file actions…" $BOLD
+
+  for line in $(def.getActions "$def_file" "$mirror") ; do
+    IFS="|" read -r -a action <<< "$line"
+
+    if [[ "${action[0]}" == "$ACTION_PACKAGE" || "${action[0]}" == "$ACTION_GIT" ]] ; then
+      action.defineFlags "$def_file" "${action[1]}"
+    fi
+
+    case "${action[0]}" in
+      "$ACTION_PATCH"|"$ACTION_PATCHSET") action.installPatches "${action[@]}" ;;
+      "$ACTION_PACKAGE") action.installPackage "${action[@]:1:99}" ;;
+      "$ACTION_GIT") action.installGit "${action[@]:1:99}" ;;
+    esac
+
+    # shellcheck disable=SC2181
+    if [[ $? -ne 0 ]] ; then
+      return 1
+    fi
+  done
+
+  return 0
+}
+
+# Run builder
+#
+# 1: Package name (String)
+# 2: Package build directory (String)
+# 3: Builder name (String) [Optional]
+#
+# Code: Yes
+# Echo: No
+build.runBuilder() {
+  local pkg_name="$1"
+  local pkg_dir="$2"
+  local builder_name="${3:-default}"
+
+  shift 3
+
+  builder_name=${builder_name,,}
+
+  if ! build.hasBuilder "$builder_name" ; then
+    error "Unknown builder \"$builder_name\""
+    return 1
+  fi
+
+  require "builders/$builder_name"
+
+  "builder.$builder_name" "$pkg_name" "$pkg_dir" "$@"
+
+  if [[ $? -ne 0 ]] ; then
+    return 1
+  fi
+
+  if [[ -n "$require_autoconf" ]] ; then
+    unset require_autoconf
+  fi
+
+  return 0
+}
+
+# Check if builder exist
+#
+# 1: Builder name (String)
+#
+# Code: Yes
+# Echo: No
+build.hasBuilder() {
+  local builder_name="${1:-default}"
+
+  if [[ -e "$LIBEXEC_DIR/builders/${builder_name}.shx" ]] ; then
+    return 0
+  fi
+
+  return 1
+}
+
+# Run 'rbenv rehash' after install
+#
+# Code: No
+# Echo: No
+build.rbenvRehash() {
+  if user.isRoot ; then
+    if [[ -n "$rbenv" ]] ; then
+      rbenv rehash
+    fi
+  fi
+}
+
+# Get number of threads for build
+#
+# Code: No
+# Echo: Number of threads (Number)
+build.getBuildThreadsNum() {
+  if [[ -n "$threads" ]] ; then
+    echo "$threads"
+    return
+  fi
+
+  local proc_num
+  proc_num=$(getconf _NPROCESSORS_ONLN)
+
+  ((proc_num--))
+
+  echo "$proc_num"
+}
+
+# Finish failed build
+#
+# Code: No
+# Echo: No
+build.fail() {
+  show "FAILED\n" $RED
+
+  # if [[ -d "$prefix" ]] ; then
+  #   rm -rf "$prefix" &> "$verb_output"
+  # fi
+
+  if [[ -f "$log" && -z "$verbose" ]] ; then
+    local log_name
+
+    log_name="rbbuild--$(date +%Y%m%d-%H%M).log"
+
+    show "Last ${LOG_TAIL_SIZE} lines from install log:\n" $CYAN
+
+    tail -${LOG_TAIL_SIZE} "$log"
+    mv "$log" "$CWD/$log_name"
+
+    show "\nLog saved to $CWD/$log_name\n" $CYAN
+  fi
+
+  finish 1
+}
+
+# Interrupt signal handler 
+#
+# Code: No
+# Echo: No
+build.interrupt() {
+  trap - SIGTERM SIGQUIT SIGINT
+
+  if [[ -n "$exit_protection" ]] ; then
+    show ""
+
+    if [[ -d "$tmp_dir" ]] ; then
+      rm -rf "$tmp_dir" &> /dev/null
+    fi
+
+    unset exit_protection
+
+    kill -TERM "$PID" &> /dev/null
+  else
+    show ""
+    finish 1
+  fi
+}
+
+# Cancel build
+#
+# 1: Exit code (Number)
+#
+# Code: No
+# Echo: No
+build.cancel() {
+  error "$*"
+  finish 1
+}

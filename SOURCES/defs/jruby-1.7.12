@@ -1,5 +1,5 @@
 # -- [RBdef] --
-# UPDATED 18/Oct/2018 12:16:20 by Anton Novojilov <andy@essentialkaos.com>
+# UPDATED 29/Dec/2022 18:21:03 by Anton Novojilov <andy@essentialkaos.com>
 
 eol(normal): 2017-11-11
 
@@ -11,4 +11,4 @@ deps(bin): java
   package: "jruby-1.7.12" "https://s3.amazonaws.com/jruby.org/downloads/1.7.12/jruby-bin-1.7.12.tar.gz" "056cee1138e49da40a77f179b771372692479002" jruby
 
 [essentialkaos]
-  package: "jruby-1.7.12" "https://ruby.kaos.st/jruby-1.7.12.7z" "b7f7a0995153521c29e7437d23ca5d2535c3771d" jruby
+  package: "jruby-1.7.12" "https://ruby.kaos.st/jruby-1.7.12.tzst" "c3f63ce635c994ea9cee7d1d67fb06adb41966cb" jruby

@@ -1,15 +1,9 @@
 ################################################################################
 
-%define install_dir  %{_loc_datarootdir}/%{name}
-%define defs_dir     %{install_dir}/defs
-%define builder_dir  %{install_dir}/blds
-
-################################################################################
-
 Summary:    Utility for compiling and installing different ruby versions
 Name:       rbbuild
-Version:    1.10.4
-Release:    1%{?dist}
+Version:    2.0.0
+Release:    0%{?dist}
 License:    Apache License, Version 2.0
 Vendor:     ESSENTIAL KAOS
 Group:      Development/Tools
@@ -20,8 +14,8 @@ Source0:    https://source.kaos.st/%{name}/%{name}-%{version}.tar.bz2
 BuildArch:  noarch
 BuildRoot:  %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-Requires:   %{name}-defs >= 1.10.0
-Requires:   bash p7zip patch gawk bc
+Requires:   %{name}-defs >= 2
+Requires:   bash zstd patch gawk bc git
 
 Provides:   %{name} = %{version}-%{release}
 
@@ -41,14 +35,12 @@ on UNIX-like systems.
 rm -rf %{buildroot}
 
 install -dm 755 %{buildroot}%{_bindir}
-install -dm 755 %{buildroot}%{builder_dir}
+install -dm 755 %{buildroot}%{_libexecdir}/%{name}
 
 install -pm 755 rbdef %{buildroot}%{_bindir}/
 install -pm 755 rbbuild %{buildroot}%{_bindir}/
 
-cp blds/* %{buildroot}%{builder_dir}
-
-chmod 644 %{buildroot}%{builder_dir}/*
+cp -r libexec/* %{buildroot}%{_libexecdir}/%{name}/
 
 %clean
 rm -rf %{buildroot}
@@ -60,11 +52,18 @@ rm -rf %{buildroot}
 %doc LICENSE
 %{_bindir}/rbbuild
 %{_bindir}/rbdef
-%{builder_dir}
+%{_libexecdir}/%{name}
 
 ################################################################################
 
 %changelog
+* Fri Dec 30 2022 Anton Novojilov <andy@essentialkaos.com> - 2.0.0-0
+- Brand new version rewritten from scratch
+- Using zstandart compression by default
+- Removed outdated builders
+- Added def file validation
+- Builders now remove all useless data
+
 * Mon Dec 06 2021 Anton Novojilov <andy@essentialkaos.com> - 1.10.4-1
 - Code refactoring
 

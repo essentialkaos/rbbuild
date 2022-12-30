@@ -1,0 +1,124 @@
+#!/usr/bin/env bash
+
+################################################################################
+
+current_user=""
+
+################################################################################
+
+# Return true if system contains binary with given name
+#
+# 1: Binary name (String)
+#
+# Code: Yes
+# Echo: No
+system.hasApp() {
+  if ! type -P "$1" &> /dev/null ; then
+    return 1
+  fi
+
+  return 0
+}
+
+# Show error message about required dependency
+#
+# 1: Binary name (String)
+# 2: Package name (String) [Optional]
+#
+# Code: Yes
+# Echo: No
+system.requireApp() {
+  if ! system.hasApp "$1" ; then
+    error "This app requires ${2:-$1}. Install it and try again."
+    return 1
+  fi
+
+  return 0
+}
+
+# Get 1 min load average
+#
+# Code: No
+# Echo: LA (Number)
+system.getLA() {
+  cut -f1 -d" " < /proc/loadavg | sed 's/\..*//'
+}
+
+# Check file or directory permissions
+#
+# 1: Permissions (String)
+# 2: Path to file (String)
+#
+# Code: Yes
+# Echo: No
+fs.checkPerms() {
+  local perms path
+
+  perms=$(echo "$1" | tr "[:lower:]" "[:upper:]")
+  path="$2"
+
+  for perm in $(echo "$perms" | fold -w1) ; do
+    case $perm in
+      "R") [[ ! -r "$path" ]] && return 1 ;;
+      "W") [[ ! -w "$path" ]] && return 1 ;;
+      "E") [[ ! -e "$path" ]] && return 1 ;;
+      "D") [[ ! -d "$path" ]] && return 1 ;;
+      "F") [[ ! -f "$path" ]] && return 1 ;;
+      "S") [[ ! -s "$path" ]] && return 1 ;;
+      "H") [[ ! -h "$path" ]] && return 1 ;;
+      "X") [[ ! -x "$path" ]] && return 1 ;;
+      *)                         return 1 ;;
+    esac
+  done
+
+  return 0
+}
+
+# Get absolute path
+#
+# 1: Path (String)
+#
+# Code: No
+# Echo: Absolute path (String)
+fs.getAbsPath() {
+  readlink -f "$1"
+}
+
+# Get owner for given file or directory
+#
+# 1: Path to file or dir (String)
+#
+# Code: No
+# Echo: Owner name (String)
+fs.getOwner() {
+  stat -c '%U' "$1" 2>/dev/null
+}
+
+# Return current user name
+#
+# 1: Variable Description (Type)
+#
+# Code: No
+# Echo: No
+user.current() {
+  if [[ -n "$current_user" ]] ; then
+    echo "$current_user"
+    return
+  fi
+
+  current_user=$(id -nu)
+
+  echo "$current_user"
+}
+
+# Return true if current user is root
+#
+# Code: No
+# Echo: Flag (Boolean)
+user.isRoot() {
+  if [[ $(user.current) == "root" ]] ; then
+    return 0
+  fi
+
+  return 1
+}

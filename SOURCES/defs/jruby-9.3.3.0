@@ -1,5 +1,5 @@
 # -- [RBdef] --
-# UPDATED 25/Apr/2022 15:12:11 by Anton Novojilov <andy@essentialkaos.com>
+# UPDATED 29/Dec/2022 18:21:04 by Anton Novojilov <andy@essentialkaos.com>
 
 deps(rpm): make gcc gcc-c++
 deps(deb): make gcc build-essentials
@@ -9,4 +9,4 @@ deps(bin): java
   package: "jruby-9.3.3.0" "https://s3.amazonaws.com/jruby.org/downloads/9.3.3.0/jruby-bin-9.3.3.0.tar.gz" "3d65f3afe9e811372e402ea81060d00cd950ca3f" jruby
 
 [essentialkaos]
-  package: "jruby-9.3.3.0" "https://ruby.kaos.st/jruby-9.3.3.0.7z" "8eee74f19151e62841ef3f8ba6858821ee2ee923" jruby
+  package: "jruby-9.3.3.0" "https://ruby.kaos.st/jruby-9.3.3.0.tzst" "39298898bfbbb2cf3cfd87d536569b0abacf01e9" jruby

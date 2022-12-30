@@ -1,0 +1,116 @@
+#!/usr/bin/env bash
+# shellcheck disable=SC2034,SC2154
+
+################################################################################
+
+# JRuby builder
+#
+# 1: Package name (String)
+# 2: Package directory (String)
+# *: Arguments
+#
+# Code: Yes
+# Echo: No
+builder.jruby() {
+  local pkg_name="$1"
+  local pkg_dir="$2"
+
+  local start_time failed
+
+  prfx="${XPREFIX:-$prefix}"
+
+  pushd "$pkg_dir" &> "$verb_output" || build.cancel "Can't set working directory to $pkg_dir"
+
+    showm "Building… "
+
+    start_time=$(time.now)
+
+    [[ -n "$verbose" ]] && show ""
+
+    exit_protection=true
+
+    spinner.show
+
+    if [[ -n "$verbose" ]] ; then
+      {
+        if ! cp -r . "$prfx" ; then
+          failed=true
+        fi
+
+        pushd "$prfx/bin" || printErrorAndExit "Can't set working directory to $prfx/bin"
+
+          if [[ -z "$failed" ]] ; then
+            if ! ln -fs jruby ruby ; then
+              failed=true
+            fi
+          fi
+
+          if [[ -z "$failed" ]] ; then
+            showc "./ruby gem install jruby-launcher"
+            if ! ./ruby gem install jruby-launcher ; then
+              failed=true
+            fi
+          fi
+
+        popd || printErrorAndExit "Can't set working directory"
+      } >> "$output"
+    else
+      {
+        if ! cp -r . "$prfx" ; then
+          failed=true
+        fi
+
+        pushd "$prfx/bin" || printErrorAndExit "Can't set working dir to $prfx/bin"
+
+          if [[ -z "$failed" ]] ; then
+            if ! ln -fs jruby ruby ; then
+              failed=true
+            fi
+          fi
+
+          if [[ -z "$failed" ]] ; then
+            if ! ./ruby gem install jruby-launcher ; then
+              failed=true
+            fi
+          fi
+
+        popd || printErrorAndExit "Can't set working dir"
+      } > "$log" 2>> "$output"
+    fi
+
+    if [[ -n "$failed" ]] ; then
+      spinner.hide
+      unset exit_protection
+      build.fail
+      return 1
+    fi
+
+    builder.jrubyClean "$prfx"
+
+    spinner.hide
+
+    show "${CL_GREEN}DONE${CL_NORM} ${CL_DARK}$(time.getGraceDurationShort "$start_time")${CL_NORM}"
+
+    rm -f "$log"
+
+    unset exit_protection
+
+  popd &> "$verb_output" || build.cancel "Can't set working directory"
+
+  return 0
+}
+
+# Remove useless files and directories
+#
+# 1: Installation directory (String)
+#
+# Code: No
+# Echo: No
+builder.jrubyClean() {
+  local prfx="$1"
+
+  rm -f "$prfx/bin"/*.bat
+  rm -f "$prfx/bin"/*.exe
+  rm -f "$prfx/bin"/*.dll
+  rm -rf "$prfx/samples"
+}

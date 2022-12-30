@@ -1,5 +1,5 @@
 # -- [RBdef] --
-# UPDATED 18/Oct/2018 12:16:20 by Anton Novojilov <andy@essentialkaos.com>
+# UPDATED 29/Dec/2022 18:21:04 by Anton Novojilov <andy@essentialkaos.com>
 
 eol(normal): 2018-05-24
 eol(security): 2018-05-24
@@ -12,4 +12,4 @@ deps(bin): java
   package: "jruby-9.1.7.0" "https://s3.amazonaws.com/jruby.org/downloads/9.1.7.0/jruby-bin-9.1.7.0.tar.gz" "b0f21d31e16df4e41d7c5d2952b14d87844af69b" jruby
 
 [essentialkaos]
-  package: "jruby-9.1.7.0" "https://ruby.kaos.st/jruby-9.1.7.0.7z" "420c369fe3bbac381f6da9608842eb2848851888" jruby
+  package: "jruby-9.1.7.0" "https://ruby.kaos.st/jruby-9.1.7.0.tzst" "e5e38f09635bcce554fb7da3f031d56a4a969140" jruby

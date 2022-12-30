@@ -1,22 +1,22 @@
 # -- [RBdef] --
-# UPDATED 25/Apr/2022 14:46:31 by Anton Novojilov <andy@essentialkaos.com>
+# UPDATED 29/Dec/2022 18:21:00 by Anton Novojilov <andy@essentialkaos.com>
 
 eol(normal): 2019-03-31
 eol(security): 2020-03-31
 
-deps(rpm): gcc make zlib-devel readline-devel tk-devel ca-certificates
+deps(rpm): make gcc gcc-c++ zlib-devel readline-devel tk-devel ca-certificates
 deps(rpm): autoconf glibc-devel ncurses-devel bison libffi-devel jemalloc-devel
 
 CONFOPTS(openssl-1.1.1n): {os_name}-{os_arch} --openssldir={prefix}/openssl/ssl zlib-dynamic no-ssl3 shared -fPIC
 MAKEOPTS(openssl-1.1.1n): -j 1
 PREFIX(openssl-1.1.1n): {prefix}/openssl
 
-CONFOPTS(ruby-2.4.3-p0): --with-jemalloc --with-openssl-dir={prefix}/openssl --disable-install-doc
+CONFOPTS(ruby-2.4.3): --with-jemalloc --with-openssl-dir={prefix}/openssl --disable-install-doc
 
 [default]
   package: "openssl-1.1.1n" "https://www.openssl.org/source/openssl-1.1.1n.tar.gz" "4b0936dd798f60c97c68fc62b73033ecba6dfb0c" openssl
-  package: "ruby-2.4.3-p0" "https://cache.ruby-lang.org/pub/ruby/2.4/ruby-2.4.3.tar.gz" "787b7f4e90fb4b39a61bc1a31eb7765f875a590c"
+  package: "ruby-2.4.3" "https://cache.ruby-lang.org/pub/ruby/2.4/ruby-2.4.3.tar.gz" "787b7f4e90fb4b39a61bc1a31eb7765f875a590c"
 
 [essentialkaos]
-  package: "openssl-1.1.1n" "https://ruby.kaos.st/openssl-1.1.1n.7z" "56f932dc1bf02d3bcd15b341578b33ef3105ed00" openssl
-  package: "ruby-2.4.3-p0" "https://ruby.kaos.st/ruby-2.4.3.7z" "1cd2dfe3c7e4329d37935ff875419d6cebbd7170"
+  package: "openssl-1.1.1n" "https://ruby.kaos.st/openssl-1.1.1n.tzst" "43c27ad73c4a847dabc339f5cc4d697fa706c1ce" openssl
+  package: "ruby-2.4.3" "https://ruby.kaos.st/ruby-2.4.3.tzst" "a27836adb75ef5630336a36199afcd40d1196aac"

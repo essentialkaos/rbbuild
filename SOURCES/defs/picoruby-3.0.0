@@ -1,0 +1,13 @@
+# -- [RBdef] --
+# UPDATED 29/Dec/2022 18:56:44 by Anton Novojilov <andy@essentialkaos.com>
+
+deps(rpm): gcc git
+deps(deb): gcc git
+
+deps(bin): ruby
+
+[default]
+  git: "picoruby-3.0.0" "https://github.com/picoruby/picoruby.git" "3.0.0" picoruby
+
+[essentialkaos]
+  package: "picoruby-3.0.0" "https://ruby.kaos.st/picoruby-3.0.0.tzst" "14ee12a009a78aa718951100e2047331a17ff99a" picoruby

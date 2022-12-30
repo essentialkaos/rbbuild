@@ -1,0 +1,334 @@
+#!/usr/bin/env bash
+
+################################################################################
+
+# Patching flag (Boolean)
+require_patching=""
+
+# Autoconf flag (Boolean)
+require_autoconf=""
+
+################################################################################
+
+require "build"
+require "def"
+require "remote"
+require "spinner"
+require "time"
+require "unpack"
+
+################################################################################
+
+# Install patch or patchset
+#
+# 1: Patch type (String)
+# 2: URL (String)
+# 3: CRC (String)
+#
+# Code: Yes
+# Echo: No
+action.installPatches() {
+  if [[ -n "$no_patch" ]] ; then
+    return 0
+  fi
+
+  local patch_type="$1"
+  local url="$2"
+  local crc="$3"
+
+  local file_name
+
+  if [[ ! -e "$tmp_dir/patches" ]] ; then
+    if ! mkdir -p "$tmp_dir/patches" &> /dev/null ; then
+      error "Can't create directory $tmp_dir/patches"
+      return 1
+    fi
+  fi
+
+  file_name=$(basename "$url")
+
+  show ""
+
+  pushd "$tmp_dir/patches" &> "$verb_output" || build.cancel "Can't set working directory to $tmp_dir/patches"
+
+    show "Fetching patch/patchset ${file_name}… "
+
+    if ! http.download "$url" "$file_name" ; then
+      error "Can't download remote file $url"
+      return 1
+    fi
+
+    if ! action.checkCRC "$file_name" "$crc" ; then
+      return 1
+    fi
+
+    if [[ "$patch_type" == "$ACTION_PATCHSET" ]] ; then
+      if ! unpack.archive "$file_name" ; then
+        return 1
+      fi
+    fi
+
+    require_patching=true
+
+  popd &> "$verb_output" || build.cancel "Can't set working directory"
+
+  return 0
+}
+
+# Install package (archive with sources)
+#
+# 1: Package name (String)
+# 2: URL (String)
+# 3: CRC (String)
+# *: Other arguments to pass to builder
+#
+# Code: Yes
+# Echo: No
+action.installPackage() {
+  local pkg_name="$1"
+  local url="$2"
+  local crc="$3"
+
+  local file_name pkg_dir
+
+  shift 3
+
+  file_name=$(basename "$url")
+
+  show ""
+
+  pushd "$tmp_dir" &> "$verb_output" || build.cancel "Can't set working directory to $tmp_dir"
+
+    show "Installing ${CL_BL_YELLOW}${pkg_name}${CL_YELLOW}…" $YELLOW
+    show "Fetching file ${CL_BOLD}${file_name}${CL_NORM}… "
+
+    if ! http.download "$url" "$file_name" ; then
+      error "Can't download remote file $url"
+      return 1
+    fi
+
+    if ! action.checkCRC "$file_name" "$crc" ; then
+      return 1
+    fi
+
+    touch _marker
+
+    if ! unpack.archive "$file_name" ; then
+      return 1
+    fi
+
+    pkg_dir=$(find "$tmp_dir" -mindepth 1 -maxdepth 1 -type d -cnewer _marker -print -quit)
+    rm -rf _marker
+
+    if [[ -n "$require_patching" ]] ; then
+      if ! action.applyPatches "$pkg_dir" ; then
+        return 1
+      fi
+    fi
+
+    if ! build.runBuilder "$pkg_name" "$pkg_dir" "$@" ; then
+      return 1
+    fi
+
+  popd &> "$verb_output" || build.cancel "Can't set working directory"
+
+  return 0
+}
+
+# Install git sources
+#
+# 1: Package name (String)
+# 2: Repository URL (String)
+# 3: Tag or branch (String)
+# 4: Builder name (String) [Optional]
+#
+# Code: Yes
+# Echo: No
+action.installGit() {
+  local pkg_name="$1"
+  local url="$2"
+  local tag_or_branch="$3"
+
+  local pkg_dir start_time
+
+  shift 3
+
+  show ""
+
+  pushd "$tmp_dir" &> "$verb_output" || build.cancel "Can't set working directory to $tmp_dir"
+
+    show "Installing ${CL_BL_YELLOW}${pkg_name}${CL_YELLOW}…" $YELLOW
+    showm "Fetching sources from ${CL_BOLD}${url:8:999}${CL_NORM}… "
+
+    spinner.show
+
+    start_time=$(time.now)
+
+    if ! git clone --depth=1 --branch="$tag_or_branch" "$url" &> "$verb_output" ; then
+      spinner.hide
+      show "ERROR\n" $RED
+      error "Can't checkout repository"
+      return 1
+    fi
+
+    spinner.hide
+
+    show "${CL_GREEN}DONE${CL_NORM} ${CL_DARK}$(time.getGraceDurationShort "$start_time")${CL_NORM}"
+
+    pkg_dir=$(basename "$url" | sed 's/.git//')
+
+    if [[ -n "$require_patching" ]] ; then
+      if ! action.applyPatches "$pkg_dir" ; then
+        return 1
+      fi
+    fi
+
+    if ! build.runBuilder "$pkg_name" "$pkg_dir" "$@" ; then
+      return 1
+    fi
+
+  popd &> "$verb_output" || build.cancel "Can't set working directory"
+
+  return 0
+}
+
+# Apply all patches
+#
+# 1: Path to package directory (String)
+#
+# Code: Yes
+# Echo: No
+action.applyPatches() {
+  local pkg_dir="$1"
+  local patch
+
+  pushd "$pkg_dir" &> "$verb_output" || build.cancel "Can't set working directory to $pkg_dir"
+
+    if [[ -n $(find "$tmp_dir/patches" -name "*.patch" -print -quit) ]] ; then
+      for patch in $(find "$tmp_dir/patches" -name "*.patch" -print | sort -n) ; do
+        if ! action.applyPatch "$patch" ; then
+          return 1
+        fi
+      done
+    fi
+
+    if [[ -n $(find "$tmp_dir/patches" -name "*.diff" -print -quit) ]] ; then
+      for patch in $(find "$tmp_dir/patches" -name "*.diff" -print | sort -n) ; do
+        if ! action.applyPatch "$patch" ; then
+          return 1
+        fi
+      done
+    fi
+
+  popd &> "$verb_output" || build.cancel "Can't set working directory"
+
+  unset require_patching
+
+  require_autoconf=true
+
+  return 0
+}
+
+# Apply patch to current code base
+#
+# 1: Path to patch file (String)
+#
+# Code: Yes
+# Echo: No
+action.applyPatch() {
+  local patch="$1"
+  local patch_name
+
+  patch_name=$(basename "$patch")
+
+  showm "Applying $patch_name… "
+
+  if [[ "$patch_name" =~ \.patch$ ]] ; then
+    # shellcheck disable=SC2002
+    cat "$patch" | patch -p1 &> "$verb_output"
+  elif [[ "$patch_name" =~ \.diff$ ]]; then
+    # shellcheck disable=SC2002
+    cat "$patch" | git apply &> "$verb_output"
+  else
+    show "ERROR\n" $RED
+    error "Unknown patch format"
+    return 1
+  fi
+
+  # shellcheck disable=SC2181
+  if [[ $? -ne 0 ]] ; then
+    show "ERROR\n" $RED
+    error "Can't apply patch"
+    return 1
+  fi
+
+  show "DONE" $GREEN
+
+  return 0
+}
+
+# Define build flags
+#
+# 1: Package 
+#
+# Code: No
+# Echo: No
+action.defineFlags() {
+  local def_file="$1"
+  local pkg_name="$2"
+
+  unset CC CXX CCOPTS CXXOPTS CFLAGS CPPFLAGS LDFLAGS
+  unset CONFOPTS MAKEOPTS INSTOPTS XPREFIX
+
+  CCOPTS=$(def.readFlags "$def_file" "CC($pkg_name)")
+  CXXOPTS=$(def.readFlags "$def_file" "CXX($pkg_name)")
+  CFLAGS=$(def.readFlags "$def_file" "CFLAGS($pkg_name)")
+  CPPFLAGS=$(def.readFlags "$def_file" "CPPFLAGS($pkg_name)")
+  LDFLAGS=$(def.readFlags "$def_file" "LDFLAGS($pkg_name)")
+  CONFOPTS=$(def.readFlags "$def_file" "CONFOPTS($pkg_name)")
+  MAKEOPTS=$(def.readFlags "$def_file" "MAKEOPTS($pkg_name)")
+  INSTOPTS=$(def.readFlags "$def_file" "INSTOPTS($pkg_name)")
+  XPREFIX=$(def.readFlags "$def_file" "PREFIX($pkg_name)")
+
+  [[ -n "$CCOPTS" ]] && export CC="${CCOPTS}"
+  [[ -n "$CXXOPTS" ]] && export CXX="${CXXOPTS}"
+  [[ -n "$CFLAGS" ]] && export CFLAGS="${CFLAGS}"
+  [[ -n "$LDFLAGS" ]] && export LDFLAGS="${LDFLAGS}"
+  [[ -n "$CPPFLAGS" ]] && export CPPFLAGS="${CPPFLAGS}"
+}
+
+# Check file SHA checksum
+#
+# 1: Path to file (String)
+# 2: Checksum (String)
+#
+# Code: Yes
+# Echo: No
+action.checkCRC() {
+  if [[ -n "$ignore_checksums" ]] ; then
+    return 0
+  fi
+
+  local file_name="$1"
+  local crc="$2"
+
+  local file_crc
+
+  showm "Checking SHA-1 checksum… "
+
+  file_crc=$(sha1sum "$file_name" | cut -f1 -d" ")
+
+  if [[ "$file_crc" != "$crc" ]] ; then
+    show "FAIL\n" $RED
+
+    show "Checksum of the file $file_name not equals to checksum from" $RED
+    show "the definition file (outdated defs?). Maybe file was changed on remote host." $RED
+    show "You can use argument --ignore-checksums/-ic for skipping this check." $RED
+
+    return 1
+  fi
+
+  show "PASS" $GREEN
+
+  return 0
+}
