@@ -279,7 +279,7 @@ def.checkRemote() {
 
   start_time=$(time.now)
 
-  showm "Checking remote files availability on ${CL_BOLD}${CL_RUBY}${mirror}${CL_NORM}… "
+  showm "Checking remote files availability on ${CL_BOLD}${mirror}${CL_NORM}… "
 
   spinner.show
 
