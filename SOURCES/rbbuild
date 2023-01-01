@@ -61,7 +61,7 @@ SUPPORTED_OPTS="dest_dir !help mirror output !quiet tmp threads
  !verbose !version cc_comp cxx_comp !mirror_list !ignore_checksums dl_cache 
  !rbenv name proxy !debug !yes !no_patch !no_colors !no_spinner"
 
-SHORT_OPTS="h:help d:!dest_dir m:mirror o:output q:!quiet T:tmp N:name 
+SHORT_OPTS="h:!help d:!dest_dir m:mirror o:output q:!quiet T:tmp N:name 
  t:threads V:!verbose v:!version y:!yes P:proxy L:!mirror_list D:!debug 
  ic:!ignore_checksums dc:dl_cache r:!rbenv cc:cc_comp cxx:cxx_comp 
  np:!no_patch nc:!no_colors ns:!no_spinner"
@@ -221,24 +221,6 @@ finish() {
 
 ################################################################################
 
-# Show separator
-#
-# 1: Separator name (String) [Optional]
-#
-# Code: No
-# Echo: No
-showSeparator() {
-  local name="$1"
-  local sep="--------------------------------------------------------------------------------"
-
-  if [[ -n "$name" ]] ; then
-    local adds=$((${#sep} - ${#name} - 4))
-    show "\n${CL_GREY}--${CL_NORM} ${CL_BOLD}${name}${CL_NORM} ${CL_GREY}${SEPARATOR:0:$adds}${CL_NORM}\n"
-  else
-    show "\n${CL_GREY}${sep}${CL_NORM}\n"
-  fi
-}
-
 # Show message
 #
 # 1: Message (String)
@@ -354,7 +336,7 @@ usage() {
   show ""
   show "${CL_BOLD}Usage:${CL_NORM} rbbuild ${CL_GREEN}{options}${CL_NORM} def-file target-dir"
   show ""
-  show "${CL_BOLD}Options:${CL_NORM}"
+  show "${CL_BOLD}Options${CL_NORM}"
   show ""
   showo "--threads, -t"           "Number of threads for build process"                                            "num"
   showo "--no-patch, -np"         "Skip patch directives in definition file"
@@ -378,7 +360,7 @@ usage() {
   showo "--help, -h"              "Show this help message"
   showo "--version, -v"           "Show information about version"
   show ""
-  show "${CL_BOLD}Examples:${CL_NORM}"
+  show "${CL_BOLD}Examples${CL_NORM}"
   show ""
   show "  rbbuild 2.7.5 /home/user/ruby-2.7.5 -t 4 -m essentialkaos -y"
   show "  rbbuild 3.0.5 /home/user/ruby-3.0.5"
