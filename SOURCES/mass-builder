@@ -136,6 +136,11 @@ prepare() {
                  ncurses-devel readline-devel tk-devel \
                  zlib-devel git patch
 
+  if [[ $(getELVersion) == "7" ]] ; then
+    yum -y install centos-release-scl
+    yum -y install devtoolset-9-gcc-c++ devtoolset-9-binutils
+  fi
+
   mkdir -p /root/rbbuild-cache
 
   separator
@@ -161,6 +166,10 @@ build() {
     if ! prepare ; then
       return 1
     fi
+  fi
+
+  if [[ $(getELVersion) == "7" ]] ; then
+    export PATH="/opt/rh/devtoolset-9/root/usr/bin:$PATH"
   fi
 
   local version has_errors
