@@ -316,7 +316,7 @@ pack() {
     done
 
     tar -cvf "/root/ruby-el$(getELVersion).tar" -- *.tzst &> /dev/null
-    rm -f *.tzst
+    rm -f -- *.tzst
 
   popd &> /dev/null || return 1
 
@@ -334,7 +334,7 @@ pack() {
 # Code: No
 # Echo: No
 wipe() {
-  rm -rf $VERSIONS_DIR/* &> /dev/null
+  rm -rf ${VERSIONS_DIR:?}/* &> /dev/null
   rm -f "/root/ruby-el$(getELVersion).tar" &> /dev/null
 
   show "All built versions successfully deleted" $GREEN

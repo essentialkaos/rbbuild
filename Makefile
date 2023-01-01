@@ -8,6 +8,7 @@
 test: ## Run shellcheck tests
 	shellcheck SOURCES/rbbuild SOURCES/libexec/*.shx
 	shellcheck SOURCES/rbdef
+	shellcheck SOURCES/mass-builder
 
 help: ## Show this info
 	@echo -e '\nSupported targets:\n'
