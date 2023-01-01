@@ -64,7 +64,17 @@ rm -rf %{buildroot}
 - Added 3.2.0
 - Added 3.2.0-jemalloc
 - Added 3.2.0-railsexpress
+- Added jruby-9.3.5.0
+- Added jruby-9.3.6.0
+- Added jruby-9.3.7.0
+- Added jruby-9.3.8.0
+- Added jruby-9.3.9.0
+- Added jruby-9.4.0.0
+- Added truffleruby-22.1.0
+- Added truffleruby-22.2.0
+- Added truffleruby-22.3.0
 - Removed all 1.8.x and 1.9.x versions
+- Removed all jruby-1.6.x and jruby-1.7.x versions
 - Using zstandart compression by default for files on essentialkaos mirror
 - OpenSSL updated to 1.1.1s for 2.4.0+
 
