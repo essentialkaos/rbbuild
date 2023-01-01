@@ -63,7 +63,7 @@ prep.checkOptions() {
   fi
 
   if [[ -n "$dl_cache" ]] ; then
-    if ! fs.checkPerms "DRWX" "$cache_dir" ; then
+    if ! fs.checkPerms "DRWX" "$dl_cache" ; then
       error "Can't use directory $dl_cache for download cache (not exist or lack of permissions)"
       return 1
     fi
