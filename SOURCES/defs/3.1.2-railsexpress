@@ -1,6 +1,9 @@
 # -- [RBdef] --
 # UPDATED 30/Dec/2022 18:10:38 by Anton Novojilov <andy@essentialkaos.com>
 
+eol(normal): 2024-03-31
+eol(security): 2025-03-31
+
 deps(rpm): make gcc gcc-c++ zlib-devel readline-devel tk-devel ca-certificates
 deps(rpm): autoconf glibc-devel ncurses-devel bison libffi-devel
 deps(deb): build-essential zlib1g-dev libreadline6-dev tk-dev ca-certificates
