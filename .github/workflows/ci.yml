@@ -31,7 +31,7 @@ jobs:
       - name: Check scripts with Shellcheck
         uses: essentialkaos/shellcheck-action@v1
         with:
-          files: install.sh SOURCES/rbdef SOURCES/rbbuild SOURCES/libexec/*.shx SOURCES/libexec/builders/*.shx
+          files: install.sh SOURCES/mass-builder SOURCES/rbdef SOURCES/rbbuild SOURCES/libexec/*.shx SOURCES/libexec/builders/*.shx
 
   Perfecto:
     name: Perfecto
