@@ -15,8 +15,10 @@ builder.jruby() {
   local pkg_name="$1"
   local pkg_dir="$2"
 
+  local iopts prfx
   local start_time failed
 
+  iopts="${INSTOPTS}"
   prfx="${XPREFIX:-$prefix}"
 
   pushd "$pkg_dir" &> "$verb_output" || build.cancel "Can't set working directory to $pkg_dir"
@@ -46,8 +48,8 @@ builder.jruby() {
           fi
 
           if [[ -z "$failed" ]] ; then
-            showc "./ruby gem install jruby-launcher"
-            if ! ./ruby gem install jruby-launcher ; then
+            showc "./ruby gem install jruby-launcher --verbose $iopts"
+            if ! ./ruby gem install jruby-launcher --verbose $iopts ; then
               failed=true
             fi
           fi
@@ -69,7 +71,7 @@ builder.jruby() {
           fi
 
           if [[ -z "$failed" ]] ; then
-            if ! ./ruby gem install jruby-launcher ; then
+            if ! ./ruby gem install jruby-launcher --verbose $iopts ; then
               failed=true
             fi
           fi
@@ -86,6 +88,7 @@ builder.jruby() {
     fi
 
     builder.jrubyClean "$prfx"
+    builder.jrubyFixShebangs "$prfx"
 
     spinner.hide
 
@@ -113,4 +116,23 @@ builder.jrubyClean() {
   rm -f "$prfx/bin"/*.exe
   rm -f "$prfx/bin"/*.dll
   rm -rf "$prfx/samples"
+}
+
+# Fix path in shebangs
+#
+# 1: Installation directory (String)
+#
+# Code: No
+# Echo: No
+builder.jrubyFixShebangs() {
+  local prfx="$1"
+  local file
+
+  pushd "$prfx/bin" &> "$verb_output" || return
+
+    for file in $(grep -rn 'env jruby' . | cut -f1 -d':') ; do
+      sed -i "1s:.*:#!${prfx}/bin/jruby:" "$file"
+    done
+
+  popd &> "$verb_output" || return
 }

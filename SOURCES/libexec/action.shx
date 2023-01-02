@@ -296,6 +296,8 @@ action.defineFlags() {
   [[ -n "$CFLAGS" ]] && export CFLAGS="${CFLAGS}"
   [[ -n "$LDFLAGS" ]] && export LDFLAGS="${LDFLAGS}"
   [[ -n "$CPPFLAGS" ]] && export CPPFLAGS="${CPPFLAGS}"
+
+  export TMPDIR="${tmp}"
 }
 
 # Check file SHA checksum

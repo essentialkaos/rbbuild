@@ -74,7 +74,7 @@ rm -rf %{buildroot}
 - Added truffleruby-22.2.0
 - Added truffleruby-22.3.0
 - Removed all 1.8.x and 1.9.x versions
-- Removed all jruby-1.6.x and jruby-1.7.x versions
+- Removed all jruby-1.6.x, jruby-1.7.x, jruby-9.0.x and jruby-9.1.x versions
 - Using zstandart compression by default for files on essentialkaos mirror
 - OpenSSL updated to 1.1.1s for 2.4.0+
 
