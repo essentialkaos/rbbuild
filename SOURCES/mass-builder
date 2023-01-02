@@ -128,15 +128,19 @@ prepare() {
 
   if [[ -n "$testing" ]] ; then
     yum -y --enablerepo=kaos-testing install rbenv rbbuild jre8 jemalloc-devel nano
+    yum -y install --enablerepo=kaos-testing autoconf bison gcc gcc-c++ \
+                   openssl-devel glibc-devel libffi-devel \
+                   ncurses-devel readline-devel tk-devel \
+                   zlib-devel libyaml-devel git patch
   else
     yum -y install rbenv rbbuild jre8 jemalloc-devel nano
+    yum -y install autoconf bison gcc gcc-c++ \
+                   openssl-devel glibc-devel libffi-devel \
+                   ncurses-devel readline-devel tk-devel \
+                   zlib-devel libyaml-devel git patch
   fi
 
-  yum -y install autoconf bison gcc gcc-c++ \
-                 openssl-devel glibc-devel libffi-devel \
-                 ncurses-devel readline-devel tk-devel \
-                 zlib-devel libyaml-devel git patch
-
+  # Use devtoolset for build on EL7
   if [[ $(getELVersion) == "7" ]] ; then
     yum -y install centos-release-scl
     yum -y install devtoolset-9-gcc-c++ devtoolset-9-binutils
@@ -146,7 +150,7 @@ prepare() {
 
   separator
 
-  show "\n\n${CL_BOLD}Now you have to execute ${CL_CYAN}'exec \$SHELL'${CL_NORM}${CL_BOLD} command for rbenv init${CL_NORM}\n\n"
+  show "\n\n${CL_BOLD}Now you have to execute ${CL_BL_CYAN}'exec \$SHELL'${CL_NORM}${CL_BOLD} command for rbenv init${CL_NORM}\n\n"
 
   return 0
 }
@@ -190,8 +194,10 @@ build() {
       has_errors=true
     fi
 
-    if [[ -z "$is_ruby_set" ]] ; then
-      setGlobalRubyVersion "$version"
+    if ! command -v ruby &> /dev/null ; then
+      if [[ -z "$is_ruby_set" ]] ; then
+        setGlobalRubyVersion "$version"
+      fi
     fi
 
   done < <(awk 1 "$versions")
