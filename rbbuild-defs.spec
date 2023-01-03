@@ -44,6 +44,7 @@ rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root,-)
+%doc LICENSE
 %{_prefix}/local/share/rbbuild
 
 ################################################################################
