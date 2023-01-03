@@ -59,12 +59,12 @@ CL_BG_GREY="\e[7;${GREY};49m"
 
 SUPPORTED_OPTS="dest_dir !help mirror output !quiet tmp threads 
  !verbose !version cc_comp cxx_comp !mirror_list !ignore_checksums dl_cache 
- !rbenv name proxy !debug !yes !no_patch !no_colors !no_spinner"
+ !rbenv name proxy !debug !yes !force !no_patch !no_colors !no_spinner"
 
 SHORT_OPTS="h:!help d:!dest_dir m:mirror o:output q:!quiet T:tmp N:name 
  t:threads V:!verbose v:!version y:!yes P:proxy L:!mirror_list D:!debug 
  ic:!ignore_checksums dc:dl_cache r:!rbenv cc:cc_comp cxx:cxx_comp 
- np:!no_patch nc:!no_colors ns:!no_spinner"
+ f:!force np:!no_patch nc:!no_colors ns:!no_spinner"
 
 ################################################################################
 
@@ -355,6 +355,7 @@ usage() {
   showo "--verbose, -V"           "Verbose mode"
   showo "--tmp, -T"               "Path to temporary directory (used for unpacking files and build process)"       "path"
   showo "--yes, -y"               "Answer \"yes\" to all questions"
+  showo "--force, -f"             "Reuse install directories"
   showo "--no-colors, -nc"        "Don't use colors in output"
   showo "--no-spinner, -ns"       "Don't show spinner"
   showo "--help, -h"              "Show this help message"

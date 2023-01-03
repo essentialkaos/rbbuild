@@ -94,7 +94,7 @@ main() {
 
   case "$command" in
     "prepare") prepare "$@" ;;
-    "check")   check ;;
+    "check")   check "$@" ;;
     "pack")    pack ;;
     "build")   build "$@" ;;
     "wipe")    wipe ;;
@@ -179,20 +179,20 @@ build() {
 
   local version total current has_errors
 
-  total=$(cat "$versions" | wc -l)
+  total=$(grep -vE '^$' "$versions" | wc -l)
 
   while read -r version ; do
 
     ((current++))
 
-    if [[ -d "$VERSIONS_DIR/$version" ]] ; then
+    if [[ -d "$VERSIONS_DIR/$version/bin/ruby" ]] ; then
       continue
     fi
 
     separator "$version ($current/$total)"
 
     rbbuild "$version" "$VERSIONS_DIR/$version" \
-            -y -m essentialkaos -dc "$CACHE_DIR"
+            -f -y -m essentialkaos -dc "$CACHE_DIR"
 
     if [[ $? -ne 0 ]] ; then
       has_errors=true
@@ -204,7 +204,7 @@ build() {
       fi
     fi
 
-  done < <(awk 1 "$versions")
+  done < <(awk 1 "$versions" | grep -vE '^$')
 
   if [[ -n "$has_errors" ]] ; then
     return 1
@@ -241,8 +241,11 @@ build() {
 check() {
   local version has_errors
 
-  if ! hasBuiltVersions ; then
-    return 0
+  local versions="$1"
+
+  if [[ -z "$versions" ]] ; then
+    error "You must provide file with versions"
+    return 1
   fi
 
   if ! isSystemReady ; then
@@ -255,7 +258,7 @@ check() {
 
   local rb_version rb_openssl
 
-  for version in $(getBuiltVersions) ; do
+  while read -r version ; do
 
     printf "${CL_BOLD}%-24s${CL_NORM} ${CL_GREY}→${CL_NORM} " "${version}"
 
@@ -266,11 +269,13 @@ check() {
 
     if [[ -z "$rb_version" ]] ; then
       has_errors=true
+      show "Not works" $RED
+      continue
     fi
 
-    show "${rb_version:-Unknown version} ${CL_DARK}(${rb_openssl:-Unknown OpenSSL})${CL_NORM}"
+    show "${rb_version} ${CL_DARK}(${rb_openssl:-Unknown OpenSSL})${CL_NORM}"
 
-  done
+  done < <(awk 1 "$versions" | grep -vE '^$')
 
   rm -f .ruby-version &> /dev/null
 

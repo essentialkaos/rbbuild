@@ -359,9 +359,9 @@ build.getBuildThreadsNum() {
 build.fail() {
   show "FAILED\n" $RED
 
-  # if [[ -d "$prefix" ]] ; then
-  #   rm -rf "$prefix" &> "$verb_output"
-  # fi
+  if [[ -d "$prefix" ]] ; then
+    rm -rf "$prefix" &> "$verb_output"
+  fi
 
   if [[ -f "$log" && -z "$verbose" ]] ; then
     local log_name

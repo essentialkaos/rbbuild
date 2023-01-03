@@ -214,8 +214,15 @@ prep.checkPrefix() {
   fi
 
   if [[ -e "$prefix" ]] ; then
-    error "Installation directory ($prefix) already exists"
-    return 1
+    if [[ -z "$force" ]] ; then
+      error "Installation directory ($prefix) already exists"
+      return 1
+    else
+      if ! rm -rf "$prefix" &> /dev/null ; then
+        error "Can't remove directory $prefix"
+        return 1
+      fi
+    fi
   fi
 
   return 0
