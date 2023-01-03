@@ -177,15 +177,19 @@ build() {
     export PATH="/opt/rh/devtoolset-9/root/usr/bin:$PATH"
   fi
 
-  local version has_errors
+  local version total current has_errors
+
+  total=$(cat "$versions" | wc -l)
 
   while read -r version ; do
+
+    ((current++))
 
     if [[ -d "$VERSIONS_DIR/$version" ]] ; then
       continue
     fi
 
-    separator "$version"
+    separator "$version ($current/$total)"
 
     rbbuild "$version" "$VERSIONS_DIR/$version" \
             -y -m essentialkaos -dc "$CACHE_DIR"
@@ -321,7 +325,7 @@ pack() {
 
     done
 
-    tar -cvf "/root/ruby-el$(getELVersion).tar" -- *.tzst &> /dev/null
+    tar -cvf "/root/ruby-rhel$(getELVersion).tar" -- *.tzst &> /dev/null
     rm -f -- *.tzst
 
   popd &> /dev/null || return 1
@@ -341,7 +345,7 @@ pack() {
 # Echo: No
 wipe() {
   rm -rf ${VERSIONS_DIR:?}/* &> /dev/null
-  rm -f "/root/ruby-el$(getELVersion).tar" &> /dev/null
+  rm -f "/root/ruby-rhel$(getELVersion).tar" &> /dev/null
 
   show "All built versions successfully deleted" $GREEN
 }
