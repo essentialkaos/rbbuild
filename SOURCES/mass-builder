@@ -215,7 +215,7 @@ build() {
   fi
 
   if [[ -z "$no_check" ]] ; then
-    if ! check ; then
+    if ! check "$@" ; then
       return 1
     fi
   fi
