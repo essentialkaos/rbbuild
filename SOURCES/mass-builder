@@ -95,7 +95,7 @@ main() {
   case "$command" in
     "prepare") prepare "$@" ;;
     "check")   check "$@" ;;
-    "pack")    pack ;;
+    "pack")    pack "$@" ;;
     "build")   build "$@" ;;
     "wipe")    wipe ;;
     *) error "Unknown command \"$1\""
@@ -179,7 +179,7 @@ build() {
 
   local version total current has_errors
 
-  total=$(grep -vE '^$' "$versions" | wc -l)
+  total=$(grep -cvE '^$' "$versions")
 
   while read -r version ; do
 
@@ -221,7 +221,7 @@ build() {
   fi
 
   if [[ -z "$no_pack" ]] ; then
-    if ! pack ; then
+    if ! pack "$@" ; then
       return 1
     fi
   fi
@@ -239,9 +239,8 @@ build() {
 # Code: Yes
 # Echo: No
 check() {
-  local version has_errors
-
   local versions="$1"
+  local version has_errors
 
   if [[ -z "$versions" ]] ; then
     error "You must provide file with versions"
@@ -293,7 +292,9 @@ check() {
 # Code: Yes
 # Echo: No
 pack() {
-  local version size has_errors
+  local versions version size has_errors output
+
+  versions=$(readlink -f "$1")
 
   if ! hasBuiltVersions ; then
     return 0
@@ -309,7 +310,7 @@ pack() {
 
   pushd "$VERSIONS_DIR" &> /dev/null || return 1
 
-    for version in $(getBuiltVersions) ; do
+    while read -r version ; do
 
       if [[ ! -e "$version" || -e "${version}.tzst" ]] ; then
         continue
@@ -328,10 +329,17 @@ pack() {
       size=$(getGraceFileSize "${version}.tzst")
       show "${CL_GREEN}DONE${CL_NORM} ${CL_DARK}($size)${CL_NORM}"
 
-    done
+    done < <(awk 1 "$versions" | grep -vE '^$')
 
-    tar -cvf "/root/ruby-rhel$(getELVersion).tar" -- *.tzst &> /dev/null
+    output="ruby-rhel$(getELVersion).tar"
+
+    showm "Writing ${output}… "
+
+    tar -cvf "/root/${output}" -- *.tzst &> /dev/null
     rm -f -- *.tzst
+
+    size=$(getGraceFileSize "/root/${output}")
+    show "${CL_GREEN}DONE${CL_NORM} ${CL_DARK}($size)${CL_NORM}"
 
   popd &> /dev/null || return 1
 
@@ -361,22 +369,6 @@ wipe() {
 # Echo: EL version (Number)
 getELVersion() {
   grep 'CPE_NAME' /etc/os-release | tr -d '"' | cut -d':' -f5
-}
-
-# Print list with built versions
-#
-# Code: No
-# Echo: Versions list (String)
-getBuiltVersions() {
-  local version
-
-  for version in $(find "$VERSIONS_DIR" -maxdepth 1 -type d -print | sort -n) ; do
-    if [[ ! -e $version/bin/ruby ]] ; then
-      continue
-    fi
-
-    basename "$version"
-  done
 }
 
 # Prints grace file size
@@ -557,9 +549,9 @@ usage() {
   show "${CL_BOLD}Commands${CL_NORM}"
   show ""
   show "  ${CL_YELLOW}prepare${CL_NORM}     Prepare system for build"
-  show "  ${CL_YELLOW}build${CL_NORM} ${CL_GREY}list${CL_NORM}  Build all versions from given list"
-  show "  ${CL_YELLOW}check${CL_NORM}       Check all built versions"
-  show "  ${CL_YELLOW}pack${CL_NORM}        Pack all built versions"
+  show "  ${CL_YELLOW}build${CL_NORM} ${CL_GREY}list${CL_NORM}  Build given versions"
+  show "  ${CL_YELLOW}check${CL_NORM} ${CL_GREY}list${CL_NORM}  Check given versions"
+  show "  ${CL_YELLOW}pack${CL_NORM} ${CL_GREY}list${CL_NORM}   Pack given versions"
   show "  ${CL_YELLOW}wipe${CL_NORM}        Remove all built versions"
   show ""
   show "${CL_BOLD}Options${CL_NORM}"
