@@ -49,6 +49,7 @@ builder.jruby() {
 
           if [[ -z "$failed" ]] ; then
             showc "./ruby gem install jruby-launcher --verbose $iopts"
+            # shellcheck disable=SC2086
             if ! ./ruby gem install jruby-launcher --verbose $iopts ; then
               failed=true
             fi
@@ -71,6 +72,7 @@ builder.jruby() {
           fi
 
           if [[ -z "$failed" ]] ; then
+            # shellcheck disable=SC2086
             if ! ./ruby gem install jruby-launcher --verbose $iopts ; then
               failed=true
             fi
@@ -130,6 +132,7 @@ builder.jrubyFixShebangs() {
 
   pushd "$prfx/bin" &> "$verb_output" || return
 
+    # shellcheck disable=SC2013
     for file in $(grep -rn 'env jruby' . | cut -f1 -d':') ; do
       sed -i "1s:.*:#!${prfx}/bin/jruby:" "$file"
     done
