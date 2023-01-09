@@ -13,7 +13,7 @@
 
 ### Usage demo
 
-[![demo](https://gh.kaos.st/rbbuild-180.gif)](#usage-demo)
+[![demo](https://gh.kaos.st/rbbuild-200.gif)](#usage-demo)
 
 ### Installation
 
