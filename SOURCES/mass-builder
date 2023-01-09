@@ -127,13 +127,13 @@ prepare() {
   yum -y install epel-release
 
   if [[ -n "$testing" ]] ; then
-    yum -y --enablerepo=kaos-testing install rbenv rbbuild jre8 jemalloc-devel nano
+    yum -y --enablerepo=kaos-testing install rbenv rbbuild jre11 jemalloc-devel nano
     yum -y install --enablerepo=kaos-testing autoconf bison gcc gcc-c++ \
                    openssl-devel glibc-devel libffi-devel \
                    ncurses-devel readline-devel tk-devel \
                    zlib-devel libyaml-devel git patch
   else
-    yum -y install rbenv rbbuild jre8 jemalloc-devel nano
+    yum -y install rbenv rbbuild jre11 jemalloc-devel nano
     yum -y install autoconf bison gcc gcc-c++ \
                    openssl-devel glibc-devel libffi-devel \
                    ncurses-devel readline-devel tk-devel \
