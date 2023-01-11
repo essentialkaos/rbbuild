@@ -98,7 +98,7 @@ main() {
     "pack")    pack "$@" ;;
     "build")   build "$@" ;;
     "wipe")    wipe ;;
-    *) error "Unknown command \"$1\""
+    *) error "Unknown command \"$command\""
        exit 1 ;;
   esac
 
@@ -333,7 +333,7 @@ pack() {
 
     output="ruby-rhel$(getELVersion).tar"
 
-    showm "Writing ${output}… "
+    showm "\nWriting ${output}… "
 
     tar -cvf "/root/${output}" -- *.tzst &> /dev/null
     rm -f -- *.tzst
