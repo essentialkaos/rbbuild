@@ -143,7 +143,7 @@ builder.jrubyFixShebangs() {
   pushd "$prfx/bin" &> "$verb_output" || return
 
     # shellcheck disable=SC2013
-    for file in $(grep -rn 'env jruby' . | cut -f1 -d':') ; do
+    for file in $(grep -rn 'env jruby' . 2> /dev/null | cut -f1 -d':') ; do
       sed -i "1s:.*:#!${prfx}/bin/jruby:" "$file"
     done
 
