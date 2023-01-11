@@ -38,6 +38,9 @@ DIST_UBUNTU="ubuntu"
 # Current OS name (String)
 os_name=""
 
+# Current OS name from uname (String)
+os_name_kern=""
+
 # Current OS arch (String)
 os_arch=""
 
@@ -80,13 +83,13 @@ facts.collect() {
     return
   fi
 
-  os_name=$(uname -s)
+  os_name_kern=$(uname -s)
 
-  if [[ "$os_name" == "SunOS" ]] ; then
+  if [[ "$os_name_kern" == "SunOS" ]] ; then
     os_name=$OS_SOLARIS
-  elif [[ "$os_name" == "Darwin" ]]; then
+  elif [[ "$os_name_kern" == "Darwin" ]]; then
     os_name=$OS_MACOSX
-  elif [[ "$os_name" == "Linux" ]] ; then
+  elif [[ "$os_name_kern" == "Linux" ]] ; then
     os_name="$OS_LINUX"
     os_kern=$(uname -r)
 

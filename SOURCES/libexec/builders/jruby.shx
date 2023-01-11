@@ -113,11 +113,21 @@ builder.jruby() {
 # Echo: No
 builder.jrubyClean() {
   local prfx="$1"
+  local dir dir_name
 
   rm -f "$prfx/bin"/*.bat
   rm -f "$prfx/bin"/*.exe
   rm -f "$prfx/bin"/*.dll
   rm -rf "$prfx/samples"
+
+  if [[ "$os_arch-$os_name_kern" != "-" ]] ; then
+    for dir in "$prfx/lib/jni"/* ; do
+      dir_name=$(basename "$dir")
+      if [[ "$dir" != "$os_arch-$os_name_kern" ]] ; then
+        rm -rf "$prfx/lib/jni/$dir"
+      fi
+    done
+  fi
 }
 
 # Fix path in shebangs

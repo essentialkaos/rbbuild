@@ -224,6 +224,7 @@ build.printEnvInfo() {
   show " ${CL_BOLD}Java:       ${CL_NORM} ${java_version:-${CL_GREY}—${CL_NORM}} ${CL_DARK}(java_version)${CL_NORM}"
   show " ${CL_BOLD}Ruby:       ${CL_NORM} ${ruby_version:-${CL_GREY}—${CL_NORM}} ${CL_DARK}(ruby_version)${CL_NORM}"
   show " ${CL_BOLD}OSName:     ${CL_NORM} ${os_name} ${CL_DARK}(os_name)${CL_NORM}"
+  show " ${CL_BOLD}OSNameKern: ${CL_NORM} ${os_name_kern} ${CL_DARK}(os_name_kern)${CL_NORM}"
   show " ${CL_BOLD}OSKernel:   ${CL_NORM} ${os_kern} ${CL_DARK}(os_kern)${CL_NORM}"
   show " ${CL_BOLD}OSDistro:   ${CL_NORM} ${os_dist} ${CL_DARK}(os_dist)${CL_NORM}"
   show " ${CL_BOLD}OSArch:     ${CL_NORM} ${os_arch} ${CL_DARK}(os_arch)${CL_NORM}"
