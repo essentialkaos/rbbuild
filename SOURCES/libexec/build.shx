@@ -136,11 +136,11 @@ build.getPrefix() {
 
   loc_rbenv_prefix=$(fs.getAbsPath "$HOME/.rbenv/versions")
 
-  if fs.checkPerms "DWRX" "$loc_rbenv_path" ; then
+  if fs.checkPerms "DX" "$loc_rbenv_path" ; then
     rbenv_prefix="$loc_rbenv_path"
   fi
 
-  if fs.checkPerms "DWRX" "/usr/local/rbenv/versions" ; then
+  if fs.checkPerms "DX" "/usr/local/rbenv/versions" ; then
     rbenv_prefix="/usr/local/rbenv/versions"
   fi
 
@@ -169,6 +169,7 @@ build.makePrefix() {
   prefix_owner=$(fs.getOwner "$prefix_root")
 
   if ! fs.checkPerms "DRW" "$prefix_root" ; then
+    show ""
     warn "You don't have enough permissions to create a target directory. Invoking sudo…"
     if ! sudo mkdir -p "$prefix" 2> /dev/null ; then
       error "Can't create directory $prefix"
@@ -199,9 +200,10 @@ build.restorePrefixOwner() {
     return 0
   fi
 
+  show ""
   warn "We have to restore owner of target directory. Invoking sudo…"
 
-  if ! sudo chown "$prefix_owner:" "$prefix" 2> /dev/null ; then
+  if ! sudo chown "$prefix_owner:$prefix_owner" "$prefix" -R 2> /dev/null ; then
     error "Can't change owner for directory $prefix"
     return 1
   fi
