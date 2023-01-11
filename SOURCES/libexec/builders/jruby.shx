@@ -56,7 +56,7 @@ builder.jruby() {
           fi
 
         popd || printErrorAndExit "Can't set working directory"
-      } >> "$output"
+      } &>> "$output"
     else
       {
         if ! cp -r . "$prfx" ; then
@@ -79,7 +79,7 @@ builder.jruby() {
           fi
 
         popd || printErrorAndExit "Can't set working dir"
-      } > "$log" 2>> "$output"
+      } &>> "$log"
     fi
 
     if [[ -n "$failed" ]] ; then
