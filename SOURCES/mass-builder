@@ -1,0 +1,688 @@
+#!/usr/bin/env bash
+# shellcheck disable=SC2034,SC2181
+
+################################################################################
+
+# App name (String)
+APP="MassBuilder"
+
+# App version (String)
+VER="5.0.0"
+
+################################################################################
+
+NORM=0
+BOLD=1
+UNLN=4
+RED=31
+GREEN=32
+YELLOW=33
+BLUE=34
+MAG=35
+CYAN=36
+GREY=37
+DARK=90
+
+CL_NORM="\e[0m"
+CL_BOLD="\e[0;${BOLD};49m"
+CL_UNLN="\e[0;${UNLN};49m"
+CL_RED="\e[0;${RED};49m"
+CL_GREEN="\e[0;${GREEN};49m"
+CL_YELLOW="\e[0;${YELLOW};49m"
+CL_BLUE="\e[0;${BLUE};49m"
+CL_MAG="\e[0;${MAG};49m"
+CL_CYAN="\e[0;${CYAN};49m"
+CL_GREY="\e[0;${GREY};49m"
+CL_DARK="\e[0;${DARK};49m"
+CL_BL_RED="\e[1;${RED};49m"
+CL_BL_GREEN="\e[1;${GREEN};49m"
+CL_BL_YELLOW="\e[1;${YELLOW};49m"
+CL_BL_BLUE="\e[1;${BLUE};49m"
+CL_BL_MAG="\e[1;${MAG};49m"
+CL_BL_CYAN="\e[1;${CYAN};49m"
+CL_BL_GREY="\e[1;${GREY};49m"
+CL_BG_RED="\e[7;${RED};49m"
+CL_BG_GREEN="\e[7;${GREEN};49m"
+CL_BG_YELLOW="\e[7;${YELLOW};49m"
+CL_BG_BLUE="\e[7;${BLUE};49m"
+CL_BG_MAG="\e[7;${MAG};49m"
+CL_BG_CYAN="\e[7;${CYAN};49m"
+CL_BG_GREY="\e[7;${GREY};49m"
+
+################################################################################
+
+SUPPORTED_OPTS="!help !version !testing !no_check !no_pack"
+SHORT_OPTS="h:!help v:!version t:!testing nc:!no_check np:!no_pack"
+
+################################################################################
+
+RBENV_DIR="/usr/local/rbenv"
+CACHE_DIR="/root/rbbuild-cache"
+VERSIONS_DIR="$RBENV_DIR/versions"
+
+################################################################################
+
+is_ruby_set=""
+
+################################################################################
+
+# Main function
+#
+# 1: Command (String)
+#
+# Code: No
+# Echo: No
+main() {
+  local command="$1"
+
+  if [[ -n "$version" ]] ; then
+    about
+    exit 1
+  fi
+
+  if [[ $# -eq 0 || -n "$help" ]] ; then
+    usage
+    exit 1
+  fi
+
+  if [[ $(id -u) != "0" ]] ; then
+    error "This script requires root privileges"
+    exit 1
+  fi
+
+  shift 1
+
+  case "$command" in
+    "prepare") prepare "$@" ;;
+    "check")   check "$@" ;;
+    "pack")    pack "$@" ;;
+    "build")   build "$@" ;;
+    "wipe")    wipe ;;
+    *) error "Unknown command \"$command\""
+       exit 1 ;;
+  esac
+
+  exit $?
+}
+
+# Preconfigure system for the build
+#
+# Code: Yes
+# Echo: No
+prepare() {
+  if isSystemReady ; then
+    warn "Looks like system is already configured"
+    return 1
+  fi
+
+  separator "PREPARE SYSTEM"
+
+  yum clean all
+
+  if ! rpm -q kaos-repo &> /dev/null ; then
+    yum install -y "https://yum.kaos.st/kaos-repo-latest.el$(getELVersion).noarch.rpm"
+  fi
+
+  yum -y update
+  yum -y install epel-release
+
+  if [[ -n "$testing" ]] ; then
+    yum -y --enablerepo=kaos-testing install rbenv rbbuild jre11 jemalloc-devel nano
+    yum -y install --enablerepo=kaos-testing autoconf bison gcc gcc-c++ \
+                   openssl-devel glibc-devel libffi-devel \
+                   ncurses-devel readline-devel tk-devel \
+                   zlib-devel libyaml-devel git patch
+  else
+    yum -y install rbenv rbbuild jre11 jemalloc-devel nano
+    yum -y install autoconf bison gcc gcc-c++ \
+                   openssl-devel glibc-devel libffi-devel \
+                   ncurses-devel readline-devel tk-devel \
+                   zlib-devel libyaml-devel git patch
+  fi
+
+  # Use devtoolset for build on EL7
+  if [[ $(getELVersion) == "7" ]] ; then
+    yum -y install centos-release-scl
+    yum -y install devtoolset-9-gcc-c++ devtoolset-9-binutils
+  fi
+
+  mkdir -p /root/rbbuild-cache
+
+  separator
+
+  show "\n\n${CL_BOLD}Now you have to execute ${CL_BL_CYAN}'exec \$SHELL'${CL_NORM}${CL_BOLD} command for rbenv init${CL_NORM}\n\n"
+
+  return 0
+}
+
+# Build Rubies
+#
+# Code: Yes
+# Echo: No
+build() {
+  local versions="$1"
+
+  if [[ -z "$versions" ]] ; then
+    error "You must provide file with versions"
+    return 1
+  fi
+
+  if ! isSystemReady ; then
+    if ! prepare ; then
+      return 1
+    fi
+  fi
+
+  if [[ $(getELVersion) == "7" ]] ; then
+    export PATH="/opt/rh/devtoolset-9/root/usr/bin:$PATH"
+  fi
+
+  local version total current has_errors
+
+  total=$(grep -cvE '^$' "$versions")
+
+  while read -r version ; do
+
+    ((current++))
+
+    if [[ -d "$VERSIONS_DIR/$version/bin/ruby" ]] ; then
+      continue
+    fi
+
+    separator "$version ($current/$total)"
+
+    rbbuild "$version" "$VERSIONS_DIR/$version" \
+            -f -y -m essentialkaos -dc "$CACHE_DIR"
+
+    if [[ $? -ne 0 ]] ; then
+      has_errors=true
+    fi
+
+    if ! command -v ruby &> /dev/null ; then
+      if [[ -z "$is_ruby_set" ]] ; then
+        setGlobalRubyVersion "$version"
+      fi
+    fi
+
+  done < <(awk 1 "$versions" | grep -vE '^$')
+
+  if [[ -n "$has_errors" ]] ; then
+    return 1
+  fi
+
+  if ! hasBuiltVersions ; then
+    return 1
+  fi
+
+  if [[ -z "$no_check" ]] ; then
+    if ! check "$@" ; then
+      return 1
+    fi
+  fi
+
+  if [[ -z "$no_pack" ]] ; then
+    if ! pack "$@" ; then
+      return 1
+    fi
+  fi
+
+  separator
+
+  show "Build successfully complete!" $GREEN
+  show ""
+
+  return 0
+}
+
+# Check built versions
+#
+# Code: Yes
+# Echo: No
+check() {
+  local versions="$1"
+  local version has_errors
+
+  if [[ -z "$versions" ]] ; then
+    error "You must provide file with versions"
+    return 1
+  fi
+
+  if ! isSystemReady ; then
+    if ! prepare ; then
+      return 1
+    fi
+  fi
+
+  separator "VALIDATION"
+
+  local rb_version rb_openssl
+
+  while read -r version ; do
+
+    printf "${CL_BOLD}%-24s${CL_NORM} ${CL_GREY}→${CL_NORM} " "${version}"
+
+    rbenv local "$version"
+
+    rb_version=$(ruby --version 2> /dev/null)
+    rb_openssl=$(ruby -ropenssl -e 'puts OpenSSL::OPENSSL_VERSION' 2> /dev/null)
+
+    if [[ -z "$rb_version" ]] ; then
+      has_errors=true
+      show "Not works" $RED
+      continue
+    fi
+
+    show "${rb_version} ${CL_DARK}(${rb_openssl:-Unknown OpenSSL})${CL_NORM}"
+
+  done < <(awk 1 "$versions" | grep -vE '^$')
+
+  rm -f .ruby-version &> /dev/null
+
+  show ""
+
+  if [[ -n "$has_errors" ]] ; then
+    return 1
+  fi
+
+  return 0
+}
+
+# Pack built versions to tzst
+#
+# Code: Yes
+# Echo: No
+pack() {
+  local versions version size has_errors output
+
+  versions=$(readlink -f "$1")
+
+  if ! hasBuiltVersions ; then
+    return 0
+  fi
+
+  if ! isSystemReady ; then
+    if ! prepare ; then
+      return 1
+    fi
+  fi
+
+  separator "PACKING"
+
+  pushd "$VERSIONS_DIR" &> /dev/null || return 1
+
+    while read -r version ; do
+
+      if [[ ! -e "$version" || -e "${version}.tzst" ]] ; then
+        continue
+      fi
+
+      printf "${CL_BOLD}%-24s${CL_NORM} ${CL_GREY}→${CL_NORM} " "${version}"
+
+      ZSTD_CLEVEL=19 ZSTD_NBTHREADS=$(getconf _NPROCESSORS_ONLN) tar -I 'zstd' -cf "${version}.tzst" "$version" &> /dev/null
+
+      if [[ $? -ne 0 ]] ; then
+        has_errors=true
+        show "ERROR" $RED
+        continue
+      fi
+
+      size=$(getGraceFileSize "${version}.tzst")
+      show "${CL_GREEN}DONE${CL_NORM} ${CL_DARK}($size)${CL_NORM}"
+
+    done < <(awk 1 "$versions" | grep -vE '^$')
+
+    output="ruby-rhel$(getELVersion).tar"
+
+    showm "\nWriting ${output}… "
+
+    tar -cvf "/root/${output}" -- *.tzst &> /dev/null
+    rm -f -- *.tzst
+
+    size=$(getGraceFileSize "/root/${output}")
+    show "${CL_GREEN}DONE${CL_NORM} ${CL_DARK}($size)${CL_NORM}"
+
+  popd &> /dev/null || return 1
+
+  show ""
+
+  if [[ -n "$has_errors" ]] ; then
+    return 1
+  fi
+
+  return 0
+}
+
+# Remove all built versions
+#
+# Code: No
+# Echo: No
+wipe() {
+  rm -rf ${VERSIONS_DIR:?}/* &> /dev/null
+  rm -f "/root/ruby-rhel$(getELVersion).tar" &> /dev/null
+
+  show "All built versions successfully deleted" $GREEN
+}
+
+# Get EL version from os-release file
+#
+# Code: No
+# Echo: EL version (Number)
+getELVersion() {
+  grep 'CPE_NAME' /etc/os-release | tr -d '"' | cut -d':' -f5
+}
+
+# Prints grace file size
+#
+# 1: Path to file (String)
+#
+# Code: No
+# Echo: Size (String)
+getGraceFileSize() {
+  if [[ ! -e "$1" ]] ; then
+    return
+  fi
+
+  local size
+
+  # shellcheck disable=SC2012
+  size=$(ls -lah "$1" | awk -F " " '{print $5}')
+
+  if [[ $size =~ ^[0-9]+$ ]] ; then
+    echo "${size}B"
+  else
+    echo "$size"
+  fi
+}
+
+# Set global Ruby versions through RBEnv
+#
+# 1: Ruby version (String)
+#
+# Code: Yes
+# Echo: No
+setGlobalRubyVersion() {
+  if [[ $(rbenv global 2>/dev/null) != "system" ]] ; then
+    return 0
+  fi
+
+  if ! rbenv global "$1" &> /dev/null ; then
+    return 1
+  fi
+
+  is_ruby_set=true
+
+  rbenv rehash &> /dev/null
+
+  return 0
+}
+
+# Return true if system preconfiguration is required
+#
+# Code: Yes
+# Echo: No
+isSystemReady() {
+  local need_prepare
+
+  if ! rpm -q kaos-repo &> /dev/null; then
+    need_prepare=true
+  fi
+
+  if ! rpm -q rbbuild &> /dev/null; then
+    need_prepare=true
+  fi
+
+  if [[ -n "$need_prepare" ]] ; then
+    return 1
+  fi
+
+  return 0
+}
+
+# Return false if versions dir is empty
+#
+# Code: Yes
+# Echo: No
+hasBuiltVersions() {
+  if [[ $(find "$VERSIONS_DIR" -mindepth 1 -maxdepth 1 -type d -print | wc -l) != "0" ]] ; then
+    return 0
+  fi
+
+  return 1
+}
+
+################################################################################
+
+# Print separator
+#
+# 1: Title (String) [Optional]
+#
+# Code: No
+# Echo: No
+separator() {
+  local name="$1"
+  local win_width i sep
+
+  win_width=$(tput cols)
+  win_width="${win_width:-88}"
+
+  if [[ -n "$name" ]] ; then
+    win_width=$(( win_width - (${#name} + 4) ))
+    sep="-- ${CL_BOLD}$name${CL_GREY} "
+  fi
+
+  for i in $(seq 1 "$win_width") ; do
+    sep="${sep}-"
+  done
+
+  show "\n${sep}\n" $GREY
+}
+
+# Show message
+#
+# 1: Message (String)
+# 2: Color code (Number) [Optional]
+#
+# Code: No
+# Echo: No
+show() {
+  if [[ -n "$2" ]] ; then
+    echo -e "\e[${2}m${1}\e[0m"
+  else
+    echo -e "$*"
+  fi
+}
+
+# Show message without newline symbol
+#
+# 1: Message (String)
+# 2: Color (Number) [Optional]
+#
+# Code: No
+# Echo: No
+showm() {
+  if [[ -n "$2" ]] ; then
+    echo -e -n "\e[${2}m${1}\e[0m"
+  else
+    echo -e -n "$*"
+  fi
+}
+
+# Print error message
+#
+# 1: Message (String)
+#
+# Code: No
+# Echo: No
+error() {
+  show "▲ $*" $RED 1>&2
+}
+
+# Print warning message
+#
+# 1: Message (String)
+#
+# Code: No
+# Echo: No
+warn() {
+  show "▲ $*" $YELLOW 1>&2
+}
+
+# Show message about unknown option
+#
+# 1: Option name (String)
+#
+# Code: No
+# Echo: No
+showOptWarn() {
+  error "Error! Unknown option $1"
+  exit 1
+}
+
+# Show usage info
+#
+# Code: No
+# Echo: No
+usage() {
+  show ""
+  show "${CL_BOLD}Usage:${CL_NORM} ./mass-builder ${CL_GREEN}{options}${CL_NORM} ${CL_YELLOW}command${CL_NORM}"
+  show ""
+  show "${CL_BOLD}Commands${CL_NORM}"
+  show ""
+  show "  ${CL_YELLOW}prepare${CL_NORM}     Prepare system for build"
+  show "  ${CL_YELLOW}build${CL_NORM} ${CL_GREY}list${CL_NORM}  Build given versions"
+  show "  ${CL_YELLOW}check${CL_NORM} ${CL_GREY}list${CL_NORM}  Check given versions"
+  show "  ${CL_YELLOW}pack${CL_NORM} ${CL_GREY}list${CL_NORM}   Pack given versions"
+  show "  ${CL_YELLOW}wipe${CL_NORM}        Remove all built versions"
+  show ""
+  show "${CL_BOLD}Options${CL_NORM}"
+  show ""
+  show "  ${CL_GREEN}--testing, -t${CL_NORM}    Install packages from testing repository"
+  show "  ${CL_GREEN}--no-check, -nc${CL_NORM}  Disable check after build"
+  show "  ${CL_GREEN}--no-pack, -np${CL_NORM}   Disable packing after build"
+  show "  ${CL_GREEN}--help, -h${CL_NORM}       Show this help message"
+  show "  ${CL_GREEN}--version, -v${CL_NORM}    Show information about version"
+  show ""
+}
+
+# Show version and license info
+#
+# Code: No
+# Echo: No
+about() {
+  show ""
+  show "${CL_BL_CYAN}${APP}${CL_NORM} ${CL_CYAN}${VER}${CL_NORM} - Utility for building many versions of Ruby"
+  show ""
+  show "Copyright (C) 2009-$(date +%Y) ESSENTIAL KAOS" $DARK
+  show "Apache License, Version 2.0 <https://www.apache.org/licenses/LICENSE-2.0>" $DARK
+  show ""
+}
+
+## OPTIONS PARSING 5 ###########################################################
+
+if [[ $# -eq 0 ]] ; then
+  main
+fi
+
+unset opt optn optm optv optt optk
+
+optv="$*" ; optt=""
+
+while [[ -n "$1" ]] ; do
+  if [[ "$1" =~ \  && -n "$optn" ]] ; then
+    declare "$optn=$1"
+
+    unset optn && shift && continue
+  elif [[ $1 =~ ^-{1}[a-zA-Z0-9]{1,2}+.*$ ]] ; then
+    optm=${1:1}
+
+    if [[ \ $SHORT_OPTS\  =~ \ $optm:!?([a-zA-Z0-9_]*) ]] ; then
+      opt="${BASH_REMATCH[1]}"
+    else
+      declare -F showOptWarn &>/dev/null && showOptWarn "-$optm"
+      shift && continue
+    fi
+
+    if [[ -z "$optn" ]] ; then
+      optn=$opt
+    else
+      # shellcheck disable=SC2015
+      [[ -z "$optk" ]] && ( declare -F showOptValWarn &>/dev/null && showOptValWarn "--$optn" ) || declare "$optn=true"
+      optn=$opt
+    fi
+
+    if [[ ! $SUPPORTED_OPTS\  =~ !?$optn\  ]] ; then
+      declare -F showOptWarn &>/dev/null && showOptWarn "-$optm"
+      shift && continue
+    fi
+
+    if [[ ${BASH_REMATCH[0]:0:1} == "!" ]] ; then
+      declare "$optn=true" ; unset optn ; optk=true
+    else
+      unset optk
+    fi
+
+    shift && continue
+  elif [[ "$1" =~ ^-{2}[a-zA-Z]{1}[a-zA-Z0-9_-]+.*$ ]] ; then
+    opt=${1:2}
+
+    if [[ $opt == *=* ]] ; then
+      IFS="=" read -ra opt <<< "$opt"
+
+      optm="${opt[0]}" ; optm=${optm//-/_}
+
+      if [[ ! $SUPPORTED_OPTS\  =~ $optm\  ]] ; then
+        declare -F showOptWarn &>/dev/null && showOptWarn "--${opt[0]//_/-}"
+        shift && continue
+      fi
+
+      # shellcheck disable=SC2015
+      [[ -n "${!optm}" && $MERGEABLE_OPTS\  =~ $optm\  ]] && declare "$optm=${!optm} ${opt[*]:1:99}" || declare "$optm=${opt[*]:1:99}"
+
+      unset optm && shift && continue
+    else
+      # shellcheck disable=SC2178
+      opt=${opt//-/_}
+
+      if [[ -z "$optn" ]] ; then
+        # shellcheck disable=SC2128
+        optn=$opt
+      else
+        # shellcheck disable=SC2015
+        [[ -z "$optk" ]] && ( declare -F showOptValWarn &>/dev/null && showOptValWarn "--$optn" ) || declare "$optn=true"
+        # shellcheck disable=SC2128
+        optn=$opt
+      fi
+
+      if [[ ! $SUPPORTED_OPTS\  =~ !?$optn\  ]] ; then
+        declare -F showOptWarn &>/dev/null && showOptWarn "--${optn//_/-}"
+        shift && continue
+      fi
+
+      if [[ ${BASH_REMATCH[0]:0:1} == "!" ]] ; then
+        declare "$optn=true" ; unset optn ; optk=true
+      else
+        unset optk
+      fi
+
+      shift && continue
+    fi
+  else
+    if [[ -n "$optn" ]] ; then
+      # shellcheck disable=SC2015
+      [[ -n "${!optn}" && $MERGEABLE_OPTS\  =~ $optn\  ]] && declare "$optn=${!optn} $1" || declare "$optn=$1"
+
+      unset optn && shift && continue
+    fi
+  fi
+
+  optt="$optt $1" ; shift
+done
+
+[[ -n "$optn" ]] && declare "$optn=true"
+
+unset opt optn optm optk
+
+# shellcheck disable=SC2015,SC2086
+[[ -n "$KEEP_OPTS" ]] && main $optv || main ${optt:1}
+
+################################################################################

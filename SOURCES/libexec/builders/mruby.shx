@@ -1,0 +1,92 @@
+#!/usr/bin/env bash
+# shellcheck disable=SC2034,SC2154
+
+################################################################################
+
+require "build"
+
+################################################################################
+
+# MRuby builder
+#
+# 1: Package name (String)
+# 2: Package directory (String)
+# *: Arguments
+#
+# Code: Yes
+# Echo: No
+builder.mruby() {
+  local pkg_name="$1"
+  local pkg_dir="$2"
+
+  local copts prfx start_time failed
+
+  prfx="${XPREFIX:-$prefix}"
+
+  pushd "$pkg_dir" &> "$verb_output" || build.cancel "Can't set working directory to $pkg_dir"
+
+    showm "Building… "
+
+    start_time=$(time.now)
+
+    [[ -n "$verbose" ]] && show ""
+
+    exit_protection=true
+
+    spinner.show
+
+    if [[ -n "$verbose" ]] ; then
+      {
+        if [[ -z "$failed" ]] ; then
+          showc "ruby ./minirake"
+          if ! ruby ./minirake ; then
+            failed=true
+          fi
+        fi
+        
+        if [[ -z "$failed" ]] ; then
+          if ! cp -r build/host/* "$prfx" ; then
+            failed=true
+          fi
+        fi
+      } >> "$output"
+    else
+      {
+        if [[ -z "$failed" ]] ; then
+          if ! ruby ./minirake ; then
+            failed=true
+          fi
+        fi
+        
+        if [[ -z "$failed" ]] ; then
+          if ! cp -r build/host/* "$prfx" ; then
+            failed=true
+          fi
+        fi
+      } &>> "$log"
+    fi
+
+    if [[ -n "$failed" ]] ; then
+      spinner.hide
+      unset exit_protection
+      build.fail
+      return 1
+    fi
+
+    pushd "$prfx/bin" &> "$verb_output" || build.cancel "Can't set working directory to $pkg_dir"
+
+      ln -fs mruby ruby
+      ln -fs mirb irb
+
+    popd &> "$verb_output" || build.cancel "Can't set working directory"
+
+    spinner.hide
+
+    show "${CL_GREEN}DONE${CL_NORM} ${CL_DARK}$(time.getGraceDurationShort "$start_time")${CL_NORM}"
+
+    rm -f "$log"
+
+  popd &> "$verb_output" || build.cancel "Can't set working directory"
+
+  return 0
+}

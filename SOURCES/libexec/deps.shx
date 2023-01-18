@@ -1,0 +1,165 @@
+#!/usr/bin/env bash
+# shellcheck disable=SC2154
+
+################################################################################
+
+require "facts"
+require "facts"
+
+################################################################################
+
+# Check if given packages are installed on system
+#
+# *: List of deb packages
+#
+# Code: No
+# Echo: List of not installed packages
+deb.checkInstalled() {
+  facts.collect
+
+  if [[ $# -eq 0 ]] ; then
+    return
+  fi
+
+  if ! system.hasApp "apt" ; then
+    return
+  fi
+
+  local dep dep_list
+
+  for dep in "$@" ; do
+    if ! dpkg -s "$dep" &> /dev/null ; then
+      dep_list+=("$dep")
+    fi
+  done
+
+  echo "${dep_list[*]}"
+}
+
+# Check if given packages are installed on system
+#
+# *: List of rpm packages
+#
+# Code: No
+# Echo: List of not installed packages
+rpm.checkInstalled() {
+  facts.collect
+
+  if ! system.hasApp "rpm" ; then
+    return
+  fi
+
+  local dep dep_list
+
+  for dep in "$@" ; do
+    if ! rpm -q "$dep" &> /dev/null ; then
+      dep_list+=("$dep")
+    fi
+  done
+
+  echo "${dep_list[*]}"
+}
+
+# Check if given binaries are installed on system
+#
+# *: List of binaries
+#
+# Code: No
+# Echo: List of not installed binaries
+bin.checkInstalled() {
+  if [[ $# -eq 0 ]] ; then
+    return
+  fi
+
+  local dep dep_list
+
+  for dep in "$@" ; do
+    if ! system.hasApp "$dep" ; then
+      dep_list+=("$dep")
+    fi
+  done
+
+  echo "${dep_list[*]}"
+}
+
+# Check if given libraries are installed on system
+#
+# *: List of libs
+#
+# Code: No
+# Echo: List of not installed libraries
+lib.checkInstalled() {
+  if [[ $# -eq 0 ]] ; then
+    return
+  fi
+
+  local dep dep_list
+
+  for dep in "$@" ; do
+    if [[ ! $dep =~ lib ]] ; then
+      dep="lib${dep}.so"
+    fi
+
+    if ! ldconfig -p | grep -q "$dep" ; then
+      dep_list+=("$dep")
+    fi
+  done
+
+  echo "${dep_list[*]}"
+}
+
+# Check if given pip packages are installed on system
+#
+# *: List of pip packages
+#
+# Code: No
+# Echo: List of not installed packages
+pip.checkInstalled() {
+  if [[ $# -eq 0 ]] ; then
+    return
+  fi
+
+  if ! system.hasApp "pip" ; then
+    return
+  fi
+
+  local dep dep_list installed
+
+  installed=$(pip freeze)
+
+  for dep in "$@" ; do
+     if [[ ! $installed =~ ^$dep== ]] ; then
+      dep_list+=("$dep")
+    fi
+  done
+
+  echo "${dep_list[*]}"
+}
+
+# Check if given gem packages are installed on system
+#
+# *: List of gem packages
+#
+# Code: No
+# Echo: List of not installed packages
+gem.checkInstalled() {
+  if [[ $# -eq 0 ]] ; then
+    return
+  fi
+
+  if ! system.hasApp "gem" ; then
+    return
+  fi
+
+  local dep dep_list installed
+
+  installed=$(gem list --local)
+
+  for dep in "$@" ; do
+     if [[ ! $installed =~ ^$dep== ]] ; then
+      dep_list+=("$dep")
+    fi
+  done
+
+  echo "${dep_list[*]}"
+}

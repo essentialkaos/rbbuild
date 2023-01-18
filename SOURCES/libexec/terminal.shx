@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+# shellcheck disable=SC2034,SC2086,SC2154
+
+################################################################################
+
+PROMPT="› "
+
+################################################################################
+
+# Read user Y/N answer
+#
+# 1: Description (String)
+# 2: Default value (String)
+#
+# Code: Yes
+# Echo: No
+terminal.readAnswer() {
+  local desc="$1"
+  local def_val="$2"
+
+  if [[ -n "$yes" ]] ; then
+    return 0
+  fi
+
+  if [[ -z "$desc" ]] ; then
+    return 1
+  fi
+
+  local answer
+
+  while : ; do
+    if [[ -z "$def_val" || "$def_val" == "Y" ]] ; then
+      show "$desc (${CL_BOLD}Y${CL_GREY}/n)" $GREY
+    else
+      show "$desc (y/${CL_BOLD}N${CL_GREY})" $GREY
+    fi
+
+    read -r -p "$PROMPT" answer
+    show ""
+
+    if [[ -z "$answer" && -n "$def_val" ]] ; then
+      answer="$def_val"
+    fi
+
+    answer=$(echo "$answer" | tr "[:lower:]" "[:upper:]")
+
+    if [[ ! $answer =~ ^(Y|N)$ ]] ; then
+      warn "Please enter Y or N\n"
+      continue
+    fi
+
+    break
+  done
+
+  if [[ "$answer" == "N" ]] ; then
+    return 1
+  fi
+
+  return 0
+}

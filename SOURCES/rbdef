@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# shellcheck disable=SC1117,SC2034,SC2154,SC2181
+# shellcheck disable=SC2034
 
 ################################################################################
 
@@ -13,7 +13,7 @@ fi
 APP="RBBuild Def Utils"
 
 # App version (String)
-VER="1.7.1"
+VER="2.0.0"
 
 ################################################################################
 
@@ -48,80 +48,28 @@ CL_BL_MAG="\e[1;${MAG};49m"
 CL_BL_CYAN="\e[1;${CYAN};49m"
 CL_BL_GREY="\e[1;${GREY};49m"
 
-## OS NAMES ####################################################################
-
-
-# Name of Linux OS (String)
-OS_LINUX="linux"
-
-# Name of Solaris OS (String)
-OS_SOLARIS="solaris"
-
-# Name of BSD OS (String)
-OS_BSD="bsd"
-
-# Name of linux distr (String)
-DIST_ARCH="arch"
-
-# Name of linux distr (String)
-DIST_CENTOS="centos"
-
-# Name of linux distr (String)
-DIST_DEBIAN="debian"
-
-# Name of linux distr (String)
-DIST_FEDORA="fedora"
-
-# Name of linux distr (String)
-DIST_GENTOO="gentoo"
-
-# Name of linux distr (String)
-DIST_RHEL="rhel"
-
-# Name of linux distr (String)
-DIST_UBUNTU="ubuntu"
-
-# OS INFO ######################################################################
-
-# Current OS name (String)
-os_name=""
-
-# Current OS arch (String)
-os_arch=""
-
-# Current OS arch name (String)
-os_arnm=""
-
-# Current OS distr (String)
-os_dist=""
-
-# Current OS kernel version (String)
-os_kern=""
-
 ################################################################################
 
-# List of supported command line arguments (String)
-SUPPORTED_ARGS="!help !usage !version !ver !remove !force author bucket 
- !public_uploads !reduced_redundancy !no_colors"
+# List of supported options (String)
+SUPPORTED_OPTS="!help !version !remove !force author !no_colors"
 
-# List of supported short command line arguments (String)
-SHORT_ARGS="h:!help v:!version r:!remove f:!force rr:!reduced_redundancy 
- pu:!public_uploads a:author b:bucket nc:!no_colors"
+# List of supported short options (String)
+SHORT_OPTS="h:!help v:!version r:!remove f:!force a:author nc:!no_colors"
 
-ARCH_TYPES=(".tar.gz" ".tgz" ".tar.bz2" ".tbz2" ".tb2" ".tbz" "tar.xz" ".txz" ".zip" ".7z")
-PATCH_TYPES=(".patch" ".diff")
-
-PREFS_FILE="$HOME/.rbdef"
+# Path to configuration file (String)
+PREFS_FILE="$HOME/.config/rbbuild/rbdef.conf"
 
 # Current working dir (String)
 CWD=$(pwd)
 
 ################################################################################
 
+ARCH_TYPES=(".tar.gz" ".tgz" ".tar.bz2" ".tbz2" ".tb2" ".tbz" "tar.xz" ".txz" ".zip" ".7z")
+PATCH_TYPES=(".patch" ".diff")
+
+################################################################################
+
 author=""
-bucket=""
-public_uploads=""
-reduced_redundancy=""
 
 ################################################################################
 
@@ -138,29 +86,61 @@ main() {
     unset CL_BL_RED CL_BL_GREEN CL_BL_YELLOW CL_BL_BLUE CL_BL_MAG CL_BL_CYAN CL_BL_GREY CL_BL_DARK
   fi
 
-  [[ -n "$version" || -n "$ver" ]] && about && doExit
-  [[ $# -eq 0 || -n "$help" || -n "$usage" ]] && usage && doExit
+  if [[ -n "$version" || -n "$ver" ]] ; then
+    about 
+    doExit
+  fi
 
-  local cmnd="$1"
+  if [[ $# -eq 0 || -n "$help" ]] ; then 
+    usage
+    doExit
+  fi
+
+  prepare
+
+  local cmd="$1"
 
   shift
 
-  detectOs
-
-  case $cmnd in
+  case $cmd in
     "repack")  repack "$@" ;;
     "replace") replace "$@" ;;
     "crc")     crc "$@" ;;
     "rec")     getRecord "$@" ;;
     "proc")    proc "$@" ;;
-    "upload")  upload "$@" ;;
-    *) error "Unknown command $cmnd" ;;
+    *)         error "Unknown command $cmd" ;;
   esac
 
-  doExit
+  doExit $?
 }
 
-# # Archive repacking to 7z
+# Check system before executing script
+#
+# Code: No
+# Echo: No
+prepare() {
+  if ! isAppInstalled "curl" ; then
+    error "This utility require curl. Install it first."
+    doExit 1
+  fi
+
+  if ! isAppInstalled "bc" ; then
+    error "This utility require bc. Install it first."
+    doExit 1
+  fi
+
+  if ! isAppInstalled "7za" ; then
+    error "This utility require p7zip. Install it first."
+    doExit 1
+  fi
+
+  if ! isAppInstalled "zstd" ; then
+    error "This utility require zstd. Install it first."
+    doExit 1
+  fi
+}
+
+# Repack data to tar.zst
 #
 # *: Files
 #
@@ -179,18 +159,18 @@ repack() {
 
       if ! download "$url" "$file_name" ; then
         error "Can't download file"
-        doExit 1
+        return 1
       fi
     elif checkPerms "FR" "$file" ; then
       file_name="$file"
     else
       error "Can't find file for repack"
-      doExit 1
+      return 1
     fi
 
     if ! checkArch "$file_name" ; then
       rm -f "$file_name"
-      doExit 1
+      return 1
     fi
 
     showm "Unpacking file ${CL_BOLD}$file_name${CL_NORM}… "
@@ -198,29 +178,33 @@ repack() {
     arch_dir=$(unpack "$file_name")
 
     if [[ -z "$arch_dir" ]] ; then
-      error "FAIL"
+      show "FAIL" $RED
       error "Can't unpack file $file_name. Exiting…"
-      doExit 1
+      return 1
     fi
 
     show "DONE" $GREEN
-    showm "Packing to ${CL_BOLD}$arch_dir.7z${CL_NORM}… "
+    showm "Packing to ${CL_BOLD}$arch_dir.tzst${CL_NORM}… "
 
-    rm -rf "$arch_dir.7z" &> /dev/null
-    7za a -t7z -mx=9 "$arch_dir.7z" "$arch_dir" &> /dev/null
+    rm -rf "$arch_dir.tzst" &> /dev/null
+
+    # Max compression using all cores
+    ZSTD_CLEVEL=19 ZSTD_NBTHREADS=$(getconf _NPROCESSORS_ONLN) tar -I 'zstd' -cf "$arch_dir.tzst" "$arch_dir"
 
     prev_size=$(getHumanFileSize "$file_name")
-    new_size=$(getHumanFileSize "$arch_dir.7z")
-    size_diff=$(getSizeDiff "$file_name" "$arch_dir.7z")
+    new_size=$(getHumanFileSize "$arch_dir.tzst")
+    size_diff=$(getSizeDiff "$file_name" "$arch_dir.tzst")
 
-    show "${CL_GREEN}DONE${CL_NORM} ${CL_DARK}(${prev_size} → ${new_size} / -${size_diff}%)${CL_NORM}"
+    show "${CL_GREEN}DONE${CL_NORM} ${CL_DARK}(${prev_size} → ${new_size} / ${size_diff}%)${CL_NORM}"
 
     [[ -n "$remove" ]] && rm -rf "$file_name" &> /dev/null
 
     rm -rf "$arch_dir" &> /dev/null
 
-    crc "$arch_dir.7z"
+    crc "$arch_dir.tzst"
   done
+
+  return 0
 }
 
 # Create record line for given url
@@ -249,6 +233,7 @@ getRecord() {
     show "Record:" $BOLD
 
     if [[ "$file_name" == "package" ]] ; then
+      clean_name=$(cleanName "$file_name" "${ARCH_TYPES[@]}")
       show "  $file_type: \"$clean_name\" \"$url\" \"$checksum\""
     else
       show "  $file_type: \"$url\" \"$checksum\""
@@ -256,7 +241,7 @@ getRecord() {
 
     rm -rf "$file_name" &> /dev/null
   else
-    error "Can't generate record for repo"
+    error "Can't generate record for repository"
     doExit 1
   fi
 }
@@ -284,7 +269,7 @@ replace() {
     showm "Processing file ${CL_BOLD}$target_name${CL_NORM}… "
 
     if ! checkPerms "FRW" "$file" ; then
-      error "FAIL"
+      show "FAIL" $RED
       error "You don't have enough permissions for modify file $file"
       continue
     fi
@@ -331,8 +316,12 @@ proc() {
     showm "Processing file ${CL_BOLD}${target_name}${CL_NORM}… "
 
     if ! checkPerms "FRW" "$file" ; then
-      error "FAIL"
-      error "You don't have enough permissions for modify file $file"
+      show "FAIL" $RED
+      if [[ ! -e "$file" ]] ; then
+        error "There is no file $file"
+      else
+        error "You don't have enough permissions for modify file $file"
+      fi
       continue
     fi
 
@@ -363,9 +352,12 @@ proc() {
         file_name=$(basename "$url")
 
         if ! checkPerms "FR" "$file_name" || [[ -n "$force" ]] ; then
-          if ! download "$url" "$file_name" ; then
+          if ! download "$url" "$file_name" true ; then
+            show "FAIL" $RED
             error "Can't download file $url"
-            doExit 1
+            continue
+          else
+            showm "↓ " $GREY
           fi
         fi
 
@@ -468,13 +460,19 @@ unpack() {
     tar xzf "$arch" -C .tmp &> /dev/null
   elif [[ $arch =~ .tar.bz2$|.tbz2$ ]] ; then
     tar xjf "$arch" -C .tmp &> /dev/null
+  elif [[ $arch =~ .tar.xz$|.txz$ ]] ; then
+    tar xJf "$arch" -C .tmp &> /dev/null
+  elif [[ $arch =~ .7z$ ]] ; then
+    7za x "$arch" -o.tmp &> /dev/null
   elif [[ $arch =~ .zip$ ]] ; then
     unzip "$arch" -d .tmp &> /dev/null
   else
     echo "" && return 1
   fi
 
+  # shellcheck disable=SC2181
   if [[ $? -ne 0 ]] ; then
+    rm -rf .tmp &> /dev/null
     echo "" && return 1
   fi
 
@@ -490,36 +488,6 @@ unpack() {
   rm -rf .tmp &> /dev/null
 
   echo "$name" && return 0
-}
-
-# Upload files to s3 bucket
-#
-# 1: Path to file (String)
-#
-# Code: No
-# Echo: No
-upload() {
-  if [[ -z "$bucket" ]] ; then
-    show "Please define <bucket> property in preferencies file before upload." $YELLOW
-    doExit 1
-  fi
-
-  show "Uploading files to $bucket…"
-  show ""
-
-  local file adds
-
-  [[ -n "$public_uploads" ]] && adds="--acl-public "
-  [[ -n "$reduced_redundancy" ]] && adds="$adds --reduced-redundancy"
-
-  for file in "$@" ; do
-    if [[ -r "$file" ]] ; then
-      # shellcheck disable=SC2086
-      s3cmd --no-preserve $adds put "$file" "$bucket/"
-    fi
-  done
-
-  show ""
 }
 
 # Generate SHA-1 checksum
@@ -541,7 +509,7 @@ makeCRC() {
 getFileType() {
   local file_name="$1"
 
-  if [[ $file_name =~ .tar.gz$|.tgz$|.tar.bz2$|.tbz2$|.zip$|.7z$ ]] ; then
+  if [[ $file_name =~ .tar.gz$|.tgz$|.tar.bz2$|.tbz2$|.tar.xz$|.txz$|.tar.zst$|.tzst$|.zip$|.7z$ ]] ; then
     echo "package" && return 0
   elif [[ $file_name =~ .git ]]; then
     echo "git" && return 0
@@ -589,7 +557,7 @@ addHeader() {
   file="$1"
   date=$(date +"%d/%b/%Y %R:%S")
 
-  echo "# RBBuild Def File" >> "$file"
+  echo '# -- [RBdef] --' >> "$file"
   echo "# UPDATED $date by $author" >> "$file"
 }
 
@@ -606,17 +574,16 @@ addHeader() {
 download() {
   local path="$1"
   local output="$2"
-  local avoid_cache="$3"
+  local quite="$3"
 
-  local rnd http_code http_code_tmp
+  local http_code http_code_tmp
 
   http_code_tmp=$(mktemp)
 
-  if [[ -n "$avoid_cache" ]] ; then
-    rnd=$(tr -cd '[:alnum:]' < /dev/urandom | fold -w8 | head -n1)
-    curl -# -L --max-redirs 10 -w "%{http_code}" -o "$output" "${url}?r${rnd}" 1> "$http_code_tmp"
-  else
+  if [[ -z "$quite" ]] ; then
     curl -# -L --max-redirs 10 -w "%{http_code}" -o "$output" "$url" 1> "$http_code_tmp"
+  else
+    curl -s -L --max-redirs 10 -w "%{http_code}" -o "$output" "$url" 1> "$http_code_tmp"
   fi
 
   http_code=$(cat "$http_code_tmp")
@@ -722,41 +689,20 @@ parseArgsInString() {
   fi
 }
 
-# Detect OS info
+# Check required dependencies
+#
+# *: Required binaries
 #
 # Code: No
 # Echo: No
-detectOs() {
-  os_name=$(uname -s)
-
-  if [[ "$os_name" == "SunOS" ]] ; then
-    os_name=$OS_SOLARIS
-  elif [[ "$os_name" == "Linux" ]] ; then
-    os_name="$OS_LINUX"
-    os_kern=$(uname -r)
-
-    if [[ -f /etc/arch-release ]] ; then
-      os_dist=$DIST_ARCH
-    elif [[ -f /etc/fedora-release ]] ; then
-      os_dist=$DIST_FEDORA
-    elif [[ -f /etc/gentoo-release ]] ; then
-      os_dist=$DIST_GENTOO
-    elif [[ -f /etc/redhat-release ]] ; then
-      os_dist=$DIST_RHEL
-    elif [[ -f /etc/SuSE-release ]] ; then
-      os_dist=$DIST_SUSE
-    elif [[ -f /etc/lsb-release ]] ; then
-      os_dist=$DIST_UBUNTU
+isAppInstalled() {
+  for app in "$@" ; do
+    if ! type -P "$app" &> /dev/null ; then
+      return 1
     fi
-  fi
+  done
 
-  os_arch=$(uname -p)
-
-  if [[ "$os_arch" == "x86_64" && "$os_name" == "$OS_LINUX" ]] ; then
-    os_arnm="linux64"
-  elif [[ "$os_arch" == "i386" && "$os_name" == "$OS_LINUX" ]]; then
-    os_arnm="linux32"
-  fi
+  return 0
 }
 
 # Return size diff
@@ -772,7 +718,20 @@ getSizeDiff() {
   size1=$(stat -c '%s' "$1")
   size2=$(stat -c '%s' "$2")
 
-  echo "scale=3; 100-((${size2}/${size1})*100)" | bc | sed 's/00$//'
+  diff=$(echo "scale=3; 100-((${size2}/${size1})*100)" | bc | sed 's/00$//')
+
+  if [[ ${diff:0:2} == "-." ]] ; then
+    diff="-0${diff}"
+  elif [[ ${diff:0:1} == "." ]] ; then
+    diff="0${diff}"
+  fi
+
+  if [[ "${diff:0:1}" == "-" ]] ; then
+    echo "+${diff:1:99}"
+    return
+  fi
+
+  echo "-$diff"
 }
 
 # Print human size of file
@@ -796,17 +755,6 @@ doExit() {
 }
 
 ################################################################################
-
-# Show message about unsupported argument
-#
-# 1: Argument name (String)
-#
-# Code: No
-# Echo: No
-showArgWarn() {
-  error "Error! You used unsupport argument $1. Please check command syntax."
-  doExit 1
-}
 
 # Show message
 #
@@ -878,7 +826,28 @@ showo() {
 # Code: No
 # Echo: No
 error() {
-  show "$@" $RED 1>&2
+  show "▲ $*" $RED 1>&2
+}
+
+# Print warning message
+#
+# 1: Message (String)
+#
+# Code: No
+# Echo: No
+warn() {
+  show "▲ $*" $YELLOW 1>&2
+}
+
+# Show message about unknown option
+#
+# 1: Option name (String)
+#
+# Code: No
+# Echo: No
+showOptWarn() {
+  error "Error! Unknown option $1"
+  exit 1
 }
 
 # -
@@ -893,21 +862,17 @@ usage() {
   show ""
   show "Commands:" $BOLD
   show ""
-  showo "$CL_YELLOW" "repack"  "Repack source archive to 7z"
+  showo "$CL_YELLOW" "repack"  "Repack source archive to tar.zst"
   showo "$CL_YELLOW" "replace" "Find and replace records in def files"
   showo "$CL_YELLOW" "proc"    "Add SHA-1 checksum to records in def files"
   showo "$CL_YELLOW" "crc"     "Generate CRC for given file or URL"
   showo "$CL_YELLOW" "rec"     "Create record line from URL"
-  showo "$CL_YELLOW" "upload"  "Upload source archive to S3 mirror"
   show ""
   show "Options:" $BOLD
   show ""
   showo "$CL_GREEN" "--remove, -r"              "Remove downloaded sources (use with ${CL_YELLOW}repack${CL_NORM} or ${CL_YELLOW}proc${CL_NORM} command)"
   showo "$CL_GREEN" "--force, -f"               "Always download sources while def processing (use with ${CL_YELLOW}proc${CL_NORM} command)"
   showo "$CL_GREEN" "--author, -a"              "Author of def file (use with ${CL_YELLOW}proc${CL_NORM} command)"
-  showo "$CL_GREEN" "--bucket, -b"              "Make sources readable by anyone (use with ${CL_YELLOW}upload${CL_NORM} command)"
-  showo "$CL_GREEN" "--public-uploads, -p"      "Change S3 ACL to public for sources (use with ${CL_YELLOW}upload${CL_NORM} command)"
-  showo "$CL_GREEN" "--reduced-redundancy, -rr" "Use reduced redundancy storage class (use with ${CL_YELLOW}upload${CL_NORM} command)"
   showo "$CL_GREEN" "--no-colors, -nc"          "Disable colors in output"
   showo "$CL_GREEN" "--help"                    "Show this help message"
   showo "$CL_GREEN" "--version, -v"             "Show information about version"
@@ -922,7 +887,7 @@ usage() {
 # Echo: No
 about() {
   show ""
-  show "${CL_BL_CYAN}$APP${CL_NORM} ${CL_CYAN}$VER${CL_NORM} - Utility for working with RBBuild def files"
+  show "${CL_BL_CYAN}$APP${CL_NORM} ${CL_CYAN}$VER${CL_NORM} — Utility for working with RBBuild def files"
   show ""
   show "Copyright (C) 2009-$(date +%Y) ESSENTIAL KAOS" $DARK
   show "Apache License, Version 2.0 <https://www.apache.org/licenses/LICENSE-2.0>" $DARK
@@ -933,122 +898,125 @@ about() {
 
 unset arg argn argp
 
-PREFS_FILE="${PREFS_FILE//\~/$HOME}"
+PREFS_FILE=${PREFS_FILE//\~/$HOME}
 
 if [[ -n "$PREFS_FILE" && -r "$PREFS_FILE" ]] ; then
   while read -r arg ; do
-    IFS=":" read -r argn argp <<< "${arg//: /:}"
-    [[ $SUPPORTED_ARGS\  =~ !?$argn\  ]] && declare "$argn=$argp"
+    [[ -z "$arg" || "$arg" =~ ^\# || "$arg" =~ ^\ +$ ]] && continue
+    arg="${arg/: /:}" ; argn="${arg%%:*}" ; argn="${argn//-/_}"
+    argp="${arg#*:}" ; argp="${argp/\~/$HOME}"
+    [[ "$SUPPORTED_OPTS " =~ $argn\ && -n "$argp" ]] && declare "$argn=$argp"
   done < <(awk 1 "$PREFS_FILE")
 
   unset arg argn argp
 fi
 
-## ARGUMENTS PARSING 4 #################################################################
+## OPTIONS PARSING 5 ###########################################################
 
-[[ $# -eq 0 ]] && main && exit $?
+if [[ $# -eq 0 ]] ; then
+  main
+fi
 
-unset arg argn argm argv argt argk
+unset opt optn optm optv optt optk
 
-argv="$*" ; argt=""
+optv="$*" ; optt=""
 
 while [[ -n "$1" ]] ; do
-  if [[ "$1" =~ \  && -n "$argn" ]] ; then
-    declare "$argn=$1"
+  if [[ "$1" =~ \  && -n "$optn" ]] ; then
+    declare "$optn=$1"
 
-    unset argn && shift && continue
+    unset optn && shift && continue
   elif [[ $1 =~ ^-{1}[a-zA-Z0-9]{1,2}+.*$ ]] ; then
-    argm=${1:1}
+    optm=${1:1}
 
-    if [[ \ $SHORT_ARGS\  =~ \ $argm:!?([a-zA-Z0-9_]*) ]] ; then
-      arg="${BASH_REMATCH[1]}"
+    if [[ \ $SHORT_OPTS\  =~ \ $optm:!?([a-zA-Z0-9_]*) ]] ; then
+      opt="${BASH_REMATCH[1]}"
     else
-      declare -F showArgWarn &>/dev/null && showArgWarn "-$argm"
+      declare -F showOptWarn &>/dev/null && showOptWarn "-$optm"
       shift && continue
     fi
 
-    if [[ -z "$argn" ]] ; then
-      argn=$arg
+    if [[ -z "$optn" ]] ; then
+      optn=$opt
     else
       # shellcheck disable=SC2015
-      [[ -z "$argk" ]] && ( declare -F showArgValWarn &>/dev/null && showArgValWarn "--$argn" ) || declare "$argn=true"
-      argn=$arg
+      [[ -z "$optk" ]] && ( declare -F showOptValWarn &>/dev/null && showOptValWarn "--$optn" ) || declare "$optn=true"
+      optn=$opt
     fi
 
-    if [[ ! $SUPPORTED_ARGS\  =~ !?$argn\  ]] ; then
-      declare -F showArgWarn &>/dev/null && showArgWarn "-$argm"
+    if [[ ! $SUPPORTED_OPTS\  =~ !?$optn\  ]] ; then
+      declare -F showOptWarn &>/dev/null && showOptWarn "-$optm"
       shift && continue
     fi
 
     if [[ ${BASH_REMATCH[0]:0:1} == "!" ]] ; then
-      declare "$argn=true" ; unset argn ; argk=true
+      declare "$optn=true" ; unset optn ; optk=true
     else
-      unset argk
+      unset optk
     fi
 
     shift && continue
   elif [[ "$1" =~ ^-{2}[a-zA-Z]{1}[a-zA-Z0-9_-]+.*$ ]] ; then
-    arg=${1:2}
+    opt=${1:2}
 
-    if [[ $arg == *=* ]] ; then
-      IFS="=" read -ra arg <<< "$arg"
+    if [[ $opt == *=* ]] ; then
+      IFS="=" read -ra opt <<< "$opt"
 
-      argm="${arg[0]}" ; argm=${argm//-/_}
+      optm="${opt[0]}" ; optm=${optm//-/_}
 
-      if [[ ! $SUPPORTED_ARGS\  =~ $argm\  ]] ; then
-        declare -F showArgWarn &>/dev/null && showArgWarn "--${arg[0]//_/-}"
+      if [[ ! $SUPPORTED_OPTS\  =~ $optm\  ]] ; then
+        declare -F showOptWarn &>/dev/null && showOptWarn "--${opt[0]//_/-}"
         shift && continue
       fi
 
       # shellcheck disable=SC2015
-      [[ -n "${!argm}" && $MERGEABLE_ARGS\  =~ $argm\  ]] && declare "$argm=${!argm} ${arg[*]:1:99}" || declare "$argm=${arg[*]:1:99}"
+      [[ -n "${!optm}" && $MERGEABLE_OPTS\  =~ $optm\  ]] && declare "$optm=${!optm} ${opt[*]:1:99}" || declare "$optm=${opt[*]:1:99}"
 
-      unset argm && shift && continue
+      unset optm && shift && continue
     else
       # shellcheck disable=SC2178
-      arg=${arg//-/_}
+      opt=${opt//-/_}
 
-      if [[ -z "$argn" ]] ; then
+      if [[ -z "$optn" ]] ; then
         # shellcheck disable=SC2128
-        argn=$arg
+        optn=$opt
       else
         # shellcheck disable=SC2015
-        [[ -z "$argk" ]] && ( declare -F showArgValWarn &>/dev/null && showArgValWarn "--$argn" ) || declare "$argn=true"
+        [[ -z "$optk" ]] && ( declare -F showOptValWarn &>/dev/null && showOptValWarn "--$optn" ) || declare "$optn=true"
         # shellcheck disable=SC2128
-        argn=$arg
+        optn=$opt
       fi
 
-      if [[ ! $SUPPORTED_ARGS\  =~ !?$argn\  ]] ; then
-        declare -F showArgWarn &>/dev/null && showArgWarn "--${argn//_/-}"
+      if [[ ! $SUPPORTED_OPTS\  =~ !?$optn\  ]] ; then
+        declare -F showOptWarn &>/dev/null && showOptWarn "--${optn//_/-}"
         shift && continue
       fi
 
       if [[ ${BASH_REMATCH[0]:0:1} == "!" ]] ; then
-        declare "$argn=true" ; unset argn ; argk=true
+        declare "$optn=true" ; unset optn ; optk=true
       else
-        unset argk
+        unset optk
       fi
 
       shift && continue
     fi
   else
-    if [[ -n "$argn" ]] ; then
+    if [[ -n "$optn" ]] ; then
       # shellcheck disable=SC2015
-      [[ -n "${!argn}" && $MERGEABLE_ARGS\  =~ $argn\  ]] && declare "$argn=${!argn} $1" || declare "$argn=$1"
+      [[ -n "${!optn}" && $MERGEABLE_OPTS\  =~ $optn\  ]] && declare "$optn=${!optn} $1" || declare "$optn=$1"
 
-      unset argn && shift && continue
+      unset optn && shift && continue
     fi
   fi
 
-  argt="$argt $1" ; shift
-
+  optt="$optt $1" ; shift
 done
 
-[[ -n "$argn" ]] && declare "$argn=true"
+[[ -n "$optn" ]] && declare "$optn=true"
 
-unset arg argn argm argk
+unset opt optn optm optk
 
 # shellcheck disable=SC2015,SC2086
-[[ -n "$KEEP_ARGS" ]] && main $argv || main ${argt:1}
+[[ -n "$KEEP_OPTS" ]] && main $optv || main ${optt:1}
 
-########################################################################################
+################################################################################

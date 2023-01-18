@@ -1,12 +1,12 @@
-# RBBuild Def File
-# UPDATED 06/Feb/2021 01:30:44 by Anton Novojilov <andy@essentialkaos.com>
+# -- [RBdef] --
+# UPDATED 29/Dec/2022 18:20:58 by Anton Novojilov <andy@essentialkaos.com>
 
 eol(normal): 2016-02-24
 eol(security): 2016-02-24
 
-deps(rpm): gcc make zlib-devel readline-devel tk-devel ca-certificates
+deps(rpm): make gcc gcc-c++ zlib-devel readline-devel tk-devel ca-certificates
 deps(rpm): autoconf glibc-devel ncurses-devel bison libffi-devel
-deps(deb): gcc make zlib1g-dev libreadline6-dev tk-dev ca-certificates
+deps(deb): build-essential zlib1g-dev libreadline6-dev tk-dev ca-certificates
 deps(deb): autoconf libc6-dev libncurses5-dev bison libffi-dev
 
 CONFOPTS(openssl-1.0.2u): {os_name}-{os_arch} --openssldir={prefix}/openssl/ssl zlib-dynamic no-ssl3 shared -fPIC
@@ -20,5 +20,5 @@ CONFOPTS(ruby-2.0.0-p353): --with-openssl-dir={prefix}/openssl --disable-install
   package: "ruby-2.0.0-p353" "https://cache.ruby-lang.org/pub/ruby/2.0/ruby-2.0.0-p353.tar.gz" "7f2c8b8f5682aabc1114f44d36d314c6c37c11b8"
 
 [essentialkaos]
-  package: "openssl-1.0.2u" "https://ruby.kaos.st/openssl-1.0.2u.7z" "d69744009cbcbeeedcc5825bfc65fa44361215ce" openssl
-  package: "ruby-2.0.0-p353" "https://ruby.kaos.st/ruby-2.0.0-p353.7z" "d6b46d2e7e7d552eee143fa0d07a645dbd1d9773"
+  package: "openssl-1.0.2u" "https://ruby.kaos.st/openssl-1.0.2u.tzst" "acb25bd9b4a00c7c17b29788aade55dd7fea3057" openssl
+  package: "ruby-2.0.0-p353" "https://ruby.kaos.st/ruby-2.0.0-p353.tzst" "89c43fd1197d6e9043a2a05b327764bddaef732b"

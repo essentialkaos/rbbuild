@@ -1,23 +1,24 @@
-# RBBuild Def File
-# UPDATED 25/Apr/2022 14:47:28 by Anton Novojilov <andy@essentialkaos.com>
+# -- [RBdef] --
+# UPDATED 29/Dec/2022 18:21:01 by Anton Novojilov <andy@essentialkaos.com>
 
-deps(rpm): gcc make zlib-devel readline-devel tk-devel ca-certificates
+eol(normal): 2021-03-31
+eol(security): 2022-03-31
+
+deps(rpm): make gcc gcc-c++ zlib-devel readline-devel tk-devel ca-certificates
 deps(rpm): autoconf glibc-devel ncurses-devel bison libffi-devel
-deps(deb): gcc make zlib1g-dev libreadline6-dev tk-dev ca-certificates
+deps(deb): build-essential zlib1g-dev libreadline6-dev tk-dev ca-certificates
 deps(deb): autoconf libc6-dev libncurses5-dev bison libffi-dev
 
-deps(bin): ruby
+CONFOPTS(openssl-1.1.1s): {os_name}-{os_arch} --openssldir={prefix}/openssl/ssl zlib-dynamic no-ssl3 shared -fPIC
+MAKEOPTS(openssl-1.1.1s): -j 1
+PREFIX(openssl-1.1.1s): {prefix}/openssl
 
-CONFOPTS(openssl-1.1.1n): {os_name}-{os_arch} --openssldir={prefix}/openssl/ssl zlib-dynamic no-ssl3 shared -fPIC
-MAKEOPTS(openssl-1.1.1n): -j 1
-PREFIX(openssl-1.1.1n): {prefix}/openssl
-
-CONFOPTS(ruby-2.6.7-p0): --with-openssl-dir={prefix}/openssl --disable-install-doc
+CONFOPTS(ruby-2.6.7): --with-openssl-dir={prefix}/openssl --disable-install-doc
 
 [default]
-  package: "openssl-1.1.1n" "https://www.openssl.org/source/openssl-1.1.1n.tar.gz" "4b0936dd798f60c97c68fc62b73033ecba6dfb0c" openssl
-  package: "ruby-2.6.7-p0" "https://cache.ruby-lang.org/pub/ruby/2.6/ruby-2.6.7.tar.gz" "c37ba0b0699540bbd46116c2f7440c9e7cd16553"
+  package: "openssl-1.1.1s" "https://www.openssl.org/source/openssl-1.1.1s.tar.gz" "d316e1523a609bbfc4ddd3abfa9861db99f17044" openssl
+  package: "ruby-2.6.7" "https://cache.ruby-lang.org/pub/ruby/2.6/ruby-2.6.7.tar.gz" "c37ba0b0699540bbd46116c2f7440c9e7cd16553"
 
 [essentialkaos]
-  package: "openssl-1.1.1n" "https://ruby.kaos.st/openssl-1.1.1n.7z" "56f932dc1bf02d3bcd15b341578b33ef3105ed00" openssl
-  package: "ruby-2.6.7-p0" "https://ruby.kaos.st/ruby-2.6.7.7z" "7b1c5b677960c95baeb877c378a8c3d3f9056576"
+  package: "openssl-1.1.1s" "https://ruby.kaos.st/openssl-1.1.1s.tzst" "6f34a849efc22038f6d1ff9f47041aace9f608f9" openssl
+  package: "ruby-2.6.7" "https://ruby.kaos.st/ruby-2.6.7.tzst" "afc77abffa6b23140b4f39360d0767cf4d4e4b7e"

@@ -1,26 +1,26 @@
-# RBBuild Def File
-# UPDATED 06/Feb/2021 01:30:46 by Anton Novojilov <andy@essentialkaos.com>
+# -- [RBdef] --
+# UPDATED 29/Dec/2022 18:20:59 by Anton Novojilov <andy@essentialkaos.com>
 
 eol(normal): 2018-03-31
 eol(security): 2018-03-31
 
-deps(rpm): gcc git make zlib-devel readline-devel tk-devel ca-certificates
+deps(rpm): git make gcc gcc-c++ zlib-devel readline-devel tk-devel ca-certificates
 deps(rpm): autoconf glibc-devel ncurses-devel bison libffi-devel
-deps(deb): gcc git make zlib1g-dev libreadline6-dev tk-dev ca-certificates
+deps(deb): git build-essential zlib1g-dev libreadline6-dev tk-dev ca-certificates
 deps(deb): autoconf libc6-dev libncurses5-dev bison libffi-dev
 
 CONFOPTS(openssl-1.0.2u): {os_name}-{os_arch} --openssldir={prefix}/openssl/ssl zlib-dynamic no-ssl3 shared -fPIC
 MAKEOPTS(openssl-1.0.2u): -j 1
 PREFIX(openssl-1.0.2u): {prefix}/openssl
 
-CONFOPTS(ruby-2.2.7-p0): --with-openssl-dir={prefix}/openssl --disable-install-doc
+CONFOPTS(ruby-2.2.7): --with-openssl-dir={prefix}/openssl --disable-install-doc
 
 [default]
   package: "openssl-1.0.2u" "https://www.openssl.org/source/old/1.0.2/openssl-1.0.2u.tar.gz" "740916d79ab0d209d2775277b1c6c3ec2f6502b2" openssl
-  patchset: "https://ruby.kaos.st/patches/2.2.7-p0.7z" "1d5b84f6ca6f098307ae1eabef5505d6572494e8"
-  package: "ruby-2.2.7-p0" "https://cache.ruby-lang.org/pub/ruby/2.2/ruby-2.2.7.tar.gz" "dc819c4810b009f282f3b794f61f0db313f03b19"
+  patchset: "https://ruby.kaos.st/patches/2.2.7.tzst" "268df541a148565b049458cd07e12b743ed4dd61"
+  package: "ruby-2.2.7" "https://cache.ruby-lang.org/pub/ruby/2.2/ruby-2.2.7.tar.gz" "dc819c4810b009f282f3b794f61f0db313f03b19"
 
 [essentialkaos]
-  package: "openssl-1.0.2u" "https://ruby.kaos.st/openssl-1.0.2u.7z" "d69744009cbcbeeedcc5825bfc65fa44361215ce" openssl
-  patchset: "https://ruby.kaos.st/patches/2.2.7-p0.7z" "1d5b84f6ca6f098307ae1eabef5505d6572494e8"
-  package: "ruby-2.2.7-p0" "https://ruby.kaos.st/ruby-2.2.7.7z" "82d0d54a5d950cd28b48e60918cb685afc34e690"
+  package: "openssl-1.0.2u" "https://ruby.kaos.st/openssl-1.0.2u.tzst" "acb25bd9b4a00c7c17b29788aade55dd7fea3057" openssl
+  patchset: "https://ruby.kaos.st/patches/2.2.7.tzst" "268df541a148565b049458cd07e12b743ed4dd61"
+  package: "ruby-2.2.7" "https://ruby.kaos.st/ruby-2.2.7.tzst" "24314bddefc55ca82624efa06de191d2d5094b08"

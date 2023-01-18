@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+# shellcheck disable=SC2034
+
+################################################################################
+
+# Evaluate variables in given text
+#
+# 1: Text with variables (String)
+#
+# Code: No
+# Echo: Data with evaluated variables (String)
+vars.eval() {
+  local data="$*"
+  local i var_name
+
+  if [[ ! $data =~ \{ ]] ; then
+    echo "$data"
+    return
+  fi
+
+  for i in {1..32} ; do
+    if [[ "$data" =~ \{([A-Za-z0-9_?]{3,})\} ]] ; then
+      var_name="${BASH_REMATCH[1]}"
+    else
+      break
+    fi
+
+    if [[ -z "${allowed_vars[${var_name}]}" ]] ; then
+      continue
+    fi
+
+    data="${data//\{$var_name\}/${!var_name}}"
+  done
+
+  echo "$data"
+}

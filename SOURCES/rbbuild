@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# shellcheck disable=SC1117,SC2034,SC2154,SC2181
+# shellcheck disable=SC2034,SC2086,SC2154
 
 ################################################################################
 
@@ -13,7 +13,7 @@ fi
 APP="RBBuild"
 
 # App version (String)
-VER="1.10.4"
+VER="2.0.0"
 
 ################################################################################
 
@@ -57,84 +57,24 @@ CL_BG_GREY="\e[7;${GREY};49m"
 
 ################################################################################
 
-# Name of Linux OS (String)
-OS_LINUX="linux"
+SUPPORTED_OPTS="dest_dir !help mirror output !quiet tmp threads 
+ !verbose !version cc_comp cxx_comp !mirror_list !ignore_checksums dl_cache 
+ !rbenv name proxy !debug !yes !force !no_patch !no_colors !no_spinner"
 
-# Name of Solaris OS (String)
-OS_SOLARIS="solaris"
-
-# Name of BSD OS (String)
-OS_BSD="bsd"
-
-# Name of linux distr (String)
-DIST_ARCH="arch"
-
-# Name of linux distr (String)
-DIST_CENTOS="centos"
-
-# Name of linux distr (String)
-DIST_DEBIAN="debian"
-
-# Name of linux distr (String)
-DIST_FEDORA="fedora"
-
-# Name of linux distr (String)
-DIST_GENTOO="gentoo"
-
-# Name of linux distr (String)
-DIST_RHEL="rhel"
-
-# Name of linux distr (String)
-DIST_UBUNTU="ubuntu"
+SHORT_OPTS="h:!help d:!dest_dir m:mirror o:output q:!quiet T:tmp N:name 
+ t:threads V:!verbose v:!version y:!yes P:proxy L:!mirror_list D:!debug 
+ ic:!ignore_checksums dc:dl_cache r:!rbenv cc:cc_comp cxx:cxx_comp 
+ f:!force np:!no_patch nc:!no_colors ns:!no_spinner"
 
 ################################################################################
 
-# Current OS name (String)
-os_name=""
-
-# Current OS arch (String)
-os_arch=""
-
-# Current OS arch alternative name (String)
-os_arch_alt=""
-
-# Current OS basic arch name (String)
-os_arnm=""
-
-# Current OS distr (String)
-os_dist=""
-
-# Current OS kernel version (String)
-os_kern=""
-
-################################################################################
-
-# List of supported command line arguments (String)
-SUPPORTED_ARGS="dest_dir !help !usage mirror output prefix !quiet tmp threads 
- !verbose !ver !version !list cc_comp cxx_comp !mirror_list no_patch 
- !ignore_checksums dl_cache !rbenv proxy svn_user svn_pass 
- !no_colors !debug name !yes"
-
-# List of supported short command line arguments (String)
-SHORT_ARGS="h:help d:!dest_dir m:mirror O:output p:prefix q:!quiet T:tmp 
- t:threads V:!verbose v:!version l:!list y:!yes P:proxy ml:!mirror_list 
- np:no_patch ic:!ignore_checksums dc:dl_cache r:!rbenv su:svn_user 
- sp:svn_pass nc:!no_colors D:!debug rn:name cc:cc_comp cxx:cxx_comp"
-
-################################################################################
-
-# Path to directory with def files and builders
-DATA_PATH="/usr/local/share/rbbuild"
+# Path to libexec directory
+LIBEXEC_DIR="/usr/libexec/rbbuild"
 
 # Path to directory with def files
-DEF_PATH="${DATA_PATH}/defs"
+DEFS_DIR="/usr/local/share/rbbuild"
 
-# Path to directory with builders
-BLD_PATH="${DATA_PATH}/blds"
-
-TEMP_TEMPLATE="rbbuild-XXXXXXXXXX"
-
-SEPARATOR="--------------------------------------------------------------------------------"
+################################################################################
 
 # Maximum lines from log for failed build (Number)
 LOG_TAIL_SIZE=30
@@ -142,22 +82,13 @@ LOG_TAIL_SIZE=30
 # Maximum redirects during download process (Number)
 MAX_REDIRS=10
 
-CCOPTS=""
-CXXOPTS=""
-CFLAGS=""
-CPPFLAGS=""
-LDFLAGS=""
-CONFOPTS=""
-MAKEOPTS=""
-INSTOPTS=""
-XPREFIX=""
-PREFIX=""
+# Maximum load avearage (Number)
+MAX_LA=5
+
+################################################################################
 
 CWD=$(pwd)
 PID="$$"
-
-# Maximum load avearage (Number)
-MAX_LA=5
 
 ################################################################################
 
@@ -165,27 +96,41 @@ output=/dev/tty
 verb_output=/dev/null
 tmp="/var/tmp"
 
-mirror="default"
-
 log=""
 tmp_dir=""
 def_file=""
 require_patching=""
 require_autoconf=""
 
-ruby_bin=$(command -v "ruby")
-java_bin=$(command -v "java")
-
-declare -A plocat
+mirror="${mirror:-default}"
 
 ################################################################################
 
-# Main method
-#
-# *: All unparsed arguments
-#
-# Code: No
-# Echo: No
+ruby_bin=$(command -v "ruby")
+java_bin=$(command -v "java")
+
+################################################################################
+
+declare -A allowed_vars=(
+  ["prefix"]="1"
+  ["os_name"]="1"
+  ["os_arch"]="1"
+  ["os_arch_alt"]="1"
+  ["os_arnm"]="1"
+  ["os_dist"]="1"
+  ["os_kern"]="1"
+  ["gcc_version"]="1"
+  ["clang_version"]="1"
+  ["java_version"]="1"
+  ["ruby_version"]="1"
+)
+
+################################################################################
+
+declare -A _requires
+
+################################################################################
+
 main() {
   if [[ ! -t 1 || -n "$no_colors" ]] ; then
     unset NORM BOLD UNLN RED GREEN YELLOW BLUE MAG CYAN GREY DARK
@@ -193,2080 +138,88 @@ main() {
     unset CL_BL_RED CL_BL_GREEN CL_BL_YELLOW CL_BL_BLUE CL_BL_MAG CL_BL_CYAN CL_BL_GREY CL_BL_DARK
   fi
 
-  [[ -n "$version" || -n "$ver" ]] && about && doExit
-  [[ -n "$help" || -n "$usage" ]] && usage && doExit
-  [[ $# -eq 0 || -n "$list" ]] && listDefs && doExit
-
-  configureProxy
-
-  if [[ -z "$mirror_list" ]] ; then
-    if [[ -z "$prefix" && -z "$rbenv" ]] ; then
-      error "\nYou must use --prefix (-p) argument for define install location.\n"
-      doExit 1
-    fi
+  if [[ -n "$version" ]] ; then
+    about
+    exit 0
   fi
 
-  [[ -n "$quiet" ]] && output=/dev/null
-  [[ -n "$verbose" ]] && verb_output=$output
-  [[ -n "$rbenv" ]] && require "rbenv"
-
-  checkTMPDir
-
-  tmp_dir=$(mktemp -d ${tmp}/$TEMP_TEMPLATE)
-  log="${tmp_dir}/build.log"
-
-  trap termExit SIGTERM
+  if [[ -n "$help" ]] ; then
+    usage
+    exit 0
+  fi
 
   show ""
-
-  detectOs
-  prepDefFile "$1"
-  checkEOLDates
-  doBuild
-
-  if [[ $? -ne 0 ]] ; then
-    show "" && doExit 1
-  fi
-
-  show "\nBuild process complete!\n" $GREEN
-
-  doExit 0
-}
-
-# Confugure proxy settings
-#
-# Code: No
-# Echo: No
-configureProxy() {
-  local envProxy
-
-  envProxy=$(printenv "https_proxy" "HTTPS_PROXY" | tail -1)
-
-  if [[ -z "$envProxy" ]] ; then
-    envProxy=$(printenv "http_proxy" "HTTP_PROXY" | tail -1)
-  fi
-
-  if [[ -z "$proxy" && -n "$envProxy" ]] ; then
-    proxy="$envProxy"
-  fi
-}
-
-# Check temporary directory for problems
-#
-# Code: No
-# Echo: No
-checkTMPDir() {
-  if [[ -d "$tmp" ]] ; then
-    if ! checkPerms "DRW" "$tmp" ; then
-      error "\nYou don't have enough permissions to use directory $tmp\n"
-      doExit 1
-    fi
-  fi
-
-  local exec_output
-
-  echo -e "#!/usr/bin/env bash\necho 1\n" > "$tmp/rbbuild-exec-check.sh"
-  chmod 0700 "$tmp/rbbuild-exec-check.sh"
-
-  exec_output=$($tmp/rbbuild-exec-check.sh 2>/dev/null)
-
-  rm -f "$tmp/rbbuild-exec-check.sh" &> /dev/null
-
-  if [[ -z "$exec_output" ]] ; then
-    error "\nCan't execute the script inside of the temporary directory ($tmp)."
-    error "Directory mounted with noexec option?\n"
-    doExit 1
-  fi
-}
-
-# Prepare def file
-#
-# 1: Path to local or remote def file (String)
-#
-# Code: No
-# Echo: No
-prepDefFile() {
-  if isRemoteDefFile "$1" ; then
-    fetchRemoteDefFile "$1"
-  else
-    if checkPerms "FR" "$1" ; then
-      if checkPerms "S" "$1" ; then
-        def_file=$(getAbsPath "$1")
-      else
-        error "Error! Definition file is empty.\n"
-        doExit 1
-      fi
-    else
-      if ! checkPerms "FR" "$DEF_PATH/$1" ; then
-        error "Error! Definition file is not found.\n"
-        doExit 1
-      else
-        def_file=$(getAbsPath "$DEF_PATH/$1")
-      fi
-    fi
-  fi
-}
-
-# Download remote def file
-#
-# 1: URL (String)
-#
-# Code: No
-# Echo: No
-fetchRemoteDefFile() {
-  local url status file_name start_time end_time grc_time
-
-  url="$1"
-  status=$(checkHTTPStatus "$url")
-
-  if [[ "$status" != "200" ]] ; then
-    error "Can't fetch remote definition file - server return error status <$status>"
-    show "" && doExit 1
-  fi
-
-  file_name=$(basename "$url")
-
-  showm "Fetching remote defenition file… "
-
-  pushd "$tmp_dir" &> $verb_output || printErrorAndExit "Can't set working dir to $tmp_dir"
-
-    start_time=$(now)
-
-    spinnerOn
-
-    download "$url" "$file_name"
-
-    spinnerOff
-
-    end_time=$(now)
-    grc_time=$(getGraceTime "$start_time" "$end_time")
-
-    show "${CL_GREEN}DONE${CL_NORM} ${CL_DARK}($grc_time)${CL_NORM}"
-
-  popd &> $verb_output || printErrorAndExit "Can't set working dir"
-
-  def_file="$tmp_dir/$file_name"
-}
-
-# Main build method
-#
-# Code: No
-# Echo: No
-doBuild() {
-  local file_name rbenv_prefix loadavg status
-
-  if isRemoteDefFile "$def_file" ; then
-    fetchRemoteDefFile
-  fi
 
   if [[ -n "$mirror_list" ]] ; then
-    showMirrorList "$def_file"
-    show "" && doExit
-  fi
-
-  if [[ -n "$rbenv" ]] ; then
-    file_name=$(basename "$def_file")
-    rbenv_prefix=$(getRBEnvPrefix)
-
-    if [[ -z "$rbenv_prefix" ]] ; then
-      error "RBEnv data directory not found. Please define --prefix (-p) manually"
-      show "" && doExit 1
-    fi
-
-    if [[ -z "$name" ]] ; then
-      prefix="$rbenv_prefix/$file_name"
-    else
-      prefix="$rbenv_prefix/$name"
-    fi
+    require "list"
+    list.mirrors "$@"
+  elif [[ $# -eq 0 ]] ; then
+    require "list"
+    list.defs
   else
-    prefix=$(getAbsPath "$prefix")
+    require "build"
+    build.start "$@"
   fi
 
-  loadavg=$(getLA)
-
-  if [[ $loadavg -gt $MAX_LA && -z "$yes" ]] ; then
-    show "Current LA ($loadavg) is too high. We strongly don't recommend start build process at this moment." $YELLOW
-    show "\nContinue build anyway? (y/N)" $CYAN
-
-    if ! readAnswer "N" ; then
-      doExit
-    fi
-  fi
-
-  if [[ -d "$prefix" && -z "$yes" ]] ; then
-    show "Directory $prefix already exists." $YELLOW
-    show "\nYou really want to use this directory? (Y/n)" $CYAN
-
-    if ! readAnswer "Y" ; then
-      doExit
-    fi
-  fi
-
-  show "Starting build process…"
-
-  printSystemInfo
-
-  checkBuildDeps
-  readDefinition
-
-  if [[ $? -ne 0 ]] ; then
-    return 1
-  fi
-
-  show "Executing defenition file actions… "
-
-  execDefinition
-
-  status=$?
-
-  if [[ $status -eq 0 && -n "$rbenv" ]] ; then
-    showm "\nRehashing… "
-
-    rbenv rehash &> /dev/null
-
-    show "DONE" $GREEN
-  fi
-
-  return $status
-}
-
-# Check build dependencies
-#
-# Code: No
-# Echo: No
-checkBuildDeps() {
-  local dep_list dep_pref dep has_lib pips gems
-  local is_fail deb_list rpm_list bin_list lib_list pip_list gem_list
-
-  showm "Checking build dependencies… "
-
-  if [[ "$os_dist" == "$DIST_UBUNTU" || "$os_dist" == "$DIST_DEBIAN" ]] ; then
-    dep_list=$(readDefProp "deps(deb)")
-
-    if [[ -n "$dep_list" ]] ; then
-      for dep in $dep_list ; do
-        dpkg -s "$dep" &> /dev/null
-
-        if [[ $? -ne 0 ]] ; then
-          is_fail=true
-          deb_list="$dep $deb_list"
-        fi
-      done
-    fi
-  elif [[ "$os_dist" == "$DIST_RHEL" || "$os_dist" == "$DIST_FEDORA" || "$os_dist" == "$DIST_CENTOS" ]] ; then
-    dep_list=$(readDefProp "deps(rpm)")
-
-    if [[ -n "$dep_list" ]] ; then
-      for dep in $dep_list ; do
-        rpm -q "$dep" &> /dev/null
-
-        if [[ $? -ne 0 ]] ; then
-          is_fail=true
-          rpm_list="$dep $rpm_list"
-        fi
-      done
-    fi
-  fi
-
-  dep_pref="deps(bin)"
-
-  if grep -q "$dep_pref" "$def_file" ; then
-    dep_list=$(readDefProp "$dep_pref")
-
-    for dep in $dep_list ; do
-      if ! isBinExist "$dep" ; then
-        is_fail=true
-        bin_list="$dep $bin_list"
-      fi
-    done
-  fi
-
-  dep_pref="deps(lib)"
-
-  if grep -q "$dep_pref" "$def_file" ; then
-    dep_list=$(readDefProp "$dep_pref")
-
-    for dep in $dep_list ; do
-      [[ ! $dep =~ lib ]] && dep="lib${dep}.so"
-
-      has_lib=$(ldconfig -p | grep "$dep")
-
-      if [[ -z "$has_lib" ]] ; then
-        is_fail=true
-        lib_list="$dep $lib_list"
-      fi
-    done
-  fi
-
-  dep_pref="deps(pip)"
-
-  if grep -q "$dep_pref" "$def_file" ; then
-    require "pip"
-
-    dep_list=$(readDefProp "$dep_pref")
-    pips=$(pip freeze)
-
-    for dep in $dep_list ; do
-      if [[ ! $pips =~ $dep ]] ; then
-        is_fail=true
-        pip_list="$dep $pip_list"
-      fi
-    done
-  fi
-
-  dep_pref="deps(gem)"
-
-  if grep -q "$dep_pref" "$def_file" ; then
-    require "gem"
-
-    dep_list=$(readDefProp "$dep_pref")
-    gems=$(gem list --local)
-
-    for dep in $dep_list ; do
-      if [[ ! $gems =~ $dep ]] ; then
-        is_fail=true
-        gem_list="$dep $gem_list"
-      fi
-    done
-  fi
-
-  if [[ -n "$is_fail" ]] ; then
-    error "FAIL"
-
-    show ""
-
-    if [[ -n "$rpm_list" ]] ; then
-      rpm_list=$(sortList "$rpm_list")
-      show "Necessary packages is not found. To install dependencies run this command:"
-      show "${CL_DARK}[sudo]${CL_NORM} ${CL_BOLD}yum install ${rpm_list}${CL_NORM}"
-      show ""
-    fi
-
-    if [[ -n "$deb_list" ]] ; then
-      deb_list=$(sortList "$deb_list")
-      show "Necessary packages is not found. To install dependencies run this command:"
-      show "${CL_DARK}[sudo]${CL_NORM} ${CL_BOLD}apt-get install ${deb_list}${CL_NORM}"
-      show ""
-    fi
-
-    if [[ -n "$bin_list" ]] ; then
-      bin_list=$(sortList "$bin_list")
-      show "Necessary binaries is not found. Please install packages contains this files:"
-      show "$bin_list" $BOLD
-      show ""
-    fi
-
-    if [[ -n "$lib_list" ]] ; then
-      lib_list=$(sortList "$lib_list")
-      show "Necessary libraries is not found. Please install packages contains this libraries:"
-      show "$lib_list" $BOLD
-      show ""
-    fi
-
-    if [[ -n "$pip_list" ]] ; then
-      pip_list=$(sortList "$pip_list")
-      show "Necessary python packages is not found. To install dependencies run this command:"
-      show "${CL_DARK}[sudo]${CL_NORM} ${CL_BOLD}pip install ${pip_list}${CL_NORM}"
-      show ""
-    fi
-
-    if [[ -n "$gem_list" ]] ; then
-      gem_list=$(sortList "$gem_list")
-      show "Necessary gems is not found. To install dependencies run this command:"
-      show "${CL_DARK}[sudo]${CL_NORM} ${CL_BOLD}gem install ${gem_list}${CL_NORM}"
-      show ""
-    fi
-
-    doExit 1
-  else
-    show "DONE" $GREEN
-  fi
-}
-
-# Check EOL dates
-#
-# Code: No
-# Echo: No
-checkEOLDates() {
-  local normal security extended now expired
-  local normal_rd security_rd expired_rd
-  local normal_ts extended_ts security_ts
-
-  normal=$(readDefProp "eol(normal)")
-  security=$(readDefProp "eol(security)")
-  extended=$(readDefProp "eol(extended)")
-
-  now=$(date +%s)
-
-  if [[ -n $normal ]] ; then
-    normal_ts=$(date +%s -d "$normal")
-
-    if [[ $normal_ts -lt $now ]] ; then
-      expired=true
-      normal_rd=$(date -d "@$normal_ts" +'%d %B %Y')
-      show "Normal maintenance finished $normal_rd" $YELLOW
-    fi
-  fi
-
-  if [[ -n $security ]] ; then
-    security_ts=$(date +%s -d "$security")
-
-    if [[ $security_ts -lt $now ]] ; then
-      expired=true
-
-      security_rd=$(date -d "@$security_ts" +'%d %B %Y')
-
-      if [[ -n $extended ]] ; then
-        extended_ts=$(date +%s -d "$extended")
-
-        if [[ $extended_ts -lt $now ]] ; then
-          error "Security maintenance finished $security_rd"
-        else
-          expired_rd=$(date -d "@$expired_ts" +'%d %B %Y')
-          show "Security maintenance finished $security_rd" $YELLOW
-          show "Extended maintenance will be finished $expired_rd" $YELLOW
-        fi
-      else
-        error "Security maintenance finished $security_rd"
-      fi
-    fi
-  fi
-
-  [[ -z "$expired" ]] && return
-  [[ -n "$yes" ]] && show "" && return
-
-  show "\nYou really want build this version? (Y/n)" $CYAN
-
-  if ! readAnswer "Y" ; then
-    doExit
-  fi
-}
-
-# Read and check def file
-#
-# Code: No
-# Echo: No
-readDefinition() {
-  local start_time end_time grc_time failed
-
-  if ! grep -q "^\[$mirror\]" "$def_file" ; then
-    show ""
-    error "Error! Can't find mirror with name <$mirror>. Please check selected definition file."
-    show "" && doExit 1
-  fi
-
-  [[ $mirror != "default" ]] && show "\nYou use mirror ${CL_BOLD}$mirror${CL_NORM}\n" $CYAN
-
-  showm "Checking remote files… "
-
-  spinnerOn
-
-  start_time=$(now)
-
-  execDefinition true || failed=true
-
-  spinnerOff
-
-  if [[ -n "$failed" ]] ; then
-    error "FAIL"
-    return 1
-  fi
-
-  end_time=$(now)
-  grc_time=$(getGraceTime "$start_time" "$end_time")
-
-  show "${CL_GREEN}DONE${CL_NORM} ${CL_DARK}($grc_time)${CL_NORM}"
-
-  return 0
-}
-
-# Read and exec actions in def file
-#
-# 1: Check mode (don't mark build as failed) (Boolean)
-#
-# Code: No
-# Echo: No
-execDefinition() {
-  local check mirror_info line line_num
-  local fmtd cmnd action args failed
-
-  check="$1"
-  mirror_info=$(grep -n "^\[${mirror}\]" "$def_file" | cut -f1 -d":")
-
-  line_num=0
-
-  while read -r line ; do
-    (( line_num++ ))
-
-    [[ $line_num -le $mirror_info ]] && continue
-    [[ -z "$line" || $line =~ \[ ]] && break
-
-    fmtd="${line//\"/}"
-
-    IFS=" " read -r -a cmnd <<< "${fmtd/: / }"
-    IFS=" " read -r -a args <<< "${cmnd[@]:1:999}"
-
-    action="${cmnd[0]}"
-
-    if [[ -n "$check" ]] ; then
-      case $action in
-        "patch")     checkRemotePatch "${args[@]}" ;;
-        "patchset")  checkRemotePatch "${args[@]}" ;;
-        "package")   checkRemoteFile  "${args[@]}" ;;
-        "git")       continue ;;
-        "svn")       continue ;;
-        "hg")        continue ;;
-        *) error "Unknown action <$action>! Please check selected definition file."
-           show "" && doExit 1 ;;
-      esac
-    else
-      mkPrefixDir || return 1
-
-      case $action in
-        "patch")     installPatches   "patch"    "${args[@]}" || failed=true ;;
-        "patchset")  installPatches   "patchset" "${args[@]}" || failed=true ;;
-        "package")   installPackage   "${args[@]}"            || failed=true ;;
-        "git")       installGitSource "${args[@]}"            || failed=true ;;
-        "svn")       installSvnSource "${args[@]}"            || failed=true ;;
-        "hg")        installHgSource  "${args[@]}"            || failed=true ;;
-        *) error "Unknown action <$action>! Please check selected definition file."
-           show "" && doExit 1 ;;
-      esac
-    fi
-
-    [[ -n "$failed" ]] && return 1
-  done < <(awk 1 "$def_file")
-
-  return 0
-}
-
-# Check remote patch and dependencies for it
-#
-# 1: URL (String)
-#
-# Code: No
-# Echo: No
-checkRemotePatch() {
-  local url="$1"
-
-  if [[ ${url:(-6)} == ".patch" ]] ; then
-    if ! checkDeps "patch" ; then
-      if [[ -n "$spinner_pid" ]] ; then
-        spinnerOff
-      fi
-
-      error "FAIL\n"
-      error "Patch installation require 'patch' utility"
-
-      doExit 1
-    fi
-  elif [[ ${url:(-5)} == ".diff" ]] ; then
-    if ! checkDeps "git" ; then
-      if [[ -n "$spinner_pid" ]] ; then
-        spinnerOff
-      fi
-
-      error "FAIL\n"
-      error "Patch installation require 'git' utility"
-
-      doExit 1
-    fi
-  else
-    if ! checkDeps "git" || ! checkDeps "patch" ; then
-      if [[ -n "$spinner_pid" ]] ; then
-        spinnerOff
-      fi
-
-      error "FAIL\n"
-      error "Patch installation require 'git' and 'patch' utilities"
-
-      doExit 1
-    fi
-  fi
-
-  checkRemoteFile "!" "$url"
-}
-
-# Check remote file availability
-#
-# 1: Package name (String)
-# 2: URL to file (String)
-#
-# Code: No
-# Echo: No
-checkRemoteFile() {
-  local url file_name status
-
-  url="$2"
-  file_name=$(basename "$url")
-
-  [[ -n "$dl_cache" && -f "$dl_cache/$file_name" ]] && return
-
-  status=$(checkHTTPStatus "$url")
-
-  if [[ "$status" != "200" ]] ; then
-    if [[ -n "$spinner_pid" ]] ; then
-      spinnerOff
-    fi
-
-    error "FAIL\n"
-    error "Server return error status <$status> for file <$url>."
-    error "Try another mirror (use -ml argument for view all available mirrors)."
-
-    show "" && doExit 1
-  fi
-}
-
-# Download and install patch or patches
-#
-# 1: URL of patch (String)
-# 2: Checksum (String)
-#
-# Code: No
-# Echo: No
-installPatches() {
-  local url file_name crc patch_type
-
-  patch_type="$1"
-  url=$(parseArgsInString "$2")
-  crc="$3"
-
-  if [[ -n "$no_patch" ]] ; then
-    show "Ignoring patch/patchset $1" $MAG
-    return 0
-  fi
-
-  [[ -n "${plocat[$url]}" ]] && url="${plocat[$url]}"
-
-  file_name=$(basename "$url")
-
-  mkdir -p "$tmp_dir/patches"
-
-  pushd "$tmp_dir/patches" &> $verb_output || printErrorAndExit "Can't set working dir to $tmp_dir/patches"
-
-    show "\nFetching patch/patchset ${file_name}… "
-
-    if ! fetchRemoteFile "$url" "$file_name" ; then
-      return 1
-    fi
-
-    checkCRC "$file_name" "$crc"
-
-    if [[ "$patch_type" == "patchset" ]] ; then
-      unpackArchive "$file_name"
-    fi
-
-    require_patching=true
-
-  popd &> $verb_output || printErrorAndExit "Can't set working dir"
-}
-
-# Install binary file
-#
-# 1: URL of package (String)
-# 2: Checksum (String)
-# *: Other arguments passed to builder
-#
-# Code: No
-# Echo: No
-installPackage() {
-  local pkg url file_name crc
-  local pkg_dir dir_list_1 dir_list_2
-
-  pkg=$(basename "$1")
-  url=$(parseArgsInString "$2")
-
-  [[ -n "${plocat[$url]}" ]] && url="${plocat[$url]}"
-
-  file_name=$(basename "$url")
-  crc="$3"
-
-  shift 3
-
-  pushd "$tmp_dir" &> $verb_output || printErrorAndExit "Can't set working dir to $tmp_dir"
-
-    show "\nInstalling ${CL_BOLD}${pkg}${CL_NORM}" $YELLOW
-    show "Fetching file ${file_name}… "
-
-    if ! fetchRemoteFile "$url" "$file_name" ; then
-      return 1
-    fi
-
-    checkCRC "$file_name" "$crc"
-
-    dir_list_1=$(ls -1 -d -- */ 2> /dev/null)
-    unpackArchive "$file_name"
-    dir_list_2=$(ls -1 -d -- */ 2> /dev/null)
-
-    pkg_dir=$(diff <(echo "$dir_list_1" ) <(echo "$dir_list_2") | tail -1 | sed 's/> //')
-
-    [[ -n "$require_patching" ]] && applyPatches "$pkg"
-
-    defBuildFlags
-
-    buildPackage "$pkg" "$pkg_dir" "$@"
-
-  popd &> $verb_output || printErrorAndExit "Can't set working dir"
-
-  return 0
-}
-
-# Install sources from git repository
-#
-# 1: Package name (String)
-# 2: Repository url (String)
-# 3: Tag (String) [Optional]
-# 4: Branch (String) [Optional]
-#
-# Code: No
-# Echo: No
-installGitSource() {
-  require "git"
-
-  local pkg url tag branch clone_dir start_time end_time grc_time
-
-  pkg="$1"
-  url="$2"
-  tag="$3"
-  branch="$4"
-
-  shift 4
-
-  pushd "$tmp_dir" &> $verb_output || printErrorAndExit "Can't set working dir to $tmp_dir"
-
-    show "\nInstalling ${CL_BOLD}${pkg}${CL_NORM}" $YELLOW
-    showm "Fetching sources from ${url:0:62}… "
-
-    spinnerOn
-
-    start_time=$(now)
-
-    git clone "$url" &> $verb_output
-
-    if [[ $? -ne 0 ]] ; then
-      error "FAIL"
-      error "Can't checkout git repository <$url>"
-      show "" && doExit 1
-    fi
-
-    clone_dir=$(basename "$url" | sed 's/.git//')
-
-    pushd "$clone_dir" &> $verb_output || printErrorAndExit "Can't set working dir to $clone_dir"
-      if [[ -n "$tag" && $tag != "!" ]] ; then
-        git checkout "$tag" &> $verb_output
-      elif [[ -n "$branch" && $branch != "!" ]] ; then
-        git checkout "$branch" &> $verb_output
-      fi
-    popd &> $verb_output || printErrorAndExit "Can't set working dir"
-
-    spinnerOff
-
-    end_time=$(now)
-    grc_time=$(getGraceTime "$start_time" "$end_time")
-
-    show "${CL_GREEN}DONE${CL_NORM} ${CL_DARK}($grc_time)${CL_NORM}"
-
-    pushd "$clone_dir" &> $verb_output || printErrorAndExit "Can't set working dir to $clone_dir"
-
-      [[ -n "$require_patching" ]] && applyPatches "$pkg"
-
-    popd &> $verb_output || printErrorAndExit "Can't set working dir"
-
-    defBuildFlags
-
-    buildPackage "$pkg" "$clone_dir" "$@"
-
-  popd &> $verb_output || printErrorAndExit "Can't set working dir"
-}
-
-# Install sources from subversion repository
-#
-# 1: Repository url (String)
-# 2: Tag (String) [Optional]
-# 3: Branch (String) [Optional]
-#
-# Code: No
-# Echo: No
-installSvnSource() {
-  require "svn"
-
-  local url tag branch start_time end_time grc_time
-  local svn_url svn_adds checkout_dir
-
-  url="$1"
-  tag="$2"
-  branch="$3"
-
-  shift 3
-
-  pushd "$tmp_dir" &> $verb_output || printErrorAndExit "Can't set working dir to $tmp_dir"
-    show "\nInstalling ${CL_BOLD}${pkg}${CL_NORM}" $YELLOW
-    showm "Fetching sources from ${url:0:62}… "
-
-    spinnerOn
-
-    start_time=$(now)
-
-    svn_adds="--non-interactive --no-auth-cache"
-
-    [[ -n "$svn_user" ]] && svn_adds="$svn_adds --username $svn_user"
-    [[ -n "$svn_pass" ]] && svn_adds="$svn_adds --password $svn_pass"
-
-    if [[ "$svn" =~ (branches|tags|trunk) ]] ; then
-      svn_url="$svn"
-    else
-      if [[ -n "$branch" && $branch != "!" ]] ; then
-        svn_url="$svn/branches/$branch"
-      elif [[ -n "$tag" && $tag != "!" ]] ; then
-        svn_url="$svn/tags/$tag"
-      else
-        svn_url="$svn/trunk"
-      fi
-    fi
-
-    checkout_dir=$(mktemp -u "XXXXXXXX")
-
-    # shellcheck disable=SC2086
-    svn checkout "$svn_url" "$checkout_dir" $svn_adds &> $verb_output
-
-    if [[ $? -ne 0 ]] ; then
-      error "FAIL"
-      error "Can't checkout git repository <$url>"
-      show "" && doExit 1
-    fi
-
-    spinnerOff
-
-    end_time=$(now)
-    grc_time=$(getGraceTime "$start_time" "$end_time")
-
-    show "${CL_GREEN}DONE${CL_NORM} ${CL_DARK}($grc_time)${CL_NORM}"
-
-    pushd "$checkout_dir" &> $verb_output || printErrorAndExit "Can't set working dir to $checkout_dir"
-
-      [[ -n "$require_patching" ]] && applyPatches "$pkg"
-
-    popd &> $verb_output || printErrorAndExit "Can't set working dir"
-
-    defBuildFlags
-
-    buildPackage "$pkg" "$checkout_dir" "$@"
-
-  popd &> $verb_output || printErrorAndExit "Can't set working dir"
-}
-
-# Install sources from mercurial repository
-#
-# 1: Repository url (String)
-# 2: Tag (String) [Optional]
-# 3: Branch (String) [Optional]
-#
-# Code: No
-# Echo: No
-installHgSource() {
-  require "hg"
-
-  local url tag branch start_time end_time grc_time clone_dir
-
-  url="$1"
-  tag="$2"
-  branch="$3"
-
-  shift 3
-
-  pushd "$tmp_dir" &> $verb_output || printErrorAndExit "Can't set working dir to $tmp_dir"
-
-    show "\nInstalling ${CL_BOLD}${pkg}${CL_NORM}" $YELLOW
-    showm "Fetching sources from ${url:0:62}… "
-
-    spinnerOn
-
-    start_time=$(now)
-
-    hg clone "$url" &> $verb_output
-
-    if [[ $? -ne 0 ]] ; then
-      error "FAIL"
-      error "Can't checkout mercurial repository <$url>"
-      show "" && doExit 1
-    fi
-
-    clone_dir=$(basename "$url")
-
-    pushd "$clone_dir" &> $verb_output || printErrorAndExit "Can't set working dir to $clone_dir"
-      if [[ -n "$tag" && $tag != "!" ]] ; then
-        hg checkout "$tag" &> $verb_output
-      elif [[ -n "$branch" && $branch != "!" ]] ; then
-        hg checkout "$branch" &> $verb_output
-      fi
-    popd &> $verb_output || printErrorAndExit "Can't set working dir"
-
-    spinnerOff
-
-    end_time=$(now)
-    grc_time=$(getGraceTime "$start_time" "$end_time")
-
-    show "${CL_GREEN}DONE${CL_NORM} ${CL_DARK}($grc_time)${CL_NORM}"
-
-    pushd "$clone_dir" &> $verb_output || printErrorAndExit "Can't set working dir to $clone_dir"
-
-      [[ -n "$require_patching" ]] && applyPatches "$pkg"
-
-    popd &> $verb_output || printErrorAndExit "Can't set working dir"
-
-    defBuildFlags
-
-    buildPackage "$pkg" "$clone_dir" "$@"
-
-  popd &> $verb_output || printErrorAndExit "Can't set working dir"
-}
-
-# Apply patches to sources
-#
-# 1: Package name (String)
-#
-# Code: No
-# Echo: No
-applyPatches() {
-  local pkg="$1"
-  local pkgdir="$pkg"
-
-  if [[ ! -e "$tmp_dir/$pkgdir" ]] ; then
-    # shellcheck disable=SC2001
-    pkgdir=$(echo "$pkg" | sed 's/-p[0-9]*//')
-  fi
-
-  pushd "$tmp_dir/$pkgdir" &> $verb_output || printErrorAndExit "Can't set working dir to $tmp_dir/$pkgdir"
-
-    local patch patch_name
-
-    if [[ -n $(find "$tmp_dir/patches" -name "*.patch" -print -quit) ]] ; then
-      for patch in $(find "$tmp_dir/patches" -name "*.patch" | sort -n) ; do
-        patch_name=$(basename "$patch")
-        showm "Applying $patch_name… "
-
-        # shellcheck disable=SC2002
-        cat "$patch" | patch -p1 &> $verb_output
-
-        if [[ $? -ne 0 ]] ; then
-          error "FAIL"
-          return 1
-        else
-          show "DONE" $GREEN
-        fi
-      done
-    fi
-
-    if [[ -n $(find "$tmp_dir/patches" -name "*.diff" -print -quit) ]] ; then
-      for patch in $(find "$tmp_dir/patches" -name "*.diff" | sort -n) ; do
-        patch_name=$(basename "$patch")
-        showm "Applying $patch_name… "
-
-        # shellcheck disable=SC2002
-        cat "$patch" | git apply &> $verb_output
-
-        if [[ $? -ne 0 ]] ; then
-          error "FAIL"
-          return 1
-        else
-          show "DONE" $GREEN
-        fi
-      done
-    fi
-
-    require_autoconf=true
-
-    unset require_patching
-
-  popd &> $verb_output || printErrorAndExit "Can't set working dir"
-}
-
-# Create prefix directory
-#
-# Code: No
-# Echo: No
-mkPrefixDir() {
-  mkdir -p "$prefix" &> /dev/null
-
-  if ! checkPerms "DRW" "$prefix" ; then
-    show ""
-    error "You don't have enough permissions (read & write) to use directory $prefix"
-    return 1
-  fi
-
-  return 0
-}
-
-# Read build flags from def file
-#
-# Code: No
-# Echo: No
-defBuildFlags() {
-  CCOPTS=$(readDefFlags   "CC($pkg)")
-  CXXOPTS=$(readDefFlags  "CXX($pkg)")
-  CFLAGS=$(readDefFlags   "CFLAGS($pkg)")
-  CPPFLAGS=$(readDefFlags "CPPFLAGS($pkg)")
-  LDFLAGS=$(readDefFlags  "LDFLAGS($pkg)")
-  CONFOPTS=$(readDefFlags "CONFOPTS($pkg)")
-  MAKEOPTS=$(readDefFlags "MAKEOPTS($pkg)")
-  INSTOPTS=$(readDefFlags "INSTOPTS($pkg)")
-  XPREFIX=$(readDefFlags  "PREFIX($pkg)")
-
-  [[ -n "$CFLAGS" ]] && export CFLAGS="${CFLAGS}"
-
-  export LDFLAGS="-L\"${prefix}/lib\" ${LDFLAGS}"
-  export CPPFLAGS="-I\"${prefix}/include\" ${CPPFLAGS}"
-}
-
-# Download remote file
-#
-# 1: URL (String)
-# 2: Output file name (String)
-#
-# Code: No
-# Echo: No
-fetchRemoteFile() {
-  local url file_name cache_dir failed
-
-  url="$1"
-  file_name="$2"
-
-  if [[ -n "$dl_cache" ]] ; then
-    cache_dir="$dl_cache"
-
-    if [[ ! -d "$cache_dir" ]] ; then
-      if ! mkdir -p "$cache_dir" &> /dev/null ; then
-        printErrorAndExit "Can't create directory $dl_cache for download cache"
-      fi
-    fi
-
-    if ! checkPerms "DRWX" "$cache_dir" ; then
-      printErrorAndExit "Can't user directory $dl_cache for download cache"
-    fi
-
-    if [[ ! -f "$cache_dir/$file_name" ]] ; then
-      pushd "$cache_dir" &> $verb_output || printErrorAndExit "Can't set working dir to $cache_dir"
-
-        download "$url" "$file_name" || failed=true
-
-      popd &> $verb_output || printErrorAndExit "Can't set working dir"
-    fi
-
-    if [[ -z "$failed" ]] ; then
-      cp "$cache_dir/$file_name" "$file_name" || failed=true
-    fi
-  else
-    download "$url" "$file_name" || failed=true
-  fi
-
-  [[ -n "$failed" ]] && return 1
-
-  return 0
-}
-
-# Check file checksum
-#
-# 1: Path to file (String)
-# 2: Checksum (String)
-#
-# Code: No
-# Echo: No
-checkCRC() {
-  local filename crc file_crc
-
-  filename="$1"
-  crc="$2"
-
-  [[ -n "$ignore_checksums" ]] && return
-
-  showm "Checking sha1 checksum… "
-
-  file_crc=$(sha1sum "$filename" | cut -f1 -d" ")
-
-  if [[ "$file_crc" == "$crc" ]] ; then
-    show "OK" $GREEN
-  else
-    error "FAIL"
-    error ""
-    error "Checksum of the file $filename not equals to checksum from"
-    error "the definition file (outdated defs?). Maybe file was changed."
-    error "You can use argument --ignore-checksums (-ic) for skipping this check."
-
-    show "" && doExit 1
-  fi
-}
-
-# Unpack archive
-#
-# 1: Path to archive (String)
-#
-# Code: No
-# Echo: No
-unpackArchive() {
-  local arch start_time end_time grc_time
-
-  arch="$1"
-  start_time=$(now)
-
-  spinnerOn
-
-  if [[ $1 =~ .tar.gz$|.tgz$|.tar.gzip$ ]] ; then
-    showm "Unpacking tar.gz archive… "
-
-    tar xzvf "$arch" &> $verb_output
-
-    rm -f "$arch"
-  elif [[ $1 =~ .tar.bz2$|.tbz2$|.tbz2$|.tb2$|.tbz$ ]] ; then
-    showm "Unpacking tar.bz2 archive… "
-
-    tar xjvf "$arch" &> $verb_output
-
-    rm -f "$arch"
-  elif [[ $1 =~ .zip$ ]] ; then
-    showm "Unpacking zip archive… "
-
-    unzip "$arch" &> $verb_output
-
-    rm -f "$arch"
-  elif [[ $1 =~ .tar.xz$|.txz$ ]]; then
-    showm "Unpacking xz archive… "
-
-    tar xJfv "$arch" &> $verb_output
-
-    rm -f "$arch"
-  elif [[ $1 =~ .7z$ ]] ; then
-    showm "Unpacking 7z archive… "
-
-    require "7za"
-
-    7za x "$arch" &> $verb_output
-
-    rm -f "$arch"
-  else
-    error "Can't unpack file $arch. Exiting…"
-    show "" && doExit 1
-  fi
-
-  spinnerOff
-
-  end_time=$(now)
-  grc_time=$(getGraceTime "$start_time" "$end_time")
-
-  show "${CL_GREEN}DONE${CL_NORM} ${CL_DARK}($grc_time)${CL_NORM}"
-}
-
-# Read additional information from def file
-#
-# 1: Variable name (String)
-#
-# Code: No
-# Echo: Variable value (String)
-readDefFlags() {
-  local name value
-
-  name="$1"
-  value=$(readDefProp "$name")
-
-  [[ -z "$value" ]] && echo "" && return 1
-
-  parseArgsInString "$value" | sed -e 's/^[ \t]*//'
-}
-
-# Read property from def file
-#
-# 1: Propery name (String)
-#
-# Return: Property value (String)
-# Echo: No
-readDefProp() {
-  sed -n "s/$1://p" "$def_file" | sed -e 's/^[ \t]*//'
-}
-
-# Parse variables in text
-#
-# 1: Text with variables (String)
-#
-# Code: No
-# Echo: Text with parsed vars (String)
-parseArgsInString() {
-  local data="$*"
-
-  if [[ ! $data =~ \{ ]] ; then
-    echo "$data" && return 0
-  else
-    local prm_name
-
-    while : ; do
-      if [[ "$data" =~ \{([A-Za-z0-9_?]{3,})\} ]] ; then
-        prm_name="${BASH_REMATCH[1]}"
-      else
-        break
-      fi
-
-      data="${data//\{$prm_name\}/${!prm_name}}"
-    done
-
-    echo "$data" && return 0
-  fi
-}
-
-# Start build process with some builder
-#
-# 1: Package name (String)
-# 2: Package build dir (String)
-# 3: Builder name (String) [Optional]
-#
-# Code: No
-# Echo: No
-buildPackage() {
-  local pkg="$1"
-  local pkg_dir="$2"
-  local builder_name="${3-default}"
-
-  shift 2
-
-  [[ "$builder_name" == "none" ]] && return 0
-
-  if hasBuilder "$builder_name" ; then
-    runBuilder "$builder_name" "$pkg" "$pkg_dir" "$@"
-    return $?
-  else
-    error "Error building package — builder $builder_name is not found"
-    show "" && doExit 1
-  fi
-}
-
-# Run builder
-#
-# 1: Builder name (String)
-# 2: Package name (String)
-# 3: Package dir (String)
-# *: Builder args
-#
-# Code: Yes
-# Echo: No
-runBuilder() {
-  local builder_func="${1}Builder"
-  local status
-
-  # shellcheck disable=SC1090
-  source "$BLD_PATH/$1"
-
-  # shellcheck disable=SC2046,SC2116
-  "$builder_func" "$pkg" "$pkg_dir" "$@"
-
-  status=$?
-
-  if [[ -n "$require_autoconf" ]] ; then
-    unset require_autoconf
-  fi
-
-  return $status
-}
-
-# Check that builder exist
-#
-# 1: Builder name (String)
-#
-# Code: Yes
-# Echo: No
-hasBuilder() {
-  local name="$1"
-
-  if checkPerms "FR" "$BLD_PATH/$name" ; then
-    return 0
-  else
-    return 1
-  fi
-}
-
-
-# Failed build handler
-#
-# 1: Prefix path (String)
-#
-# Code: No
-# Echo: No
-buildFailed() {
-  error "FAILED"
   show ""
 
-  local prfx="$1"
-
-  if checkPerms "D" "$prfx" ; then
-    rm -rf "$prfx" &> $verb_output
-  fi
-
-  if [[ -f "$log" && -z "$verbose" ]] ; then
-    show "Last ${LOG_TAIL_SIZE} lines from install log:\n" $CYAN
-
-    tail -${LOG_TAIL_SIZE} "$log"
-    mv "$log" /tmp/rbbuild.log
-
-    show "\nLog saved to /tmp/rbbuild.log\n" $CYAN
-  fi
-
-  doExit 1
+  finish $?
 }
 
-# Check builder compatibility
+# Load libexec script
 #
-# 1: Supported raw version (String)
-#
-# Code: No
-# Echo: No
-checkVersionCompatibility() {
-  local requiredVersion="$1"
-
-  if [[ ${requiredVersion//./} -gt ${VER//./} ]] ; then
-    error "Can't build package - builder not compatible with current version of $APP core."
-    error "Builder required version $requiredVersion or higher, you have version $VER."
-
-    show "" && doExit 1
-  fi
-}
-
-###############################################################################
-
-# Show sorted list of mirrors defined in def file
-#
-# Code: No
-# Echo: No
-showMirrorList() {
-  local mirror
-
-  while read -r mirror ; do
-    show "$mirror" $CYAN
-  done < <(grep "\[" "$def_file" | sed 's/[][]//g')
-}
-
-# Show list of all def files
-#
-# Code: No
-# Echo: No
-listDefs() {
-  local defs_dir bindir instdir shrdir
-  local def ruby_list jruby_list truf_list oth_list
-
-  defs_dir="$DEF_PATH"
-
-  if [[ ! -d "$defs_dir" ]] ; then
-    bindir=$(dirname "$0")
-    bindir=$(getAbsPath "$bindir")
-    instdir=$(dirname "$bindir")
-    shrdir="$instdir/share"
-
-    if [[ -d $shrdir/rbbuild ]] ; then
-      defs_dir="$shrdir/rbbuild"
-    else
-      error "Can't show list of definition files - definitions not found"
-      show "" && doExit 1
-    fi
-  fi
-
-  # shellcheck disable=SC2045
-  for def in $(ls "$defs_dir") ; do
-    [[ -h "$defs_dir/$def" ]] && continue
-    [[ $def =~ .*-railsexpress || $def =~ .*-jemalloc ]] && continue
-
-    if [[ $def =~ ^([0-9]).[0-9]+.[0-9]+ ]] ; then
-      ruby_list+=("$def")
-    elif [[ $def =~ ^jruby-* ]] ; then
-      jruby_list+=("$def")
-    elif [[ $def =~ ^truffleruby-* ]] ; then
-      truf_list+=("$def")
-    else
-      oth_list+=("$def")
-    fi
-  done
-
-  IFS=" " read -r -a ruby_list <<< "$(sortVersionArray "${ruby_list[@]}")"
-  IFS=" " read -r -a jruby_list <<< "$(sortVersionArray "${jruby_list[@]}")"
-  IFS=" " read -r -a truf_list <<< "$(sortVersionArray "${truf_list[@]}")"
-
-  local ruby_ver jruby_ver truf_ver oth_ver all_ver ruby_count
-
-  printf "\n${CL_BOLD}${CL_BG_MAG} %-26s${CL_NORM} ${CL_BOLD}${CL_BG_CYAN} %-26s${CL_NORM} ${CL_BOLD}${CL_BG_YELLOW} %-26s${CL_NORM} ${CL_BOLD}${CL_BG_GREY} %-22s${CL_NORM}\n\n" "RUBY" "JRUBY" "TRUFFLE" "OTHER"
-
-  while : ; do
-    ruby_ver="${ruby_list[$count]}"
-    jruby_ver="${jruby_list[$count]}"
-    truf_ver="${truf_list[$count]}"
-    oth_ver="${oth_list[$count]}"
-
-    if [[ -n "$ruby_ver" ]] ; then
-      ruby_count=$(find "${defs_dir}" -name "${ruby_ver}*" | wc -l)
-
-      if [[ $ruby_count -gt 1 ]] ; then
-        ruby_count=$(( ruby_count - 1 ))
-        ruby_ver=$(getAlignedColoredText "${ruby_ver} ${CL_DARK}+${ruby_count}${CL_NORM}" "${ruby_ver} +${ruby_count}" 26)
-      fi
-    fi
-
-    [[ $count -eq 0 && -z "$truf_ver" ]] && truf_ver="${CL_DARK}- none -${CL_NORM}"
-    [[ $count -eq 0 && -z "$oth_ver" ]] && oth_ver="${CL_DARK}- none -${CL_NORM}"
-
-    printf " %-26b  %-26b  %-26b  %-22b\n" "$ruby_ver" "$jruby_ver" "$truf_ver" "$oth_ver"
-
-    all_ver="${ruby_ver}${jruby_ver}${truf_ver}${oth_ver}"
-
-    [[ ${#all_ver} -eq 0 ]] && break
-
-    ((count++))
-  done
-}
-
-# Check current value of def_file is remote def file
-#
-# Code: Yes
-# Echo: No
-isRemoteDefFile() {
-  if [[ $1 =~ http:|https:|ftp: ]] ; then
-    return 0
-  fi
-
-  return 1
-}
-
-# Find RBEnv prefix path
-#
-# Code: No
-# Echo: RBEnv prefix path (String)
-getRBEnvPrefix() {
-  local upath rbe_bin bin_dir ins_dir
-
-  upath=$(getAbsPath "$HOME/.rbenv/versions")
-
-  if checkPerms "DRX" "$upath" ; then
-    echo "$upath"
-  elif checkPerms "DRX" "/usr/local/rbenv/versions" ; then
-    echo "/usr/local/rbenv/versions"
-  else
-    rbe_bin=$(type -P rbenv)
-    bin_dir=$(dirname "$rbe_bin")
-    ins_dir=$(dirname "$bin_dir")
-
-    if checkPerms "DRX" "$ins_dir/versions" ; then
-      echo "$ins_dir/versions"
-    else
-      echo ""
-    fi
-  fi
-}
-
-# Get recommended number of threads for build
-#
-# Code: No
-# Echo: Number of threads (Number)
-getThreadsNum() {
-  local proc_num rec_num la
-
-  proc_num=$(nproc)
-  la=$(cut -f2 -d" " < /proc/loadavg | sed 's/\..*//')
-
-  if [[ $proc_num -eq 1 || $la -ge 5 ]] ; then
-    echo 1
-  else
-    rec_num=$(( proc_num - 1 ))
-    echo $rec_num
-  fi
-}
-
-################################################################################
-
-# Check system info
-#
-# Code: No
-# Echo: No
-detectOs() {
-  os_name=$(uname -s)
-
-  if [[ "$os_name" == "SunOS" ]] ; then
-    os_name=$OS_SOLARIS
-  elif [[ "$os_name" == "Darwin" ]]; then
-    os_name=$OS_MACOSX
-  elif [[ "$os_name" == "Linux" ]] ; then
-    os_name="$OS_LINUX"
-    os_kern=$(uname -r)
-
-    if [[ -f /etc/arch-release ]] ; then
-      os_dist=$DIST_ARCH
-    elif [[ -f /etc/fedora-release ]] ; then
-      os_dist=$DIST_FEDORA
-    elif [[ -f /etc/gentoo-release ]] ; then
-      os_dist=$DIST_GENTOO
-    elif [[ -f /etc/redhat-release ]] ; then
-      os_dist=$DIST_RHEL
-    elif [[ -f /etc/SuSE-release ]] ; then
-      os_dist=$DIST_SUSE
-    elif [[ -f /etc/lsb-release ]] ; then
-      os_dist=$DIST_UBUNTU
-    fi
-  fi
-
-  os_arch=$(uname -p)
-
-  if [[ "$os_arch" == "x86_64" && "$os_name" == "$OS_LINUX" ]] ; then
-    os_arch_alt="amd64"
-    os_arnm="linux64"
-  elif [[ "$os_arch" == "i386" && "$os_name" == "$OS_LINUX" ]]; then
-    os_arnm="linux32"
-  fi
-}
-
-# Print info about system
-#
-# Code: No
-# Echo: No
-printSystemInfo() {
-  showSeparator "SYSTEM INFO"
-
-  show " ${CL_BOLD}Prefix:        ${CL_NORM} $prefix ${CL_DARK}(prefix)${CL_NORM}"
-  show " ${CL_BOLD}GCC:           ${CL_NORM} $(getGCCVersion)"
-  show " ${CL_BOLD}Clang:         ${CL_NORM} $(getClangVersion)"
-  show " ${CL_BOLD}Java:          ${CL_NORM} $(getJavaVersion)"
-  show " ${CL_BOLD}Ruby:          ${CL_NORM} $(getRubyVersion)"
-  show " ${CL_BOLD}OSName:        ${CL_NORM} ${os_name} ${CL_DARK}(os_name)${CL_NORM}"
-  show " ${CL_BOLD}OSKernel:      ${CL_NORM} ${os_kern} ${CL_DARK}(os_kern)${CL_NORM}"
-  show " ${CL_BOLD}OSDistro:      ${CL_NORM} ${os_dist} ${CL_DARK}(os_dist)${CL_NORM}"
-  show " ${CL_BOLD}OSArch:        ${CL_NORM} ${os_arch} ${CL_DARK}(os_arch)${CL_NORM}"
-  show " ${CL_BOLD}OSArchAlt:     ${CL_NORM} ${os_arch_alt} ${CL_DARK}(os_arch_alt)${CL_NORM}"
-  show " ${CL_BOLD}OSArchName:    ${CL_NORM} ${os_arnm} ${CL_DARK}(os_arnm)${CL_NORM}"
-
-  showSeparator
-}
-
-# Return GCC version
-#
-# Code: No
-# Echo: Version (String)
-getGCCVersion() {
-  if ! isBinExist "gcc" ; then
-    echo "${CL_DARK}Not installed${CL_NORM}"
-    return
-  fi
-
-  gcc --version | head -1 | cut -f3-9 -d" "
-}
-
-# Return clang version
-#
-# Code: No
-# Echo: Version (String)
-getClangVersion() {
-  if ! isBinExist "clang" ; then
-    echo "${CL_DARK}Not installed${CL_NORM}"
-    return
-  fi
-
-  clang --version | head -1 | cut -f3-9 -d" "
-}
-
-# Return Java version
-#
-# Code: No
-# Echo: Version (String)
-getJavaVersion() {
-  if ! isBinExist "java" ; then
-    echo "${CL_DARK}Not installed${CL_NORM}"
-    return
-  fi
-
-  java -version 2>&1 | head -1
-}
-
-# Return Ruby version
-#
-# Code: No
-# Echo: Version (String)
-getRubyVersion() {
-  if ! isBinExist "ruby" ; then
-    echo "${CL_DARK}Not installed${CL_NORM}"
-    return
-  fi
-
-  ruby --version 2>/dev/null || echo "${CL_DARK}Not installed${CL_NORM}"
-}
-
-# Check OS
-#
-# 1: OS (String)
-#
-# Code: Yes
-# Echo: No
-isOS() {
-  local target_os="$1"
-
-  if [[ "$os_name" == "$target_os" ]] ; then
-    return 0
-  fi
-
-  return 1
-}
-
-# Check arch
-#
-# 1: Arch (String)
-#
-# Code: Yes
-# Echo: No
-isArch() {
-  local target_arch="$1"
-
-  if [[ "$os_arch" == "$target_arch" ]] ; then
-    return 0
-  fi
-
-  return 1
-}
-
-# Check if some binary installed on system
-#
-# 1: Binary name (String)
-#
-# Code: Yes
-# Echo: No
-isBinExist() {
-  command -v "$1" &>/dev/null
-  return $?
-}
-
-# Check required apps
+# 1: Script name without extension (String)
 #
 # Code: No
 # Echo: No
 require() {
-  local app
+  local script="${1}.shx"
 
-  for app in "$@" ; do
-    if ! checkDeps "$app" ; then
-      show "\nWarning: This action required ${app}. Please install this application and try again.\n" $YELLOW
-      doExit 1
-    fi
-  done
-}
-
-# Check what compiler exist
-#
-# Code: No
-# Echo: No
-requireCompiler() {
-  local complrs complr
-
-  if [[ -n "${cc_comp}${cxx_comp}${CCOPTS}${CXXOPTS}" ]] ; then
-    complrs=("${cc_comp} ${cxx_comp} ${CCOPTS} ${CXXOPTS}")
-
-    for complr in "${complrs[@]}" ; do
-      type -P "$complr" &> /dev/null
-
-      if [[ $? -ne 0 ]] ; then
-        show ""
-        show "Warning: Compiler $complr is not found." $YELLOW
-        show "" && doExit 1
-      fi
-    done
-  else
-    cc -v &> /dev/null
-
-    if [[ $? -ne 0 ]] ; then
-      show ""
-      show "Warning: For this package require compiler. Please install compiler (gcc/clang) and try again." $YELLOW
-      show "" && doExit 1
-    fi
-  fi
-}
-
-# Export compiler options
-#
-# Code: No
-# Echo: No
-exportCompilerOpts() {
-  local opts
-
-  if [[ -n "$cc_comp" ]] ; then
-    opts="CC=$cc_comp"
-  elif [[ -n "$CCOPTS" ]] ; then
-    opts="CC=$CCOPTS"
-  fi
-
-  if [[ -n "$cxx_comp" ]] ; then
-    opts="$opts CXX=$cxx_comp"
-  elif [[ -n "$CCOPTS" ]] ; then
-    opts="$opts CXX=$CXXOPTS"
-  fi
-
-  if [[ -n "$opts" ]] ; then
-    export opts
-  fi
-}
-
-# Get remote file status
-#
-# 1: URL (String)
-#
-# Code: No
-# Echo: HTTP status code (Number)
-checkHTTPStatus() {
-  local url status code location
-
-  url=$(parseArgsInString "$1")
-
-  if [[ -z "$proxy" ]] ; then
-    status=$(curl --max-redirs "$MAX_REDIRS" -LIks -X GET "$url")
-  else
-    status=$(curl --max-redirs "$MAX_REDIRS" -x "$proxy" -LIks -X GET "$url")
-  fi
-
-  code=$(echo "$status" | grep -E "^HTTP\/" | tail -1 | cut -f2 -d" ")
-
-  if [[ -z "$code" ]] ; then
-    echo "-1"
-    return 0
-  fi
-
-  location=$(echo "$status" | grep -Fi "Location" | tail -1 | cut -f2 -d" ")
-
-  plocat[$url]="$location"
-
-  echo "$code"
-}
-
-# Download remote file
-#
-# 1: Url (String)
-# 2: File name (String)
-#
-# Code: Yes
-# Echo: No
-download() {
-  local opts="--max-redirs $MAX_REDIRS -L"
-
-  if [[ -n "$proxy" ]] ; then
-    opts="$opts -x $proxy"
-  fi
-
-  if [[ -n "$quiet" ]] ; then
-    # shellcheck disable=SC2086
-    curl $opts -s "$1" -o "$2"
-  else
-    # shellcheck disable=SC2086
-    curl $opts -# "$1" -o "$2"
-  fi
-
-  if [[ -f "$2" ]] ; then
-    chmod 600 "$2"
-  fi
-
-  return $?
-}
-
-# Read user yes/no answer
-#
-# 1: Default value (String)
-#
-# Code: Yes
-# Echo: No
-readAnswer() {
-  local defval answer
-
-  defval="$1"
-
-  read -r -e -p "> " answer
-
-  show ""
-
-  answer=$(echo "$answer" | tr "[:lower:]" "[:upper:]")
-
-  [[ -z $answer ]] && answer="$defval"
-
-  if [[ ${answer:0:1} == "Y" ]] ; then
-    return 0
-  fi
-
-  return 1
-}
-
-# Check file permissions
-#
-# 1: Permissions (String)
-# 2: Path to file (String)
-#
-# Code: Yes
-# Echo: No
-checkPerms() {
-  local perms path
-
-  perms=$(echo "$1" | tr "[:lower:]" "[:upper:]")
-  path="$2"
-
-  for perm in $(echo "$perms" | fold -w1) ; do
-    case $perm in
-      "R") [[ ! -r "$path" ]] && return 1 ;;
-      "W") [[ ! -w "$path" ]] && return 1 ;;
-      "E") [[ ! -e "$path" ]] && return 1 ;;
-      "D") [[ ! -d "$path" ]] && return 1 ;;
-      "F") [[ ! -f "$path" ]] && return 1 ;;
-      "S") [[ ! -s "$path" ]] && return 1 ;;
-      "H") [[ ! -h "$path" ]] && return 1 ;;
-      "X") [[ ! -x "$path" ]] && return 1 ;;
-      *)                       return 1 ;;
-    esac
-  done
-
-  return 0
-}
-
-# Check what apps exists
-#
-# *: List of apps
-#
-# Code: Yes
-# Echo: No
-checkDeps() {
-  local app
-
-  for app in "$@" ; do
-    type -P "$app" &> /dev/null
-    [[ $? -eq 1 ]] && return 1
-  done
-
-  return 0
-}
-
-# Sort version array
-#
-# 1: Data (String)
-#
-# Code: Yes
-# Echo: Sorted array (String)
-sortVersionArray() {
-  if [[ -n "$*" ]] ; then
-    echo "$*" | tr " " "\n" | sort -V | tr "\n" " " && printf "\n"
-  fi
-}
-
-# Get current time as unix timestamp
-#
-# Code: No
-# Echo: Timestamp (Number)
-now() {
-  date '+%s'
-}
-
-# Get action time in grace format (3 min 32 sec)
-#
-# 1: Start timestamp (Number)
-# 2: End timestamp (Number)
-#
-# Code: No
-# Echo: No
-getGraceTime() {
-  local start end tim sec min
-
-  start="$1"
-  end="$2"
-  tim=$((end - start))
-
-  [[ -z "$tim" || "$tim" == "0" ]] && echo "< 1 sec" && return 0
-
-  sec=$((tim % 60))
-  min=$(((tim - sec)/60))
-
-  if [[ $min -eq 0 ]] ; then
-    echo "$sec sec"
-  else
-    echo "$min min $sec sec"
-  fi
-}
-
-# Print colored text with align spaces
-#
-# 1: Colored text (String)
-# 2: Original text (String)
-# 3: Text size (Number)
-#
-# Code: No
-# Echo: Aligned text (String)
-getAlignedColoredText() {
-  local ctext text size text_size size_diff align
-
-  ctext="$1"
-  text="$2"
-  size="$3"
-
-  if [[ ${#text} -gt $size ]] ; then
-    echo -e "$ctext"
+  # File already loaded, skip it
+  if [[ "${_requires[$script]}" -eq 1 ]] ; then
     return
   fi
 
-  text_size=${#text}
-  size_diff=$((size - text_size))
-  align=$(printf "%${size_diff}s" " ")
+  if [[ ! -e "$LIBEXEC_DIR/$script" ]] ; then
+    error "Can't find file $script in libexec directory ($LIBEXEC_DIR)"
+    exit 1
+  fi
 
-  echo -e "${ctext}${align}"
+  if [[ ! -r "$LIBEXEC_DIR/$script" ]] ; then
+    error "File $LIBEXEC_DIR/$script is not readable"
+    exit 1
+  fi
+
+  if [[ ! -s "$LIBEXEC_DIR/$script" ]] ; then
+    error "File $LIBEXEC_DIR/$script is empty"
+    exit 1
+  fi
+
+  _requires[$script]=1
+
+  # shellcheck disable=SC1090
+  source "$LIBEXEC_DIR/$script"
 }
 
-# Sort items list
+# Finish script execution
 #
-# *: Items
-#
-# Code: No
-# Echo: Sorted data (String)
-sortList() {
-  echo "$*" | tr " " "\n" | sort -h | tr "\n" " " | sed 's/ $//' | sed 's/^ //'
-}
-
-# Get 1 min load average
-#
-# Code: No
-# Echo: LA (Number)
-getLA() {
-  cut -f1 -d" " < /proc/loadavg | sed 's/\..*//'
-}
-
-# Get absolute path
-#
-# 1: Path (String)
-#
-# Code: No
-# Echo: Absolute path (String)
-getAbsPath() {
-  readlink -f "$1"
-}
-
-# Print an error and exit from utility
-#
-# 1: Messsage (String)
+# 1: Exit code (Number)
 #
 # Code: No
 # Echo: No
-printErrorAndExit() {
-  error "$*"
-  doExit 1
-}
-
-# Clean temporary data
-#
-# Code: No
-# Echo: No
-clean() {
-  if [[ -z "$debug" ]] ; then
+finish() {
+  if [[ -z "$debug" && -d "$tmp_dir" ]] ; then
     rm -rf "$tmp_dir" &> /dev/null
   fi
-}
 
-# Signal handler
-#
-# Code: No
-# Echo: No
-termExit() {
-  trap - SIGTERM
-
-  if [[ -n "$exit_protect" ]] ; then
-    kill -TERM "$PID" &> /dev/null
-    unset exit_protect
-  else
-    show "" && doExit 1
+  if [[ "$CWD" != "$(pwd)" ]] ; then
+    cd "$CWD" || exit 1
   fi
-}
 
-# Exit handler
-#
-# 1: Exit code (Number) [Optional]
-#
-# Code: No
-# Echo: No
-doExit() {
-  clean
-
-  cd "$CWD" || exit 1
   exit "${1:-0}"
 }
 
 ################################################################################
-
-# Enable spinner
-#
-# Code: No
-# Echo: No
-spinnerOn() {
-  [[ -f "$output" || -n "$verbose" || -n "$quiet" ]] && return 0
-
-  spinner &
-  spinner_pid=$!
-}
-
-# Disable spinner
-#
-# Code: No
-# Echo: No
-spinnerOff() {
-  [[ -f "$output" || -n "$verbose" || -n "$quiet" ]] && return 0
-
-  # Silently kill subshell with spinner
-  kill "$spinner_pid"
-  wait "$spinner_pid" &> /dev/null
-  unset spinner_pid
-
-  # Screen cleaning
-  printf "     \b\b\b\b\b" >> $output
-}
-
-# -
-# Spinner func
-#
-# Code: No
-# Echo: No
-spinner() {
-  while [[ -d /proc/$PID ]] ; do
-    # If we don't use all this "if's", we will see spinner animation after termination script by Ctrl+C
-    [[ ! -d /proc/$PID ]] && break
-    printf "[•  ]\b\b\b\b\b" >> $output ; sleep 0.08
-    [[ ! -d /proc/$PID ]] && break
-    printf "[•• ]\b\b\b\b\b" >> $output ; sleep 0.08
-    [[ ! -d /proc/$PID ]] && break
-    printf "[•••]\b\b\b\b\b" >> $output ; sleep 0.08
-    [[ ! -d /proc/$PID ]] && break
-    printf "[ ••]\b\b\b\b\b" >> $output ; sleep 0.08
-    [[ ! -d /proc/$PID ]] && break
-    printf "[  •]\b\b\b\b\b" >> $output ; sleep 0.08
-    [[ ! -d /proc/$PID ]] && break
-    printf "[   ]\b\b\b\b\b" >> $output ; sleep 0.24
-  done
-
-  printf "     \b\b\b\b\b" >> $output
-}
-
-################################################################################
-
-# Show separator
-#
-# 1: Separator name (String) [Optional]
-#
-# Code: No
-# Echo: No
-showSeparator() {
-  local name="$1"
-
-  if [[ -n "$name" ]] ; then
-    local adds=$((${#SEPARATOR} - ${#name} - 4))
-
-    show "\n${CL_GREY}--${CL_NORM} ${CL_BOLD}${name}${CL_NORM} ${CL_GREY}${SEPARATOR:0:$adds}${CL_NORM}\n"
-  else
-    show "\n${CL_GREY}${SEPARATOR}${CL_NORM}\n"
-  fi
-}
-
-# Show message about unsupported argument
-#
-# 1: Argument (String)
-#
-# Code: No
-# Echo: No
-showArgWarn() {
-  error "Error! You used unsupport argument $1. Please check command syntax."
-  exit 1
-}
 
 # Show message
 #
@@ -2304,12 +257,12 @@ showm() {
 #
 # Code: No
 # Echo: No
-showe() {
+showc() {
   local win_width
 
-  win_width=$(tput cols)
+  win_width=$(stty size 2>/dev/null | cut -f2 -d' ')
 
-  printf "\n\033[1;39;45m%-${win_width}s${CL_NORM}\n\n" " ► $*"
+  printf "\n${CL_BOLD}\e[48;5;57m%-${win_width:-88}s${CL_NORM}\n\n" " → $*"
 }
 
 # Show formated message with option info
@@ -2351,7 +304,28 @@ showo() {
 # Code: No
 # Echo: No
 error() {
-  show "$@" $RED 1>&2
+  show "▲ $*" $RED 1>&2
+}
+
+# Print warning message
+#
+# 1: Message (String)
+#
+# Code: No
+# Echo: No
+warn() {
+  show "▲ $*" $YELLOW 1>&2
+}
+
+# Show message about unknown option
+#
+# 1: Option name (String)
+#
+# Code: No
+# Echo: No
+showOptWarn() {
+  error "Error! Unknown option $1"
+  exit 1
 }
 
 # Show usage info
@@ -2360,22 +334,19 @@ error() {
 # Echo: No
 usage() {
   show ""
-  show "${CL_BOLD}Usage:${CL_NORM} rbbuild ${CL_GREEN}{options}${CL_NORM} file"
+  show "${CL_BOLD}Usage:${CL_NORM} rbbuild ${CL_GREEN}{options}${CL_NORM} def-file target-dir"
   show ""
-  show "${CL_BOLD}Options:${CL_NORM}"
+  show "${CL_BOLD}Options${CL_NORM}"
   show ""
-  showo "--prefix, -p"            "Path where you want to install selected ruby version"                           "path"
-  showo "--dest-dir, -d"          "Path where you want to install selected ruby version (used for 'make install')" "path"
   showo "--threads, -t"           "Number of threads for build process"                                            "num"
   showo "--no-patch, -np"         "Skip patch directives in definition file"
   showo "--cc-comp, -cc"          "Path to C compiler"                                                             "path/name"
   showo "--cxx-comp, -cxx"        "Path to C++ compiler" "path"                                                    "path/name"
-  showo "--ignore-checksums, -ic" "Skip checksum check (${CL_YELLOW}insecure!${CL_NORM})"
-  showo "--list, -l"              "List of all definition files"
+  showo "--ignore-checksums, -ic" "Skip checksum check"
   showo "--mirror, -m"            "Mirror name for downloading source archives from it"                            "name"
-  showo "--mirror-list, -ml"      "Show list of all available mirrors"
+  showo "--mirror-list, -L"       "Show list of all available mirrors"
   showo "--dl-cache, -dc"         "Path to download cache"                                                         "path"
-  showo "--rbenv, -r"             "Automatically install to rbenv (${CL_GREEN}--prefix${CL_NORM} not required)"
+  showo "--rbenv, -r"             "Automatically install to rbenv"
   showo "--name, -rn"             "Define name of ruby in rbenv (${CL_GREEN}--rbenv${CL_NORM} required)"           "name"
   showo "--proxy, -P"             "Use HTTP proxy on given host and port"                                          "url"
   showo "--debug, -D"             "Don't remove build directory and other build data after installation"
@@ -2384,17 +355,17 @@ usage() {
   showo "--verbose, -V"           "Verbose mode"
   showo "--tmp, -T"               "Path to temporary directory (used for unpacking files and build process)"       "path"
   showo "--yes, -y"               "Answer \"yes\" to all questions"
+  showo "--force, -f"             "Reuse install directories"
   showo "--no-colors, -nc"        "Don't use colors in output"
+  showo "--no-spinner, -ns"       "Don't show spinner"
   showo "--help, -h"              "Show this help message"
   showo "--version, -v"           "Show information about version"
   show ""
-  show "${CL_BOLD}Examples:${CL_NORM}"
+  show "${CL_BOLD}Examples${CL_NORM}"
   show ""
-  show "  rbbuild 2.1.1-p0 -t 4 -m somemirror"
-  show "  rbbuild 2.1.1-p0 -t 8 -r -cc clang"
-  show "  rbbuild 2.1.1-p0 -p /home/user/ruby-2.1.1"
-  show "  rbbuild 2.1.1-p0 -r mysuper-2.2.1"
-  show "  rbbuild 1.9.3"
+  show "  rbbuild 2.7.5 /home/user/ruby-2.7.5 -t 4 -m essentialkaos -y"
+  show "  rbbuild 3.0.5 /home/user/ruby-3.0.5"
+  show "  rbbuild 3.1.1 -r"
   show ""
 }
 
@@ -2404,118 +375,119 @@ usage() {
 # Echo: No
 about() {
   show ""
-  show "${CL_BL_CYAN}${APP}${CL_NORM} ${CL_CYAN}${VER}${CL_NORM} - Utility for compiling and installing different ruby versions"
+  show "${CL_BL_CYAN}${APP}${CL_NORM} ${CL_CYAN}${VER}${CL_NORM} - Utility for compiling and installing different Ruby versions"
   show ""
   show "Copyright (C) 2009-$(date +%Y) ESSENTIAL KAOS" $DARK
   show "Apache License, Version 2.0 <https://www.apache.org/licenses/LICENSE-2.0>" $DARK
   show ""
 }
 
-## ARGUMENTS PARSING 4 #################################################################
+## OPTIONS PARSING 5 ###########################################################
 
-[[ $# -eq 0 ]] && main && exit $?
+if [[ $# -eq 0 ]] ; then
+  main
+fi
 
-unset arg argn argm argv argt argk
+unset opt optn optm optv optt optk
 
-argv="$*" ; argt=""
+optv="$*" ; optt=""
 
 while [[ -n "$1" ]] ; do
-  if [[ "$1" =~ \  && -n "$argn" ]] ; then
-    declare "$argn=$1"
+  if [[ "$1" =~ \  && -n "$optn" ]] ; then
+    declare "$optn=$1"
 
-    unset argn && shift && continue
+    unset optn && shift && continue
   elif [[ $1 =~ ^-{1}[a-zA-Z0-9]{1,2}+.*$ ]] ; then
-    argm=${1:1}
+    optm=${1:1}
 
-    if [[ \ $SHORT_ARGS\  =~ \ $argm:!?([a-zA-Z0-9_]*) ]] ; then
-      arg="${BASH_REMATCH[1]}"
+    if [[ \ $SHORT_OPTS\  =~ \ $optm:!?([a-zA-Z0-9_]*) ]] ; then
+      opt="${BASH_REMATCH[1]}"
     else
-      declare -F showArgWarn &>/dev/null && showArgWarn "-$argm"
+      declare -F showOptWarn &>/dev/null && showOptWarn "-$optm"
       shift && continue
     fi
 
-    if [[ -z "$argn" ]] ; then
-      argn=$arg
+    if [[ -z "$optn" ]] ; then
+      optn=$opt
     else
       # shellcheck disable=SC2015
-      [[ -z "$argk" ]] && ( declare -F showArgValWarn &>/dev/null && showArgValWarn "--$argn" ) || declare "$argn=true"
-      argn=$arg
+      [[ -z "$optk" ]] && ( declare -F showOptValWarn &>/dev/null && showOptValWarn "--$optn" ) || declare "$optn=true"
+      optn=$opt
     fi
 
-    if [[ ! $SUPPORTED_ARGS\  =~ !?$argn\  ]] ; then
-      declare -F showArgWarn &>/dev/null && showArgWarn "-$argm"
+    if [[ ! $SUPPORTED_OPTS\  =~ !?$optn\  ]] ; then
+      declare -F showOptWarn &>/dev/null && showOptWarn "-$optm"
       shift && continue
     fi
 
     if [[ ${BASH_REMATCH[0]:0:1} == "!" ]] ; then
-      declare "$argn=true" ; unset argn ; argk=true
+      declare "$optn=true" ; unset optn ; optk=true
     else
-      unset argk
+      unset optk
     fi
 
     shift && continue
   elif [[ "$1" =~ ^-{2}[a-zA-Z]{1}[a-zA-Z0-9_-]+.*$ ]] ; then
-    arg=${1:2}
+    opt=${1:2}
 
-    if [[ $arg == *=* ]] ; then
-      IFS="=" read -ra arg <<< "$arg"
+    if [[ $opt == *=* ]] ; then
+      IFS="=" read -ra opt <<< "$opt"
 
-      argm="${arg[0]}" ; argm=${argm//-/_}
+      optm="${opt[0]}" ; optm=${optm//-/_}
 
-      if [[ ! $SUPPORTED_ARGS\  =~ $argm\  ]] ; then
-        declare -F showArgWarn &>/dev/null && showArgWarn "--${arg[0]//_/-}"
+      if [[ ! $SUPPORTED_OPTS\  =~ $optm\  ]] ; then
+        declare -F showOptWarn &>/dev/null && showOptWarn "--${opt[0]//_/-}"
         shift && continue
       fi
 
       # shellcheck disable=SC2015
-      [[ -n "${!argm}" && $MERGEABLE_ARGS\  =~ $argm\  ]] && declare "$argm=${!argm} ${arg[*]:1:99}" || declare "$argm=${arg[*]:1:99}"
+      [[ -n "${!optm}" && $MERGEABLE_OPTS\  =~ $optm\  ]] && declare "$optm=${!optm} ${opt[*]:1:99}" || declare "$optm=${opt[*]:1:99}"
 
-      unset argm && shift && continue
+      unset optm && shift && continue
     else
       # shellcheck disable=SC2178
-      arg=${arg//-/_}
+      opt=${opt//-/_}
 
-      if [[ -z "$argn" ]] ; then
+      if [[ -z "$optn" ]] ; then
         # shellcheck disable=SC2128
-        argn=$arg
+        optn=$opt
       else
         # shellcheck disable=SC2015
-        [[ -z "$argk" ]] && ( declare -F showArgValWarn &>/dev/null && showArgValWarn "--$argn" ) || declare "$argn=true"
+        [[ -z "$optk" ]] && ( declare -F showOptValWarn &>/dev/null && showOptValWarn "--$optn" ) || declare "$optn=true"
         # shellcheck disable=SC2128
-        argn=$arg
+        optn=$opt
       fi
 
-      if [[ ! $SUPPORTED_ARGS\  =~ !?$argn\  ]] ; then
-        declare -F showArgWarn &>/dev/null && showArgWarn "--${argn//_/-}"
+      if [[ ! $SUPPORTED_OPTS\  =~ !?$optn\  ]] ; then
+        declare -F showOptWarn &>/dev/null && showOptWarn "--${optn//_/-}"
         shift && continue
       fi
 
       if [[ ${BASH_REMATCH[0]:0:1} == "!" ]] ; then
-        declare "$argn=true" ; unset argn ; argk=true
+        declare "$optn=true" ; unset optn ; optk=true
       else
-        unset argk
+        unset optk
       fi
 
       shift && continue
     fi
   else
-    if [[ -n "$argn" ]] ; then
+    if [[ -n "$optn" ]] ; then
       # shellcheck disable=SC2015
-      [[ -n "${!argn}" && $MERGEABLE_ARGS\  =~ $argn\  ]] && declare "$argn=${!argn} $1" || declare "$argn=$1"
+      [[ -n "${!optn}" && $MERGEABLE_OPTS\  =~ $optn\  ]] && declare "$optn=${!optn} $1" || declare "$optn=$1"
 
-      unset argn && shift && continue
+      unset optn && shift && continue
     fi
   fi
 
-  argt="$argt $1" ; shift
-
+  optt="$optt $1" ; shift
 done
 
-[[ -n "$argn" ]] && declare "$argn=true"
+[[ -n "$optn" ]] && declare "$optn=true"
 
-unset arg argn argm argk
+unset opt optn optm optk
 
 # shellcheck disable=SC2015,SC2086
-[[ -n "$KEEP_ARGS" ]] && main $argv || main ${argt:1}
+[[ -n "$KEEP_OPTS" ]] && main $optv || main ${optt:1}
 
-########################################################################################
+################################################################################

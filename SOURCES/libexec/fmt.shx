@@ -1,0 +1,78 @@
+#!/usr/bin/env bash
+# shellcheck disable=SC2034,SC2086,SC2154
+
+################################################################################
+
+# Sort items list
+#
+# *: Items
+#
+# Code: No
+# Echo: Sorted data (String)
+fmt.sortList() {
+  echo "$*" | tr " " "\n" | sort -h | tr "\n" " " | sed 's/ $//' | sed 's/^ //'
+}
+
+# Sort versions array
+#
+# *: Versions
+#
+# Code: Yes
+# Echo: Sorted array (String)
+fmt.sortVersionArray() {
+  if [[ -n "$*" ]] ; then
+    echo "$*" | tr " " "\n" | sort -V | tr "\n" " " ; printf "\n"
+  fi
+}
+
+# Print colored text with align spaces
+#
+# 1: Colored text (String)
+# 2: Original text (String)
+# 3: Text size (Number)
+#
+# Code: No
+# Echo: Aligned text (String)
+fmt.alignColoredText() {
+  local ctext text size text_size size_diff align
+
+  ctext="$1"
+  text="$2"
+  size="$3"
+
+  if [[ ${#text} -gt $size ]] ; then
+    echo -e "$ctext"
+    return
+  fi
+
+  text_size=${#text}
+  size_diff=$((size - text_size))
+  align=$(printf "%${size_diff}s" " ")
+
+  echo -e "${ctext}${align}"
+}
+
+# Print separator
+#
+# 1: Title (String) [Optional]
+#
+# Code: No
+# Echo: No
+fmt.separator() {
+  local name="$1"
+  local win_width i sep
+
+  win_width=$(stty size 2>/dev/null | cut -f2 -d' ')
+  win_width="${win_width:-88}"
+
+  if [[ -n "$name" ]] ; then
+    win_width=$(( win_width - (${#name} + 4) ))
+    sep="-- ${CL_BOLD}$name${CL_GREY} "
+  fi
+
+  for i in $(seq 1 "$win_width") ; do
+    sep="${sep}-"
+  done
+
+  show "\n${sep}\n" $GREY
+}

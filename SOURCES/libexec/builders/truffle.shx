@@ -1,0 +1,113 @@
+#!/usr/bin/env bash
+# shellcheck disable=SC2034,SC2154
+
+################################################################################
+
+require "build"
+
+################################################################################
+
+# TruffleRuby builder
+#
+# 1: Package name (String)
+# 2: Package directory (String)
+# *: Arguments
+#
+# Code: Yes
+# Echo: No
+builder.truffle() {
+  local pkg_name="$1"
+  local pkg_dir="$2"
+
+  local copts prfx start_time failed
+
+  prfx="${XPREFIX:-$prefix}"
+
+  CORES=$(build.getBuildThreadsNum)
+  export CORES
+
+  pushd "$pkg_dir" &> "$verb_output" || build.cancel "Can't set working directory to $pkg_dir"
+
+    showm "Building… "
+
+    start_time=$(time.now)
+
+    [[ -n "$verbose" ]] && show ""
+
+    exit_protection=true
+
+    spinner.show
+
+    if [[ -n "$verbose" ]] ; then
+      {
+        if ! cp -r . "$prfx" ; then
+          failed=true
+        fi
+
+        pushd "$prfx/lib/truffle" || printErrorAndExit "Can't set working directory to $prfx/lib/truffle"
+
+          if [[ -z "$failed" ]] ; then
+            showc "./post_install_hook.sh"
+            if ! ./post_install_hook.sh 2>&1 ; then
+              failed=true
+            fi
+          fi
+
+        popd || printErrorAndExit "Can't set working directory"
+      } >> "$output"
+    else
+      {
+        if ! cp -r . "$prfx" ; then
+          failed=true
+        fi
+
+        pushd "$prfx/lib/truffle" || printErrorAndExit "Can't set working dir to $prfx/lib/truffle"
+
+          if [[ -z "$failed" ]] ; then
+            if ! ./post_install_hook.sh 2>&1 ; then
+              failed=true
+            fi
+          fi
+
+        popd || printErrorAndExit "Can't set working dir"
+      } > "$log" 2>> "$output"
+    fi
+
+    if [[ -n "$failed" ]] ; then
+      spinner.hide
+      unset exit_protection
+      build.fail
+      return 1
+    fi
+
+    builder.truffleClean "$prfx"
+
+    spinner.hide
+
+    show "${CL_GREEN}DONE${CL_NORM} ${CL_DARK}$(time.getGraceDurationShort "$start_time")${CL_NORM}"
+
+    rm -f "$log"
+
+  popd &> "$verb_output" || build.cancel "Can't set working directory"
+
+  unset CORES
+
+  return 0
+}
+
+# Remove useless files and directories
+#
+# 1: Installation directory (String)
+#
+# Code: No
+# Echo: No
+builder.truffleClean() {
+  local prfx="$1"
+
+  rm -f "$prfx/native-image.properties" &> /dev/null
+  rm -f "$prfx/README.md" &> /dev/null
+  rm -f "$prfx/release" &> /dev/null
+  rm -f "$prfx/CHANGELOG" &> /dev/null
+  rm -rf "$prfx/doc" &> /dev/null
+  rm -rf "$prfx/logo" &> /dev/null
+}

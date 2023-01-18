@@ -1,0 +1,229 @@
+#!/usr/bin/env bash
+# shellcheck disable=SC2034,SC2086,SC2154
+
+################################################################################
+
+require "utils"
+
+################################################################################
+
+# Make complete check of the system before build
+#
+# Code: No
+# Echo: No
+prep.checkSystem() {
+  if ! prep.checkOptions ; then
+    return 1
+  fi
+
+  if ! prep.checkSystemLoad ; then
+    return 1
+  fi
+
+  if ! prep.configureOutput ; then
+    return 1
+  fi
+
+  if ! prep.checkPrefix ; then
+    return 1
+  fi
+
+  if ! prep.checkEnv ; then
+    return 1
+  fi
+
+  if ! prep.configureTemp ; then
+    return 1
+  fi
+
+  if ! prep.checkTempExec ; then
+    return 1
+  fi
+
+  return 0
+}
+
+# Check provided options
+#
+# Code: Yes
+# Echo: No
+prep.checkOptions() {
+  if [[ -n "$cc_comp" ]] ; then
+    if ! system.hasApp "$cc_comp" ; then
+      error "Can't find binary for $cc_comp compiler"
+      return 1
+    fi
+  fi
+
+  if [[ -n "$cxx_comp" ]] ; then
+    if ! system.hasApp "$cxx_comp" ; then
+      error "Can't find binary for $cxx_comp compiler"
+      return 1
+    fi
+  fi
+
+  if [[ -n "$dl_cache" ]] ; then
+    if ! fs.checkPerms "DRWX" "$dl_cache" ; then
+      error "Can't use directory $dl_cache for download cache (not exist or lack of permissions)"
+      return 1
+    fi
+  fi
+
+  if [[ -n "$rbenv" ]] ; then
+    if ! system.requireApp "rbenv" ; then
+      return 1
+    fi
+  fi
+
+  return 0
+}
+
+# Check current system load
+#
+# Code: Yes
+# Echo: No
+prep.checkSystemLoad() {
+  local la
+
+  la=$(system.getLA)
+
+  if [[ $la -ge $MAX_LA ]] ; then
+    error "Current LA ($la) is too high. It's not a good idea to start the build process at the moment."
+    return 1
+  fi
+
+  return 0
+}
+
+# Configure proxy settings
+#
+# Code: No
+# Echo: No
+prep.configureProxy() {
+  local envProxy
+
+  envProxy=$(printenv "https_proxy" "HTTPS_PROXY" | tail -1)
+
+  if [[ -z "$envProxy" ]] ; then
+    envProxy=$(printenv "http_proxy" "HTTP_PROXY" | tail -1)
+  fi
+
+  if [[ -z "$proxy" && -n "$envProxy" ]] ; then
+    proxy="$envProxy"
+  fi
+}
+
+# Configure terminal output
+#
+# Code: No
+# Echo: No
+prep.configureOutput() {
+  if [[ -n "$quiet" ]] ; then
+    output="/dev/null"
+  fi
+
+  if [[ -n "$verbose" ]] ; then 
+    verb_output="$output"
+  fi
+}
+
+# Configure temporary directory
+#
+# Code: Yes
+# Echo: No
+prep.configureTemp() {
+  if [[ -d "${tmp:?}" ]] ; then
+    if ! fs.checkPerms "DRW" "$tmp" ; then
+      error "You don't have enough permissions to use directory $tmp"
+      return 1
+    fi
+  fi
+
+  tmp_dir=$(mktemp -d "$tmp/rbbuild-XXXXXXXXXXX")
+  log="${tmp_dir}/build.log"
+
+  touch "$log"
+  chmod 600 "$log"
+
+  return 0
+}
+
+# Check temporary directory for problems with scripts execution
+#
+# Code: Yes
+# Echo: No
+prep.checkTempExec() {
+  local exec_output
+
+  echo -e "#!/usr/bin/env bash\necho 1\n" > "$tmp/rbbuild-exec-check.sh"
+  chmod 0700 "$tmp/rbbuild-exec-check.sh"
+
+  exec_output=$($tmp/rbbuild-exec-check.sh 2>/dev/null)
+
+  rm -f "$tmp/rbbuild-exec-check.sh" &> /dev/null
+
+  if [[ -z "$exec_output" ]] ; then
+    error "Can't execute the script inside of the temporary directory ($tmp)."
+    show "Directory mounted with noexec option?" $YELLOW
+    return 1
+  fi
+
+  return 0
+}
+
+# Check system environment
+#
+# Code: Yes
+# Echo: No
+prep.checkEnv() {
+  if ! system.requireApp "awk" "gawk" ; then
+    return 1
+  fi
+
+  if ! system.requireApp "patch" ; then
+    return 1
+  fi
+
+  if ! system.requireApp "bc" ; then
+    return 1
+  fi
+
+  if ! system.requireApp "tar" ; then
+    return 1
+  fi
+
+  if ! system.requireApp "git" ; then
+    return 1
+  fi
+
+  if ! system.requireApp "curl" ; then
+    return 1
+  fi
+
+  return 0
+}
+
+# Check prefix directory
+#
+# Code: Yes
+# Echo: No
+prep.checkPrefix() {
+  if [[ -z "$prefix" ]] ; then
+    error "You must set installation directory"
+    return 1
+  fi
+
+  if [[ -e "$prefix" ]] ; then
+    if [[ -z "$force" ]] ; then
+      error "Installation directory ($prefix) already exists"
+      return 1
+    else
+      if ! rm -rf "$prefix" &> /dev/null ; then
+        error "Can't remove directory $prefix"
+        return 1
+      fi
+    fi
+  fi
+
+  return 0
+}

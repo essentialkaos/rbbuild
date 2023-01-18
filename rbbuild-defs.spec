@@ -1,48 +1,21 @@
 ################################################################################
 
-%define _root             /root
-%define _bin              /bin
-%define _sbin             /sbin
-%define _srv              /srv
-%define _logdir           %{_localstatedir}/log
-%define _rundir           %{_localstatedir}/run
-%define _lockdir          %{_localstatedir}/lock
-%define _cachedir         %{_localstatedir}/cache
-%define _loc_prefix       %{_prefix}/local
-%define _loc_exec_prefix  %{_loc_prefix}
-%define _loc_bindir       %{_loc_exec_prefix}/bin
-%define _loc_libdir       %{_loc_exec_prefix}/%{_lib}
-%define _loc_libexecdir   %{_loc_exec_prefix}/libexec
-%define _loc_sbindir      %{_loc_exec_prefix}/sbin
-%define _loc_bindir       %{_loc_exec_prefix}/bin
-%define _loc_datarootdir  %{_loc_prefix}/share
-%define _loc_includedir   %{_loc_prefix}/include
-%define _rpmstatedir      %{_sharedstatedir}/rpm-state
+Summary:    Def files for rbbuild utility
+Name:       rbbuild-defs
+Version:    2.0.0
+Release:    0%{?dist}
+License:    Apache License, Version 2.0
+Vendor:     ESSENTIAL KAOS
+Group:      Development/Tools
+URL:        https://kaos.sh/rbbuild
 
-################################################################################
-
-%define install_dir       %{_loc_datarootdir}/rbbuild
-%define defs_dir          %{install_dir}/defs
-%define blds_dir          %{install_dir}/blds
-
-################################################################################
-
-Summary:         Def files for rbbuild utility
-Name:            rbbuild-defs
-Version:         1.10.10
-Release:         0%{?dist}
-License:         Apache License, Version 2.0
-Vendor:          ESSENTIAL KAOS
-Group:           Development/Tools
-URL:             https://kaos.sh/rbbuild
-
-BuildArch:       noarch
-BuildRoot:       %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+BuildArch:  noarch
+BuildRoot:  %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 # perfecto:absolve
-Source0:         %{name}-%{version}.tar.bz2
+Source0:    %{name}-%{version}.tar.bz2
 
-Requires:        rbbuild
+Requires:   rbbuild
 
 ################################################################################
 
@@ -58,11 +31,11 @@ Def (definition) files for rbbuild utility.
 %install
 rm -rf %{buildroot}
 
-install -dm 755 %{buildroot}%{defs_dir}
+install -dm 755 %{buildroot}%{_prefix}/local/share/rbbuild
 
-cp -P defs/* %{buildroot}%{defs_dir}
+cp -P defs/* %{buildroot}%{_prefix}/local/share/rbbuild/
 
-chmod 644 %{buildroot}%{defs_dir}/*
+chmod 644 %{buildroot}%{_prefix}/local/share/rbbuild/*
 
 %clean
 rm -rf %{buildroot}
@@ -71,11 +44,41 @@ rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root,-)
-%{defs_dir}/*
+%doc LICENSE
+%{_prefix}/local/share/rbbuild
 
 ################################################################################
 
 %changelog
+* Fri Dec 30 2022 Anton Novojilov <andy@essentialkaos.com> - 2.0.0-0
+- Added 2.7.6-railsexpress
+- Added 2.7.7
+- Added 2.7.7-jemalloc
+- Added 2.7.7-railsexpress
+- Added 3.0.5
+- Added 3.0.5-jemalloc
+- Added 3.0.5-railsexpress
+- Added 3.1.2-railsexpress
+- Added 3.1.3
+- Added 3.1.3-jemalloc
+- Added 3.1.3-railsexpress
+- Added 3.2.0
+- Added 3.2.0-jemalloc
+- Added 3.2.0-railsexpress
+- Added jruby-9.3.5.0
+- Added jruby-9.3.6.0
+- Added jruby-9.3.7.0
+- Added jruby-9.3.8.0
+- Added jruby-9.3.9.0
+- Added jruby-9.4.0.0
+- Added truffleruby-22.1.0
+- Added truffleruby-22.2.0
+- Added truffleruby-22.3.0
+- Removed all 1.8.x and 1.9.x versions
+- Removed all jruby-1.6.x, jruby-1.7.x, jruby-9.0.x and jruby-9.1.x versions
+- Using zstandart compression by default for files on essentialkaos mirror
+- OpenSSL updated to 1.1.1s for 2.4.0+
+
 * Mon Apr 25 2022 Anton Novojilov <andy@essentialkaos.com> - 1.10.10-0
 - Added 2.6.10
 - Added 2.6.10-jemalloc

@@ -1,0 +1,130 @@
+#!/usr/bin/env bash
+
+################################################################################
+
+# Get current time as unix timestamp
+#
+# Code: No
+# Echo: Timestamp (Number)
+time.now() {
+  date '+%s'
+}
+
+# Convert timestamp to date
+#
+# 1: Timestamp (Number)
+#
+# Code: No
+# Echo: Date (String)
+time.tsToDate() {
+  date -d "@$1" +'%d %B %Y'
+}
+
+# Convert date to timestamp
+#
+# 1: Date (String)
+#
+# Code: No
+# Echo: Timestamp (Number)
+time.dateToTS() {
+  date '+%s' -d "$1"
+}
+
+# Check if given timestamp before current moment
+#
+# 1: Timestamp (Number)
+#
+# Code: No
+# Echo: No
+time.isBefore() {
+  if [[ -z "$1" ]] ; then
+    return 1
+  fi
+
+  if [[ ${1} -lt $(time.now) ]] ; then
+    return 0
+  fi
+
+  return 1
+}
+
+# Check if given timestamp after current moment
+#
+# 1: Timestamp (Number)
+#
+# Code: No
+# Echo: No
+time.isAfter() {
+  if [[ -z "$1" ]] ; then
+    return 1
+  fi
+
+  if [[ ${1} -gt $(time.now) ]] ; then
+    return 0
+  fi
+
+  return 1
+}
+
+# Prints duration in pretty format
+#
+# 1: Action start timestamp (Number)
+# 2: Action end timestamp (Number)
+#
+# Code: No
+# Echo: Duration (String)
+time.getGraceDuration() {
+  local action_start="$1"
+  local action_end="${2:-$(time.now)}"
+
+  local sec min dur
+
+  dur=$(( action_end - action_start ))
+
+  if [[ -z "$dur" || "$dur" == "0" ]] ; then
+    echo "< 1 sec"
+    return 0
+  fi
+
+  sec=$(( dur % 60 ))
+  min=$(( ( dur - sec ) / 60 ))
+
+  if [[ $min -eq 0 ]] ; then
+    echo "$sec sec"
+  else
+    echo "$min min $sec sec"
+  fi
+}
+
+
+# Prints duration in pretty, short format
+#
+# 1: Action start timestamp (Number)
+# 2: Action end timestamp (Number)
+#
+# Code: No
+# Echo: Duration (String)
+time.getGraceDurationShort() {
+  local action_start="$1"
+  local action_end="${2:-$(time.now)}"
+
+  local sec min dur
+
+  dur=$(( action_end - action_start ))
+
+  if [[ -z "$dur" || "$dur" == "0" ]] ; then
+    echo "[0:01]"
+    return 0
+  fi
+
+  sec=$(( dur % 60 ))
+  min=$(( ( dur - sec ) / 60 ))
+
+  sec=$(printf "%02d" $sec)
+
+  if [[ $min -eq 0 ]] ; then
+    echo "[0:$sec]"
+  else
+    echo "[$min:$sec]"
+  fi
+}

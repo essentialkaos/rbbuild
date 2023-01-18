@@ -1,0 +1,175 @@
+#!/usr/bin/env bash
+# shellcheck disable=SC2034,SC2086,SC2154
+
+################################################################################
+
+require "build"
+require "spinner"
+require "time"
+require "utils"
+
+################################################################################
+
+# Default builder
+#
+# 1: Package name (String)
+# 2: Package directory (String)
+# *: Arguments
+#
+# Code: Yes
+# Echo: No
+builder.default() {
+  local pkg_name="$1"
+  local pkg_dir="$2"
+
+  local mopts copts iopts prfx
+  local conf_file start_time failed
+
+  mopts="${MAKEOPTS}"
+  copts="${CONFOPTS}"
+  iopts="${INSTOPTS}"
+  prfx="${XPREFIX:-$prefix}"
+
+  if [[ ! $mopts =~ \-j\  ]] ; then
+    mopts="${mopts} -j $(build.getBuildThreadsNum)"
+  fi
+
+  pushd "$pkg_dir" &> "$verb_output" || build.cancel "Can't set working directory to $pkg_dir"
+
+    showm "Building… "
+
+    start_time=$(time.now)
+
+    [[ -n "$verbose" ]] && show ""
+
+    if fs.checkPerms "FRX" "configure" ; then
+      conf_file="configure"
+    elif fs.checkPerms "FRX" "Configure" ; then
+      conf_file="Configure"
+    elif fs.checkPerms "FRX" "config" ; then
+      conf_file="config"
+    else
+      show "FAILED\n" $RED
+      error "Can't find configuration script"
+      return 1
+    fi
+
+    exit_protection=true
+
+    spinner.show
+
+    if [[ -n "$verbose" ]] ; then
+      {
+        if [[ -n "$require_autoconf" ]] ; then
+          showc "autoconf"
+          if ! autoconf ; then
+            failed=true
+          fi
+        fi
+
+        if [[ -z "$failed" ]] ; then
+          showc "./$conf_file --prefix=$prfx $copts"
+          if ! ./$conf_file --prefix="$prfx" $copts ; then
+            failed=true
+          fi
+        fi
+
+        if [[ -z "$failed" ]] ; then
+          showc "make $mopts"
+          if ! make $mopts ; then
+            failed=true
+          fi
+        fi
+
+        if [[ -z "$failed" ]] ; then
+          showc "make install $iopts"
+          if ! make install $iopts ; then
+            failed=true
+          fi
+        fi
+      } &>> "$output"
+    else
+      {
+        if [[ -n "$require_autoconf" ]] ; then
+          showc "autoconf"
+          if ! autoconf ; then
+            failed=true
+          fi
+        fi
+
+        if [[ -z "$failed" ]] ; then
+          if ! ./$conf_file --prefix="$prfx" $copts ; then
+            failed=true
+          fi
+        fi
+
+        if [[ -z "$failed" ]] ; then
+          if ! make $mopts ; then
+            failed=true
+          fi
+        fi
+
+        if [[ -z "$failed" ]] ; then
+          if ! make install ; then
+            failed=true
+          fi
+        fi
+
+      } &>> "$log"
+    fi
+
+    if [[ -n "$failed" ]] ; then
+      spinner.hide
+      unset exit_protection
+      build.fail
+      return 1
+    fi
+
+    builder.defaultFixDLDFlags "$prfx"
+    builder.defaultRemoveMan "$prfx"
+
+    spinner.hide
+
+    show "${CL_GREEN}DONE${CL_NORM} ${CL_DARK}$(time.getGraceDurationShort "$start_time")${CL_NORM}"
+
+    rm -f "$log"
+
+    unset exit_protection
+
+  popd &> "$verb_output" || build.cancel "Can't set working directory"
+
+  return 0
+}
+
+# Fix DLDFLAGS for Ruby 2.4+
+#
+# 1: Installation directory (String)
+#
+# Code: No
+# Echo: No
+builder.defaultFixDLDFlags() {
+  local prfx="$1"
+  local config
+
+  config=$(find "$prfx" -name "rbconfig.rb")
+
+  if [[ -z "$config" || ! -w "$config" ]] ; then
+    return
+  fi
+
+  sed -i '/CONFIG\["DLDFLAGS"\]/c \ \ CONFIG["DLDFLAGS"] = ""' "$config"
+}
+
+# Remove useless man pages
+#
+# 1: Installation directory (String)
+#
+# Code: No
+# Echo: No
+builder.defaultRemoveMan() {
+  local prfx="$1"
+
+  if [[ -d "$prefix/share/man" ]] ; then
+    rm -rf "$prefix/share/man"
+  fi
+}

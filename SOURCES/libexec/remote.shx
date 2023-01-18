@@ -1,0 +1,108 @@
+#!/usr/bin/env bash
+# shellcheck disable=SC2154
+
+################################################################################
+
+require "facts"
+require "vars"
+
+################################################################################
+
+# Get remote file status
+#
+# 1: URL (String)
+#
+# Code: No
+# Echo: HTTP status code (Number)
+http.checkHTTPStatus() {
+  local url opts file_name
+
+  url=$(vars.eval "$1")
+  file_name=$(basename "$url")
+
+  if [[ -n "$dl_cache" && -f "$dl_cache/$file_name" ]] ; then
+    echo "200"
+    return
+  fi
+
+  opts=$(http.getCURLOptions)
+  
+  # shellcheck disable=SC2086
+  curl $opts -Is -o /dev/null -w "%{http_code}" -X GET "$url"
+}
+
+# Download file from remote server
+#
+# 1: URL (String)
+# 2: Path to output file (String)
+#
+# Code: Yes
+# Echo: No
+http.download() {
+  local url="$1"
+  local output="$2"
+
+  local file_name opts
+
+  url=$(vars.eval "$url")
+
+  if [[ -n "$dl_cache" ]] ; then
+    file_name=$(basename "$output")
+
+    if [[ -f "$dl_cache/$file_name" ]] ; then
+      cp -rp "$dl_cache/$file_name" "$output"
+      return 0
+    fi
+  fi
+
+  opts=$(http.getCURLOptions)
+
+  if [[ -n "$quiet" ]] ; then
+    opts="$opts -s"
+  else
+    opts="$opts -#"
+  fi
+
+  # shellcheck disable=SC2086
+  if ! curl $opts "$url" -o "$output" ; then
+    return 1
+  fi
+
+  if [[ -f "$output" ]] ; then
+    chmod 600 "$output"
+
+    if [[ -n "$dl_cache" ]] ; then
+      cp -rp "$output" "$dl_cache/"
+    fi
+  fi
+
+  return 0
+}
+
+# Get options for cURL request
+#
+# Code: No
+# Echo: No
+http.getCURLOptions() {
+  local opts="-A $APP/$VER --max-redirs $MAX_REDIRS -L"
+
+  if [[ -n "$proxy" ]] ; then
+    opts="$opts -x $proxy"
+  fi
+
+  echo "$opts"
+}
+
+# Check if given URL is valid
+#
+# 1: URL (String)
+#
+# Code: Yes
+# Echo: No
+http.isValidURL() {
+  if echo "$1" | grep -qE '(https?|ftp)://[-[:alnum:]\+&@#/%?=~_|!:,.;]*[-[:alnum:]\+&@#/%=~_|]' ; then
+    return 0
+  fi
+
+  return 1
+}

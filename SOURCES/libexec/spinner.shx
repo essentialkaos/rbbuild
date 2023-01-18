@@ -1,0 +1,84 @@
+#!/usr/bin/env bash
+# shellcheck disable=SC2034,SC2086,SC2154
+
+################################################################################
+
+spinner_pid=""
+
+################################################################################
+
+# Show spinner
+#
+# Code: No
+# Echo: No
+spinner.show() {
+  if [[ -f "$output" || -n "$verbose" || -n "$quiet" || -n "$no_spinner" ]] ; then
+    return
+  fi
+
+  if [[ -n "$spinner_pid" ]] ; then
+    return
+  fi
+
+  spinner.animate &
+  spinner_pid=$!
+}
+
+# Hide spinner
+#
+# Code: No
+# Echo: No
+spinner.hide() {
+  if [[ -f "$output" || -n "$verbose" || -n "$quiet" || -n "$no_spinner" ]] ; then
+    return
+  fi
+
+  if [[ -z "$spinner_pid" ]] ; then
+    return
+  fi
+
+  # Silently kill subshell with spinner
+  kill "$spinner_pid"
+  wait "$spinner_pid" &> /dev/null
+  unset spinner_pid
+
+  # Screen cleaning
+  printf "     \b\b\b\b\b" >> "$output"
+}
+
+# Check if spinner is active
+#
+# Code: No
+# Echo: No
+spinner.isActive() {
+  if [[ -z "$spinner_pid" ]] ; then
+    return 1
+  fi
+
+  return 0
+}
+
+# -
+# Spinner loop func
+#
+# Code: No
+# Echo: No
+spinner.animate() {
+  while [[ -d "/proc/$PID" ]] ; do
+    # If we don't use all this "if's", we will see spinner animation after termination script by Ctrl+C
+    [[ ! -d "/proc/$PID" ]] && break
+    printf "[•  ]\b\b\b\b\b" >> "$output" ; sleep 0.16
+    [[ ! -d "/proc/$PID" ]] && break
+    printf "[•• ]\b\b\b\b\b" >> "$output" ; sleep 0.16
+    [[ ! -d "/proc/$PID" ]] && break
+    printf "[•••]\b\b\b\b\b" >> "$output" ; sleep 0.16
+    [[ ! -d "/proc/$PID" ]] && break
+    printf "[ ••]\b\b\b\b\b" >> "$output" ; sleep 0.16
+    [[ ! -d "/proc/$PID" ]] && break
+    printf "[  •]\b\b\b\b\b" >> "$output" ; sleep 0.16
+    [[ ! -d "/proc/$PID" ]] && break
+    printf "[   ]\b\b\b\b\b" >> "$output" ; sleep 0.48
+  done
+
+  printf "     \b\b\b\b\b" >> "$output"
+}

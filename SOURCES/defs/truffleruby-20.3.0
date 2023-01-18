@@ -1,5 +1,5 @@
-# RBBuild Def File
-# UPDATED 06/Feb/2021 17:30:58 by Anton Novojilov <andy@essentialkaos.com>
+# -- [RBdef] --
+# UPDATED 29/Dec/2022 18:21:04 by Anton Novojilov <andy@essentialkaos.com>
 
 deps(rpm): gcc openssl-devel
 deps(deb): gcc libssl-dev
@@ -8,4 +8,4 @@ deps(deb): gcc libssl-dev
   package: "truffleruby-20.3.0" "https://github.com/oracle/truffleruby/releases/download/vm-20.3.0/truffleruby-20.3.0-linux-amd64.tar.gz" "37e1abfeb680874d017789cb41dbb49e81f4ebac" truffle
 
 [essentialkaos]
-  package: "truffleruby-20.3.0" "https://ruby.kaos.st/truffleruby-20.3.0.7z" "dd4b76e2e11495d242402dfb15be8efc9cf67127" truffle
+  package: "truffleruby-20.3.0" "https://ruby.kaos.st/truffleruby-20.3.0.tzst" "39aa134a9bea2d3f792acafc554ff90442eecafd" truffle
