@@ -131,13 +131,13 @@ prepare() {
     yum -y install --enablerepo=kaos-testing autoconf bison gcc gcc-c++ \
                    openssl-devel glibc-devel libffi-devel \
                    ncurses-devel readline-devel tk-devel \
-                   zlib-devel libyaml-devel git patch
+                   zlib-devel libyaml-devel rustc git patch
   else
     yum -y install rbenv rbbuild jre11 jemalloc-devel nano
     yum -y install autoconf bison gcc gcc-c++ \
                    openssl-devel glibc-devel libffi-devel \
                    ncurses-devel readline-devel tk-devel \
-                   zlib-devel libyaml-devel git patch
+                   zlib-devel libyaml-devel rustc git patch
   fi
 
   # Use devtoolset for build on EL7
