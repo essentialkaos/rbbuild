@@ -10,7 +10,7 @@ deps(rpm): rust
 
 deps(deb): build-essential zlib1g-dev libreadline6-dev tk-dev ca-certificates
 deps(deb): autoconf libc6-dev libncurses5-dev bison libffi-dev libyaml-dev
-deps(deb): rustc
+deps(deb): rust
 
 CONFOPTS(openssl-1.1.1s): {os_name}-{os_arch} --openssldir={prefix}/openssl/ssl zlib-dynamic no-ssl3 shared -fPIC
 MAKEOPTS(openssl-1.1.1s): -j 1
