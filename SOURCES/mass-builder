@@ -198,7 +198,7 @@ build() {
       has_errors=true
     fi
 
-    if ! command -v ruby &> /dev/null ; then
+    if ! ruby --version &> /dev/null ; then
       if [[ -z "$is_ruby_set" ]] ; then
         setGlobalRubyVersion "$version"
       fi
