@@ -2,7 +2,7 @@
 
 Summary:    Def files for rbbuild utility
 Name:       rbbuild-defs
-Version:    2.0.0
+Version:    2.0.1
 Release:    0%{?dist}
 License:    Apache License, Version 2.0
 Vendor:     ESSENTIAL KAOS
@@ -50,6 +50,9 @@ rm -rf %{buildroot}
 ################################################################################
 
 %changelog
+* Mon Jan 23 2023 Anton Novojilov <andy@essentialkaos.com> - 2.0.1-0
+- Added rustc to dependencies for 3.2.0
+
 * Fri Dec 30 2022 Anton Novojilov <andy@essentialkaos.com> - 2.0.0-0
 - Added 2.7.6-railsexpress
 - Added 2.7.7
