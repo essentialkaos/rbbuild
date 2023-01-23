@@ -56,11 +56,16 @@ os_dist=""
 # Current OS kernel version (String)
 os_kern=""
 
+################################################################################
+
 # GCC version (String)
 gcc_version=""
 
 # Clang version (String)
 clang_version=""
+
+# Rust version (String)
+rust_version=""
 
 # Java version (String)
 java_version=""
@@ -119,6 +124,7 @@ facts.collect() {
 
   gcc_version=$(facts.getGCCVersion)
   clang_version=$(facts.getClangVersion)
+  rust_version=$(facts.getRustVersion)
   java_version=$(facts.getJavaVersion)
   ruby_version=$(facts.getRubyVersion)
 }
@@ -169,13 +175,23 @@ facts.getGCCVersion() {
   fi
 }
 
-# Find clang version
+# Find Clang version
 #
 # Code: No
 # Echo: Version (String)
 facts.getClangVersion() {
   if system.hasApp "clang" ; then
     clang -dumpversion
+  fi
+}
+
+# Find Rust version
+#
+# Code: No
+# Echo: Version (String)
+facts.getRustVersion() {
+  if system.hasApp "rustc" ; then
+    rustc --version | cut -f2 -d' '
   fi
 }
 
