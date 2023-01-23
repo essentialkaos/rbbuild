@@ -401,10 +401,6 @@ getGraceFileSize() {
 # Code: Yes
 # Echo: No
 setGlobalRubyVersion() {
-  if [[ $(rbenv global 2>/dev/null) != "system" ]] ; then
-    return 0
-  fi
-
   if ! rbenv global "$1" &> /dev/null ; then
     return 1
   fi
