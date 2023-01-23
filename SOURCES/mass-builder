@@ -131,13 +131,13 @@ prepare() {
     yum -y install --enablerepo=kaos-testing autoconf bison gcc gcc-c++ \
                    openssl-devel glibc-devel libffi-devel \
                    ncurses-devel readline-devel tk-devel \
-                   zlib-devel libyaml-devel git patch
+                   zlib-devel libyaml-devel rustc git patch
   else
     yum -y install rbenv rbbuild jre11 jemalloc-devel nano
     yum -y install autoconf bison gcc gcc-c++ \
                    openssl-devel glibc-devel libffi-devel \
                    ncurses-devel readline-devel tk-devel \
-                   zlib-devel libyaml-devel git patch
+                   zlib-devel libyaml-devel rustc git patch
   fi
 
   # Use devtoolset for build on EL7
@@ -198,7 +198,7 @@ build() {
       has_errors=true
     fi
 
-    if ! command -v ruby &> /dev/null ; then
+    if ! ruby --version &> /dev/null ; then
       if [[ -z "$is_ruby_set" ]] ; then
         setGlobalRubyVersion "$version"
       fi
@@ -401,10 +401,6 @@ getGraceFileSize() {
 # Code: Yes
 # Echo: No
 setGlobalRubyVersion() {
-  if [[ $(rbenv global 2>/dev/null) != "system" ]] ; then
-    return 0
-  fi
-
   if ! rbenv global "$1" &> /dev/null ; then
     return 1
   fi

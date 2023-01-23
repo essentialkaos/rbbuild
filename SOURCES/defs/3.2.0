@@ -6,8 +6,11 @@ eol(security): 2026-03-31
 
 deps(rpm): make gcc gcc-c++ zlib-devel readline-devel tk-devel ca-certificates
 deps(rpm): autoconf glibc-devel ncurses-devel bison libffi-devel libyaml-devel
+deps(rpm): rust
+
 deps(deb): build-essential zlib1g-dev libreadline6-dev tk-dev ca-certificates
 deps(deb): autoconf libc6-dev libncurses5-dev bison libffi-dev libyaml-dev
+deps(deb): rustc
 
 CONFOPTS(openssl-1.1.1s): {os_name}-{os_arch} --openssldir={prefix}/openssl/ssl zlib-dynamic no-ssl3 shared -fPIC
 MAKEOPTS(openssl-1.1.1s): -j 1
