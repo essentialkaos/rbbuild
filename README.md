@@ -24,22 +24,12 @@ sudo yum install -y https://yum.kaos.st/get/$(uname -r).rpm
 sudo yum install rbbuild
 ```
 
-#### Using `install.sh`
-We provide simple bash script `script.sh` for installing app from the sources.
+#### Using Makefile and Git
 
 ```bash
-# install p7zip, bash and gawk
-
-git clone https://github.com/essentialkaos/rbbuild.git
+git clone https://kaos.sh/rbbuild.git
 cd rbbuild
-
-sudo ./install.sh
-```
-
-If you have some issues with installing, try to use script in debug mode:
-
-```bash
-sudo ./install.sh --debug
+sudo make install
 ```
 
 ### Usage
