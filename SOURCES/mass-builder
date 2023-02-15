@@ -7,7 +7,7 @@
 APP="MassBuilder"
 
 # App version (String)
-VER="5.0.0"
+VER="5.1.0"
 
 ################################################################################
 
@@ -252,6 +252,8 @@ check() {
       return 1
     fi
   fi
+
+  export RUBY_YJIT_ENABLE=1
 
   separator "VALIDATION"
 

@@ -1,5 +1,5 @@
 # -- [RBdef] --
-# UPDATED 29/Dec/2022 18:21:01 by Anton Novojilov <andy@essentialkaos.com>
+# UPDATED 13/Feb/2023 18:45:14 by Anton Novojilov <andy@essentialkaos.com>
 
 eol(normal): 2020-03-31
 eol(security): 2021-03-31
@@ -7,16 +7,16 @@ eol(security): 2021-03-31
 deps(rpm): make gcc gcc-c++ zlib-devel readline-devel tk-devel ca-certificates
 deps(rpm): autoconf glibc-devel ncurses-devel bison libffi-devel jemalloc-devel
 
-CONFOPTS(openssl-1.1.1s): {os_name}-{os_arch} --openssldir={prefix}/openssl/ssl zlib-dynamic no-ssl3 shared -fPIC
-MAKEOPTS(openssl-1.1.1s): -j 1
-PREFIX(openssl-1.1.1s): {prefix}/openssl
+CONFOPTS(openssl-1.1.1t): {os_name}-{os_arch} --openssldir={prefix}/openssl/ssl zlib-dynamic no-ssl3 shared -fPIC
+MAKEOPTS(openssl-1.1.1t): -j 1
+PREFIX(openssl-1.1.1t): {prefix}/openssl
 
 CONFOPTS(ruby-2.5.7): --with-jemalloc --with-openssl-dir={prefix}/openssl --disable-install-doc
 
 [default]
-  package: "openssl-1.1.1s" "https://www.openssl.org/source/openssl-1.1.1s.tar.gz" "d316e1523a609bbfc4ddd3abfa9861db99f17044" openssl
+  package: "openssl-1.1.1t" "https://www.openssl.org/source/openssl-1.1.1t.tar.gz" "a06b067b7e3bd6a2cb52a06f087ff13346ce7360" openssl
   package: "ruby-2.5.7" "https://cache.ruby-lang.org/pub/ruby/2.5/ruby-2.5.7.tar.gz" "541039290d188fff683a1d2f2892bd74854dd022"
 
 [essentialkaos]
-  package: "openssl-1.1.1s" "https://ruby.kaos.st/openssl-1.1.1s.tzst" "6f34a849efc22038f6d1ff9f47041aace9f608f9" openssl
+  package: "openssl-1.1.1t" "https://ruby.kaos.st/openssl-1.1.1t.tzst" "bcde324e7036ee0d5d642c1f9a8a1e993b19b043" openssl
   package: "ruby-2.5.7" "https://ruby.kaos.st/ruby-2.5.7.tzst" "3c177887978c0c948e86f9f22dfdb7e7f9226dfb"

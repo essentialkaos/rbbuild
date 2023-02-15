@@ -2,20 +2,21 @@
 
 Summary:    Def files for rbbuild utility
 Name:       rbbuild-defs
-Version:    2.0.1
+Version:    2.0.2
 Release:    0%{?dist}
 License:    Apache License, Version 2.0
 Vendor:     ESSENTIAL KAOS
 Group:      Development/Tools
 URL:        https://kaos.sh/rbbuild
 
+Source0:    https://source.kaos.st/%{name}/%{name}-%{version}.tar.bz2
+
 BuildArch:  noarch
 BuildRoot:  %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-# perfecto:absolve
-Source0:    %{name}-%{version}.tar.bz2
-
 Requires:   rbbuild
+
+Provides:   %{name} = %{version}-%{release}
 
 ################################################################################
 
@@ -50,6 +51,13 @@ rm -rf %{buildroot}
 ################################################################################
 
 %changelog
+* Tue Feb 14 2023 Anton Novojilov <andy@essentialkaos.com> - 2.0.2-0
+- Added 3.2.1
+- Added 3.2.1-jemalloc
+- Added jruby-9.4.1.0
+- Added truffleruby-22.3.1
+- OpenSSL updated to 1.1.1t for 2.4.0+
+
 * Mon Jan 23 2023 Anton Novojilov <andy@essentialkaos.com> - 2.0.1-0
 - Added rustc to dependencies for 3.2.0
 
