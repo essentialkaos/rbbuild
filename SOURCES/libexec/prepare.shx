@@ -85,6 +85,10 @@ prep.checkOptions() {
 prep.checkSystemLoad() {
   local la
 
+  if [[ -n "$ignore_loadavg" ]] ; then
+    return 0
+  fi
+
   la=$(system.getLA)
 
   if [[ $la -ge $MAX_LA ]] ; then

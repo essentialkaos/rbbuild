@@ -13,7 +13,7 @@ fi
 APP="RBBuild"
 
 # App version (String)
-VER="2.1.0"
+VER="2.2.0"
 
 ################################################################################
 
@@ -59,12 +59,13 @@ CL_BG_GREY="\e[7;${GREY};49m"
 
 SUPPORTED_OPTS="dest_dir !help mirror output !quiet tmp threads 
  !verbose !version cc_comp cxx_comp !mirror_list !ignore_checksums dl_cache 
- !rbenv name proxy !debug !yes !force !no_patch !no_colors !no_spinner"
+ !rbenv name proxy !debug !yes !force !no_patch !no_colors !no_spinner 
+ !ignore_loadavg"
 
 SHORT_OPTS="h:!help d:!dest_dir m:mirror o:output q:!quiet T:tmp N:name 
  t:threads V:!verbose v:!version y:!yes P:proxy L:!mirror_list D:!debug 
  ic:!ignore_checksums dc:dl_cache r:!rbenv cc:cc_comp cxx:cxx_comp 
- f:!force np:!no_patch nc:!no_colors ns:!no_spinner"
+ f:!force np:!no_patch nc:!no_colors ns:!no_spinner il:!ignore_loadavg"
 
 ################################################################################
 
@@ -343,6 +344,7 @@ usage() {
   showo "--cc-comp, -cc"          "Path to C compiler"                                                             "path/name"
   showo "--cxx-comp, -cxx"        "Path to C++ compiler" "path"                                                    "path/name"
   showo "--ignore-checksums, -ic" "Skip checksum check"
+  showo "--ignore-loadavg, -il"   "Ignore check for high LA"
   showo "--mirror, -m"            "Mirror name for downloading source archives from it"                            "name"
   showo "--mirror-list, -L"       "Show list of all available mirrors"
   showo "--dl-cache, -dc"         "Path to download cache"                                                         "path"

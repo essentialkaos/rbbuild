@@ -7,7 +7,7 @@
 APP="MassBuilder"
 
 # App version (String)
-VER="5.1.0"
+VER="5.1.1"
 
 ################################################################################
 
@@ -192,7 +192,7 @@ build() {
     separator "$version ($current/$total)"
 
     rbbuild "$version" "$VERSIONS_DIR/$version" \
-            -f -y -m essentialkaos -dc "$CACHE_DIR"
+            -f -y -il -m essentialkaos -dc "$CACHE_DIR"
 
     if [[ $? -ne 0 ]] ; then
       has_errors=true
