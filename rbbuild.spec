@@ -2,7 +2,7 @@
 
 Summary:    Utility for compiling and installing different ruby versions
 Name:       rbbuild
-Version:    2.1.0
+Version:    2.2.0
 Release:    0%{?dist}
 License:    Apache License, Version 2.0
 Vendor:     ESSENTIAL KAOS
@@ -57,6 +57,9 @@ rm -rf %{buildroot}
 ################################################################################
 
 %changelog
+* Mon Apr 10 2023 Anton Novojilov <andy@essentialkaos.com> - 2.2.0-0
+- Added --ignore-loadavg/-il option for ignoring check for high LA
+
 * Mon Jan 23 2023 Anton Novojilov <andy@essentialkaos.com> - 2.1.0-0
 - Gathering and printing information about rust version
 

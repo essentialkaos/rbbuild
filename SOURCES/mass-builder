@@ -7,7 +7,7 @@
 APP="MassBuilder"
 
 # App version (String)
-VER="5.1.0"
+VER="5.1.1"
 
 ################################################################################
 
@@ -192,7 +192,7 @@ build() {
     separator "$version ($current/$total)"
 
     rbbuild "$version" "$VERSIONS_DIR/$version" \
-            -f -y -m essentialkaos -dc "$CACHE_DIR"
+            -f -y -il -m essentialkaos -dc "$CACHE_DIR"
 
     if [[ $? -ne 0 ]] ; then
       has_errors=true
@@ -333,7 +333,7 @@ pack() {
 
     done < <(awk 1 "$versions" | grep -vE '^$')
 
-    output="ruby-rhel$(getELVersion).tar"
+    output="ruby-el$(getELVersion).tar"
 
     showm "\nWriting ${output}… "
 
@@ -360,7 +360,7 @@ pack() {
 # Echo: No
 wipe() {
   rm -rf ${VERSIONS_DIR:?}/* &> /dev/null
-  rm -f "/root/ruby-rhel$(getELVersion).tar" &> /dev/null
+  rm -f "/root/ruby-el$(getELVersion).tar" &> /dev/null
 
   show "All built versions successfully deleted" $GREEN
 }
