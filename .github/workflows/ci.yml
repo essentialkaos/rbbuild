@@ -54,3 +54,14 @@ jobs:
         uses: essentialkaos/perfecto-action@v2
         with:
           files: rbbuild.spec rbbuild-defs.spec
+
+  Typos:
+    name: Typos
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Check spelling
+        uses: crate-ci/typos@master
