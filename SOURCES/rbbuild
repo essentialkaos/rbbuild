@@ -266,7 +266,7 @@ showc() {
   printf "\n${CL_BOLD}\e[48;5;57m%-${win_width:-88}s${CL_NORM}\n\n" " → $*"
 }
 
-# Show formated message with option info
+# Show formatted message with option info
 #
 # 1: Option (String)
 # 2: Description (String)

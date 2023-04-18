@@ -36,7 +36,7 @@ require "utils"
 
 # Start Ruby build
 #
-# 1: Path to defintion file (String)
+# 1: Path to definition file (String)
 # 2: Target directory (String)
 #
 # Code: Yes
@@ -117,7 +117,7 @@ build.start() {
 
 # Return path to system for install
 #
-# 1: Path to defintion file (String)
+# 1: Path to definition file (String)
 # 2: Target directory (String)
 #
 # Code: No
@@ -237,7 +237,7 @@ build.printEnvInfo() {
 
 # Start build process
 #
-# 1: Path to defintion file (String)
+# 1: Path to definition file (String)
 # 2: Mirror (String) [Optional]
 #
 # Code: No

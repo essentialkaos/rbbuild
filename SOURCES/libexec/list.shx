@@ -85,7 +85,7 @@ list.defs() {
 
 # Show list of mirrors for given definition file
 #
-# 1: Path to defintion file (String)
+# 1: Path to definition file (String)
 #
 # Code: Yes
 # Echo: No

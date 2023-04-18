@@ -33,7 +33,7 @@ require "vars"
 
 # Check definition file
 #
-# 1: Path to defintion file (String)
+# 1: Path to definition file (String)
 # 2: Quiet check (Boolean) [Optional]
 #
 # Code: Yes
@@ -79,12 +79,12 @@ def.check() {
   return 0
 }
 
-# Get absolute path to defintion file
+# Get absolute path to definition file
 #
 # 1: Path to file or name (String)
 #
 # Code: No
-# Echo: Absolute path to defintion file (String)
+# Echo: Absolute path to definition file (String)
 def.getFile() {
   local def_name="$1"
   local def_file
@@ -112,7 +112,7 @@ def.getName() {
 
 # Extract list of mirrors from def file
 #
-# 1: Path to defintion file (String)
+# 1: Path to definition file (String)
 #
 # Code: No
 # Echo: List of mirrors (String)
@@ -128,7 +128,7 @@ def.getMirrorList() {
 
 # Check EOL dates in definition file
 #
-# 1: Path to defintion file (String)
+# 1: Path to definition file (String)
 #
 # Code: Yes
 # Echo: No
@@ -179,7 +179,7 @@ def.checkEOLDates() {
 
 # Check build dependencies
 #
-# 1: Path to defintion file (String)
+# 1: Path to definition file (String)
 #
 # Code: Yes
 # Echo: No
@@ -266,7 +266,7 @@ def.checkDeps() {
 
 # Check remote files availability
 #
-# 1: Path to defintion file (String)
+# 1: Path to definition file (String)
 # 2: Mirror (String) [Optional]
 #
 # Code: Yes
@@ -311,7 +311,7 @@ def.checkRemote() {
 
 # Validate actions in definition file
 #
-# 1: Path to defintion file (String)
+# 1: Path to definition file (String)
 # 2: Mirror (String) [Optional]
 #
 # Code: Yes
@@ -367,7 +367,7 @@ def.validate() {
 
 # Check if definition file contains given mirror 
 #
-# 1: Path to defintion file (String)
+# 1: Path to definition file (String)
 # 2: Mirror name (String)
 #
 # Code: Yes
@@ -378,7 +378,7 @@ def.hasMirror() {
 
 # Read actions
 #
-# 1: Path to defintion file (String)
+# 1: Path to definition file (String)
 # 2: Mirror (String) [Optional]
 #
 # Code: No
@@ -427,8 +427,8 @@ def.formatWithColors() {
 
 # Read property from definition file
 #
-# 1: Path to defintion file (String)
-# 2: Propery name (String)
+# 1: Path to definition file (String)
+# 2: Property name (String)
 #
 # Code: No
 # Echo: Property value (String)
@@ -442,7 +442,7 @@ def.readProp() {
 
 # Read flags from definition file
 #
-# 1: Path to defintion file (String)
+# 1: Path to definition file (String)
 # 2: Variable name (String)
 #
 # Code: No
