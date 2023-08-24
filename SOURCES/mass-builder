@@ -323,7 +323,7 @@ pack() {
 
     done < <(awk 1 "$versions" | grep -vE '^$')
 
-    output="ruby-rhel$(getELVersion).tar"
+    output="ruby-el$(getELVersion).tar"
 
     showm "\nWriting ${output}… "
 
@@ -350,7 +350,7 @@ pack() {
 # Echo: No
 wipe() {
   rm -rf ${VERSIONS_DIR:?}/* &> /dev/null
-  rm -f "/root/ruby-rhel$(getELVersion).tar" &> /dev/null
+  rm -f "/root/ruby-el$(getELVersion).tar" &> /dev/null
 
   show "All built versions successfully deleted" $GREEN
 }
