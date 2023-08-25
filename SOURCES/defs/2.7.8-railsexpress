@@ -11,18 +11,18 @@ deps(deb): autoconf libc6-dev libncurses5-dev bison libffi-dev
 
 deps(bin): ruby
 
-CONFOPTS(openssl-1.1.1t): {os_name}-{os_arch} --openssldir={prefix}/openssl/ssl zlib-dynamic no-ssl3 shared -fPIC
-MAKEOPTS(openssl-1.1.1t): -j 1
-PREFIX(openssl-1.1.1t): {prefix}/openssl
+CONFOPTS(openssl-1.1.1v): {os_name}-{os_arch} --openssldir={prefix}/openssl/ssl zlib-dynamic no-ssl3 shared -fPIC
+MAKEOPTS(openssl-1.1.1v): -j 1
+PREFIX(openssl-1.1.1v): {prefix}/openssl
 
 CONFOPTS(ruby-2.7.8): --with-openssl-dir={prefix}/openssl --disable-install-doc
 
 [default]
-  package: "openssl-1.1.1t" "https://www.openssl.org/source/openssl-1.1.1t.tar.gz" "a06b067b7e3bd6a2cb52a06f087ff13346ce7360" openssl
+  package: "openssl-1.1.1v" "https://www.openssl.org/source/openssl-1.1.1v.tar.gz" "!" openssl
   patchset: "https://ruby.kaos.st/patches/2.7.8.tzst" "e8e5498ae3fc5f1858dc671f065ba530cce9a8d0"
   package: "ruby-2.7.8" "https://cache.ruby-lang.org/pub/ruby/2.7/ruby-2.7.8.tar.gz" "8779ab7cd912697d78dee62ea9f976acdf600c54"
 
 [essentialkaos]
-  package: "openssl-1.1.1t" "https://ruby.kaos.st/openssl-1.1.1t.tzst" "bcde324e7036ee0d5d642c1f9a8a1e993b19b043" openssl
+  package: "openssl-1.1.1v" "https://ruby.kaos.st/openssl-1.1.1v.tzst" "!" openssl
   patchset: "https://ruby.kaos.st/patches/2.7.8.tzst" "e8e5498ae3fc5f1858dc671f065ba530cce9a8d0"
   package: "ruby-2.7.8" "https://ruby.kaos.st/ruby-2.7.8.tzst" "54145529e9acdf5905660916a23467ce8cfd770c"
