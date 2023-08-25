@@ -7,7 +7,7 @@
 APP="MassBuilder"
 
 # App version (String)
-VER="5.1.2"
+VER="5.2.0"
 
 ################################################################################
 
@@ -51,8 +51,8 @@ CL_BG_GREY="\e[7;${GREY};49m"
 
 ################################################################################
 
-SUPPORTED_OPTS="!help !version !testing !no_check !no_pack"
-SHORT_OPTS="h:!help v:!version t:!testing nc:!no_check np:!no_pack"
+SUPPORTED_OPTS="!help !version !testing !no_check !no_pack !rebuild"
+SHORT_OPTS="h:!help v:!version t:!testing R:!rebuild nc:!no_check np:!no_pack"
 
 ################################################################################
 
@@ -127,14 +127,16 @@ prepare() {
   yum -y install epel-release
 
   if [[ -n "$testing" ]] ; then
-    yum -y --enablerepo=kaos-testing install rbenv rbbuild jre11 jemalloc-devel nano
+    yum -y --enablerepo=kaos-testing install rbenv rbbuild jre8 jemalloc-devel nano
     yum -y install --enablerepo=kaos-testing autoconf bison gcc gcc-c++ \
+                   libtool automake \
                    openssl-devel glibc-devel libffi-devel \
                    ncurses-devel readline-devel tk-devel \
                    zlib-devel libyaml-devel rustc git patch
   else
-    yum -y install rbenv rbbuild jre11 jemalloc-devel nano
+    yum -y install rbenv rbbuild jre8 jemalloc-devel nano
     yum -y install autoconf bison gcc gcc-c++ \
+                   libtool automake \
                    openssl-devel glibc-devel libffi-devel \
                    ncurses-devel readline-devel tk-devel \
                    zlib-devel libyaml-devel rustc git patch
@@ -175,8 +177,10 @@ build() {
 
     ((current++))
 
-    if [[ -d "$VERSIONS_DIR/$version/bin/ruby" ]] ; then
-      continue
+    if [[ -e "$VERSIONS_DIR/$version/bin/ruby" ]] ; then
+      if [[ -z "$rebuild" ]] ; then
+        continue
+      fi
     fi
 
     separator "$version ($current/$total)"
@@ -193,6 +197,8 @@ build() {
         setGlobalRubyVersion "$version"
       fi
     fi
+
+    sleep 1
 
   done < <(awk 1 "$versions" | grep -vE '^$')
 
@@ -253,6 +259,12 @@ check() {
 
     printf "${CL_BOLD}%-24s${CL_NORM} ${CL_GREY}→${CL_NORM} " "${version}"
 
+    if [[ ! -d "$VERSIONS_DIR/$version" ]] ; then
+      has_errors=true
+      show "Missing" $RED
+      continue
+    fi
+
     rbenv local "$version"
 
     rb_version=$(ruby --version 2> /dev/null)
@@ -303,6 +315,10 @@ pack() {
   pushd "$VERSIONS_DIR" &> /dev/null || return 1
 
     while read -r version ; do
+
+      if [[ ! -e "$VERSIONS_DIR/$version/bin/ruby" ]] ; then
+        continue
+      fi
 
       if [[ ! -e "$version" || -e "${version}.tzst" ]] ; then
         continue
@@ -544,6 +560,7 @@ usage() {
   show ""
   show "${CL_BOLD}Options${CL_NORM}"
   show ""
+  show "  ${CL_GREEN}--rebuild, -R${CL_NORM}    Build version even if it exist"
   show "  ${CL_GREEN}--testing, -t${CL_NORM}    Install packages from testing repository"
   show "  ${CL_GREEN}--no-check, -nc${CL_NORM}  Disable check after build"
   show "  ${CL_GREEN}--no-pack, -np${CL_NORM}   Disable packing after build"
