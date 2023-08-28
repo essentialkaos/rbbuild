@@ -2,7 +2,7 @@
 
 Summary:    Def files for rbbuild utility
 Name:       rbbuild-defs
-Version:    2.0.3
+Version:    2.0.4
 Release:    0%{?dist}
 License:    Apache License, Version 2.0
 Vendor:     ESSENTIAL KAOS
@@ -51,6 +51,14 @@ rm -rf %{buildroot}
 ################################################################################
 
 %changelog
+* Mon Aug 28 2023 Anton Novojilov <andy@essentialkaos.com> - 2.0.4-0
+- Added jruby-9.3.10.0
+- Added jruby-9.4.3.0
+- Added truffleruby-23.0.0
+- Added truffleruby-23.0.1
+- Removed jruby-9.2.x
+- OpenSSL updated to 1.1.1v for 2.4.0+
+
 * Sun Apr 09 2023 Anton Novojilov <andy@essentialkaos.com> - 2.0.3-0
 - Added 2.7.8
 - Added 2.7.8-jemalloc
