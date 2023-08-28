@@ -1,5 +1,5 @@
 # -- [RBdef] --
-# UPDATED 13/Feb/2023 18:45:19 by Anton Novojilov <andy@essentialkaos.com>
+# UPDATED 28/Aug/2023 11:56:51 by Anton Novojilov <andy@essentialkaos.com>
 
 eol(normal): 2024-03-31
 eol(security): 2025-03-31
@@ -16,11 +16,11 @@ PREFIX(openssl-1.1.1v): {prefix}/openssl
 CONFOPTS(ruby-3.1.2): --with-openssl-dir={prefix}/openssl --disable-install-doc
 
 [default]
-  package: "openssl-1.1.1v" "https://www.openssl.org/source/openssl-1.1.1v.tar.gz" "!" openssl
+  package: "openssl-1.1.1v" "https://www.openssl.org/source/openssl-1.1.1v.tar.gz" "3ec7b37aefcbcd8d4bd9b2f3687dd77948d46382" openssl
   patchset: "https://ruby.kaos.st/patches/3.1.2.tzst" "e94d486af0daa186c5d017c481aae954d21ff3ed"
   package: "ruby-3.1.2" "https://cache.ruby-lang.org/pub/ruby/3.1/ruby-3.1.2.tar.gz" "b0d86c60457fdfbcb532cb681877a2f790f66b25"
 
 [essentialkaos]
-  package: "openssl-1.1.1v" "https://ruby.kaos.st/openssl-1.1.1v.tzst" "!" openssl
+  package: "openssl-1.1.1v" "https://ruby.kaos.st/openssl-1.1.1v.tzst" "9faf0adabb32d83b8fcc8c6e7d24b120558b579f" openssl
   patchset: "https://ruby.kaos.st/patches/3.1.2.tzst" "e94d486af0daa186c5d017c481aae954d21ff3ed"
   package: "ruby-3.1.2" "https://ruby.kaos.st/ruby-3.1.2.tzst" "2ab16eff9b30f00f4add30e35578450823c74209"

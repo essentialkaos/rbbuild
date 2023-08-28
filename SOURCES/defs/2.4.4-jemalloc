@@ -1,5 +1,5 @@
 # -- [RBdef] --
-# UPDATED 13/Feb/2023 18:45:12 by Anton Novojilov <andy@essentialkaos.com>
+# UPDATED 28/Aug/2023 11:52:54 by Anton Novojilov <andy@essentialkaos.com>
 
 eol(normal): 2019-03-31
 eol(security): 2020-03-31
@@ -14,9 +14,9 @@ PREFIX(openssl-1.1.1v): {prefix}/openssl
 CONFOPTS(ruby-2.4.4): --with-jemalloc --with-openssl-dir={prefix}/openssl --disable-install-doc
 
 [default]
-  package: "openssl-1.1.1v" "https://www.openssl.org/source/openssl-1.1.1v.tar.gz" "!" openssl
+  package: "openssl-1.1.1v" "https://www.openssl.org/source/openssl-1.1.1v.tar.gz" "3ec7b37aefcbcd8d4bd9b2f3687dd77948d46382" openssl
   package: "ruby-2.4.4" "https://cache.ruby-lang.org/pub/ruby/2.4/ruby-2.4.4.tar.gz" "ec82b0d53bd0adad9b19e6b45e44d54e9ec3f10c"
 
 [essentialkaos]
-  package: "openssl-1.1.1v" "https://ruby.kaos.st/openssl-1.1.1v.tzst" "!" openssl
+  package: "openssl-1.1.1v" "https://ruby.kaos.st/openssl-1.1.1v.tzst" "9faf0adabb32d83b8fcc8c6e7d24b120558b579f" openssl
   package: "ruby-2.4.4" "https://ruby.kaos.st/ruby-2.4.4.tzst" "7ffd9d7f70e5ed091fd92d169fa4c5ecbc7a3208"

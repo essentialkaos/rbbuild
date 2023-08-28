@@ -56,6 +56,7 @@ rm -rf %{buildroot}
 - Added jruby-9.4.3.0
 - Added truffleruby-23.0.0
 - Added truffleruby-23.0.1
+- Added mruby-3.2.0
 - Removed jruby-9.2.x
 - OpenSSL updated to 1.1.1v for 2.4.0+
 
