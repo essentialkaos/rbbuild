@@ -117,7 +117,7 @@ prepare() {
 
   separator "PREPARE SYSTEM"
 
-  yum clean all
+  yum --enablerepo=kaos-testing clean all
 
   if ! rpm -q kaos-repo &> /dev/null ; then
     yum install -y "https://yum.kaos.st/kaos-repo-latest.el$(getELVersion).noarch.rpm"
@@ -127,16 +127,16 @@ prepare() {
   yum -y install epel-release
 
   if [[ -n "$testing" ]] ; then
-    yum -y --enablerepo=kaos-testing install rbenv rbbuild jre8 jemalloc-devel nano
-    yum -y install --enablerepo=kaos-testing autoconf bison gcc gcc-c++ \
-                   libtool automake \
+    yum -y --enablerepo=kaos-testing install rbenv rbbuild jre11 jemalloc-devel nano
+    yum -y install --enablerepo=kaos-testing \
+                   autoconf bison gcc gcc-c++ libtool automake \
                    openssl-devel glibc-devel libffi-devel \
                    ncurses-devel readline-devel tk-devel \
                    zlib-devel libyaml-devel rustc git patch
   else
-    yum -y install rbenv rbbuild jre8 jemalloc-devel nano
-    yum -y install autoconf bison gcc gcc-c++ \
-                   libtool automake \
+    yum -y install rbenv rbbuild jre11 jemalloc-devel nano
+    yum -y install \
+                   autoconf bison gcc gcc-c++ libtool automake \
                    openssl-devel glibc-devel libffi-devel \
                    ncurses-devel readline-devel tk-devel \
                    zlib-devel libyaml-devel rustc git patch
@@ -471,14 +471,14 @@ separator() {
 
   if [[ -n "$name" ]] ; then
     win_width=$(( win_width - (${#name} + 4) ))
-    sep="-- ${CL_BOLD}$name${CL_GREY} "
+    sep="-- ${CL_BL_MAG}$name${CL_MAG} "
   fi
 
   for i in $(seq 1 "$win_width") ; do
     sep="${sep}-"
   done
 
-  show "\n${sep}\n" $GREY
+  show "\n${sep}\n" $MAG
 }
 
 # Show message
