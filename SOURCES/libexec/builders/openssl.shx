@@ -28,7 +28,7 @@ builder.openssl() {
   prfx="${XPREFIX:-$prefix}"
 
   if [[ ! $mopts =~ \-j\  ]] ; then
-    mopts="${mopts} -j $(build.getBuildThreadsNum)"
+    mopts="${mopts} -j $(build.getBuildThreadsNum 1)"
   fi
 
   pushd "$pkg_dir" &> "$verb_output" || build.cancel "Can't set working directory to $pkg_dir"
