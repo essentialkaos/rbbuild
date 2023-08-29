@@ -7,7 +7,7 @@
 APP="MassBuilder"
 
 # App version (String)
-VER="5.2.0"
+VER="6.0.0"
 
 ################################################################################
 
@@ -115,38 +115,49 @@ prepare() {
     return 1
   fi
 
+  local opts
+
   separator "PREPARE SYSTEM"
 
   yum --enablerepo=kaos-testing clean all
 
   if ! rpm -q kaos-repo &> /dev/null ; then
-    yum install -y "https://yum.kaos.st/kaos-repo-latest.el$(getELVersion).noarch.rpm"
+    if ! yum install -y "https://pkgs.kaos.st/kaos-repo-latest.el$(getELVersion).noarch.rpm" ; then
+      error "Can't install EK public repository package"
+      return 1
+    fi
   fi
 
-  yum -y update
-  yum -y install epel-release
+  if ! yum -y update ; then
+    error "Can't update system"
+    return 1
+  fi
+
+  if ! yum -y install epel-release ; then
+    error "Can't install EPEL repository package"
+    return 1
+  fi
 
   if [[ -n "$testing" ]] ; then
-    yum -y --enablerepo=kaos-testing install rbenv rbbuild jre11 jemalloc-devel nano
-    yum -y install --enablerepo=kaos-testing \
-                   autoconf bison gcc gcc-c++ libtool automake \
-                   openssl-devel glibc-devel libffi-devel \
-                   ncurses-devel readline-devel tk-devel \
-                   zlib-devel libyaml-devel rustc git patch
-  else
-    yum -y install rbenv rbbuild jre11 jemalloc-devel nano
-    yum -y install \
-                   autoconf bison gcc gcc-c++ libtool automake \
-                   openssl-devel glibc-devel libffi-devel \
-                   ncurses-devel readline-devel tk-devel \
-                   zlib-devel libyaml-devel rustc git patch
+    opts="--enablerepo=kaos-testing"
+  fi
+
+  if ! yum -y $opts install \
+                    rbenv rbbuild jre11 jemalloc-devel nano \
+                    autoconf bison gcc gcc-c++ libtool automake \
+                    openssl-devel glibc-devel libffi-devel \
+                    ncurses-devel readline-devel tk-devel \
+                    zlib-devel libyaml-devel rustc git patch ; then
+
+    error "Can't install required dependencies"
+    return 1
   fi
 
   mkdir -p /root/rbbuild-cache
 
   separator
 
-  show "\n\n${CL_BOLD}Now you have to execute ${CL_BL_CYAN}'exec \$SHELL'${CL_NORM}${CL_BOLD} command for rbenv init${CL_NORM}\n\n"
+  show "\n${CL_BOLD}Now you have to execute ${CL_BL_CYAN}'exec \$SHELL'${CL_NORM}${CL_BOLD} command for rbenv init${CL_NORM}\n"
 
   return 0
 }
@@ -169,8 +180,9 @@ build() {
     fi
   fi
 
-  local version total current has_errors
+  local version total current has_errors theads
 
+  threads=$(getconf _NPROCESSORS_ONLN)
   total=$(grep -cvE '^$' "$versions")
 
   while read -r version ; do
@@ -185,8 +197,15 @@ build() {
 
     separator "$version ($current/$total)"
 
+    copyPrebuiltOpenSSL "$version"
+
     rbbuild "$version" "$VERSIONS_DIR/$version" \
-            -f -y -il -m essentialkaos -dc "$CACHE_DIR"
+            --yes \
+            --continue \
+            --ignore-checksums \
+            --mirror "essentialkaos" \
+            --threads "$threads" \
+            --dl-cache "$CACHE_DIR"
 
     if [[ $? -ne 0 ]] ; then
       has_errors=true
@@ -282,8 +301,6 @@ check() {
 
   rm -f .ruby-version &> /dev/null
 
-  show ""
-
   if [[ -n "$has_errors" ]] ; then
     return 1
   fi
@@ -351,8 +368,6 @@ pack() {
 
   popd &> /dev/null || return 1
 
-  show ""
-
   if [[ -n "$has_errors" ]] ; then
     return 1
   fi
@@ -369,6 +384,42 @@ wipe() {
   rm -f "/root/ruby-el$(getELVersion).tar" &> /dev/null
 
   show "All built versions successfully deleted" $GREEN
+}
+
+################################################################################
+
+# Find and copy prebuilt OpenSSL
+#
+# 1: Version to copy to (String)
+#
+# Code: No
+# Echo: No
+copyPrebuiltOpenSSL() {
+  local version="$1"
+
+  if [[ "${version:0:1}" != "2" && "${version:0:1}" != "3" ]] ; then
+    return
+  fi
+
+  local req_openssl_ver prebuilt_ver
+
+  req_openssl_ver=$(rbbuild "$version" | grep 'package:' | grep openssl | head -1 | sed 's/^ *//' | cut -f2 -d' ' | tr -d '"' | cut -f2,99 -d '-')
+
+  if [[ -z "$req_openssl_ver" ]] ; then
+    return
+  fi
+
+  prebuilt_ver=$(grep -rn "Version: $req_openssl_ver" $VERSIONS_DIR/*/openssl/lib/pkgconfig | head -1 | cut -f6 -d'/')
+
+  if [[ -z "$prebuilt_ver" ]] ; then
+    return
+  fi
+
+  mkdir "$VERSIONS_DIR/$version"
+  cp -rp "$VERSIONS_DIR/$prebuilt_ver/openssl" "$VERSIONS_DIR/$version"
+
+  # Update prefix path
+  sed -i "s#$VERSIONS_DIR/$prebuilt_ver/openssl#$VERSIONS_DIR/$version/openssl#g" "$VERSIONS_DIR/$version/openssl/lib/pkgconfig"/*
 }
 
 # Get EL version from os-release file
