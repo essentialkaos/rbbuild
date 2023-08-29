@@ -85,7 +85,7 @@ list.defs() {
 
 # Show list of mirrors for given definition file
 #
-# 1: Path to definition file (String)
+# 1: Name or path to definition file (String)
 #
 # Code: Yes
 # Echo: No
@@ -122,4 +122,30 @@ list.mirrors() {
   done
 
   return 0
+}
+
+# Print content of def file
+#
+# 1: Name or path to definition file (String)
+#
+# Code: No
+# Echo: No
+list.file() {
+  local def_name="$1"
+  local def_file
+
+  if [[ -z "$def_name" ]] ; then
+    error "You must provide name of definition file"
+    return 1
+  fi
+
+  def_file="$(def.getFile "$def_name")"
+
+  if ! def.check "$def_file" ; then
+    return 1
+  fi
+
+  cat "$def_file"
+
+  return $?
 }

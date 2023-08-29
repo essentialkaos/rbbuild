@@ -13,7 +13,7 @@ fi
 APP="RBBuild"
 
 # App version (String)
-VER="2.2.0"
+VER="2.3.0"
 
 ################################################################################
 
@@ -59,13 +59,13 @@ CL_BG_GREY="\e[7;${GREY};49m"
 
 SUPPORTED_OPTS="dest_dir !help mirror output !quiet tmp threads 
  !verbose !version cc_comp cxx_comp !mirror_list !ignore_checksums dl_cache 
- !rbenv name proxy !debug !yes !force !no_patch !no_colors !no_spinner 
- !ignore_loadavg"
+ !rbenv name proxy !debug !yes !no_patch !no_colors !no_spinner 
+ !ignore_loadavg !continue"
 
-SHORT_OPTS="h:!help d:!dest_dir m:mirror o:output q:!quiet T:tmp N:name 
+SHORT_OPTS="h:!help d:dest_dir m:mirror o:output q:!quiet T:tmp N:name 
  t:threads V:!verbose v:!version y:!yes P:proxy L:!mirror_list D:!debug 
  ic:!ignore_checksums dc:dl_cache r:!rbenv cc:cc_comp cxx:cxx_comp 
- f:!force np:!no_patch nc:!no_colors ns:!no_spinner il:!ignore_loadavg"
+ np:!no_patch nc:!no_colors ns:!no_spinner il:!ignore_loadavg C:!continue"
 
 ################################################################################
 
@@ -147,6 +147,12 @@ main() {
   if [[ -n "$help" ]] ; then
     usage
     exit 0
+  fi
+
+  if [[ ! -c /dev/stdout ]] ; then
+    require "list"
+    list.file "$@"
+    return $?
   fi
 
   show ""
@@ -335,29 +341,29 @@ showOptWarn() {
 # Echo: No
 usage() {
   show ""
-  show "${CL_BOLD}Usage:${CL_NORM} rbbuild ${CL_GREEN}{options}${CL_NORM} def-file target-dir"
+  show "${CL_BOLD}Usage:${CL_NORM} rbbuild ${CL_GREEN}{options}${CL_NORM} def-file ${CL_DARK}target-dir${CL_NORM}"
   show ""
   show "${CL_BOLD}Options${CL_NORM}"
   show ""
-  showo "--threads, -t"           "Number of threads for build process"                                            "num"
+  showo "--threads, -t"           "Number of threads for build process"                                       "num"
   showo "--no-patch, -np"         "Skip patch directives in definition file"
-  showo "--cc-comp, -cc"          "Path to C compiler"                                                             "path/name"
-  showo "--cxx-comp, -cxx"        "Path to C++ compiler" "path"                                                    "path/name"
+  showo "--cc-comp, -cc"          "Path to C compiler"                                                        "path/name"
+  showo "--cxx-comp, -cxx"        "Path to C++ compiler" "path"                                               "path/name"
   showo "--ignore-checksums, -ic" "Skip checksum check"
   showo "--ignore-loadavg, -il"   "Ignore check for high LA"
-  showo "--mirror, -m"            "Mirror name for downloading source archives from it"                            "name"
+  showo "--mirror, -m"            "Mirror name for downloading source archives from it"                       "name"
   showo "--mirror-list, -L"       "Show list of all available mirrors"
-  showo "--dl-cache, -dc"         "Path to download cache"                                                         "path"
-  showo "--rbenv, -r"             "Automatically install to rbenv"
-  showo "--name, -rn"             "Define name of ruby in rbenv (${CL_GREEN}--rbenv${CL_NORM} required)"           "name"
-  showo "--proxy, -P"             "Use HTTP proxy on given host and port"                                          "url"
+  showo "--dl-cache, -dc"         "Path to download cache"                                                    "path"
+  showo "--rbenv, -r"             "Automatically install to RBEnv"
+  showo "--name, -rn"             "Define name of ruby in RBEnv ${CL_DARK}(--rbenv is required)${CL_NORM}"    "name"
+  showo "--proxy, -P"             "Use HTTP proxy on given host and port"                                     "url"
   showo "--debug, -D"             "Don't remove build directory and other build data after installation"
-  showo "--output, -O"            "Output path (default /dev/stdout)"                                              "path"
+  showo "--output, -O"            "Output path ${CL_DARK}(default /dev/stdout)${CL_NORM}"                     "path"
   showo "--quiet, -q"             "Quiet mode"
   showo "--verbose, -V"           "Verbose mode"
-  showo "--tmp, -T"               "Path to temporary directory (used for unpacking files and build process)"       "path"
+  showo "--tmp, -T"               "Path to temporary directory ${CL_DARK}(used for unpacking files and build process)${CL_NORM}"  "path"
   showo "--yes, -y"               "Answer \"yes\" to all questions"
-  showo "--force, -f"             "Reuse install directories"
+  showo "--continue, -C"          "Don't clean prefix directory before build"
   showo "--no-colors, -nc"        "Don't use colors in output"
   showo "--no-spinner, -ns"       "Don't show spinner"
   showo "--help, -h"              "Show this help message"
@@ -365,9 +371,17 @@ usage() {
   show ""
   show "${CL_BOLD}Examples${CL_NORM}"
   show ""
-  show "  rbbuild 2.7.5 /home/user/ruby-2.7.5 -t 4 -m essentialkaos -y"
+  show "  rbbuild 2.7.5 /home/user/ruby-2.7.5 -t 4 -m essentialkaos"
+  show "  Build 2.7.5 with sources from EK mirror using 4 threads" $DARK
+  show ""
   show "  rbbuild 3.0.5 /home/user/ruby-3.0.5"
+  show "  Build 3.0.5 and install it to given directory" $DARK
+  show ""
   show "  rbbuild 3.1.1 -r"
+  show "  Build 3.1.1 and install it to RBEnv" $DARK
+  show ""
+  show "  rbbuild 3.1.1 | more"
+  show "  Show def file for 3.1.1" $DARK
   show ""
 }
 
