@@ -197,7 +197,11 @@ build() {
 
     separator "$version ($current/$total)"
 
-    copyPrebuiltOpenSSL "$version"
+    if ! copyPrebuiltOpenSSL "$version" ; then
+      if [[ -e "$VERSIONS_DIR/$version" ]] ; then
+        rm -rf "$VERSIONS_DIR/${version:?}"
+      fi
+    fi
 
     rbbuild "$version" "$VERSIONS_DIR/$version" \
             --yes \
@@ -398,11 +402,11 @@ copyPrebuiltOpenSSL() {
   local version="$1"
 
   if [[ -z $(ls -1 "$VERSIONS_DIR") ]] ; then
-    return
+    return 1
   fi
 
   if [[ "${version:0:1}" != "2" && "${version:0:1}" != "3" ]] ; then
-    return
+    return 1
   fi
 
   local req_openssl_ver prebuilt_ver
@@ -410,13 +414,13 @@ copyPrebuiltOpenSSL() {
   req_openssl_ver=$(rbbuild "$version" | grep 'package:' | grep openssl | head -1 | sed 's/^ *//' | cut -f2 -d' ' | tr -d '"' | cut -f2,99 -d '-')
 
   if [[ -z "$req_openssl_ver" ]] ; then
-    return
+    return 1
   fi
 
   prebuilt_ver=$(grep -rn "Version: $req_openssl_ver" $VERSIONS_DIR/*/openssl/lib/pkgconfig | head -1 | cut -f6 -d'/')
 
   if [[ -z "$prebuilt_ver" ]] ; then
-    return
+    return 1
   fi
 
   mkdir "$VERSIONS_DIR/$version"
@@ -424,6 +428,8 @@ copyPrebuiltOpenSSL() {
 
   # Update prefix path
   sed -i "s#$VERSIONS_DIR/$prebuilt_ver/openssl#$VERSIONS_DIR/$version/openssl#g" "$VERSIONS_DIR/$version/openssl/lib/pkgconfig"/*
+
+  return 0
 }
 
 # Get EL version from os-release file
