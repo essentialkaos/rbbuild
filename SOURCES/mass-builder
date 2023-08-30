@@ -319,6 +319,11 @@ check() {
 pack() {
   local versions version size has_errors output
 
+  if [[ -z "$1" ]] ; then
+    error "You must provide file with versions"
+    return 1
+  fi
+
   versions=$(readlink -f "$1")
 
   if ! hasBuiltVersions ; then
