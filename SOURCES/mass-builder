@@ -119,7 +119,7 @@ prepare() {
 
   separator "PREPARE SYSTEM"
 
-  yum --enablerepo=kaos-testing clean all
+  yum clean all
 
   if ! rpm -q kaos-repo &> /dev/null ; then
     if ! yum install -y "https://pkgs.kaos.st/kaos-repo-latest.el$(getELVersion).noarch.rpm" ; then
