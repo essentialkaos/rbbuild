@@ -128,13 +128,13 @@ prepare() {
     fi
   fi
 
-  if ! yum -y update ; then
-    error "Can't update system"
+  if ! yum -y install epel-release ; then
+    error "Can't install EPEL repository package"
     return 1
   fi
 
-  if ! yum -y install epel-release ; then
-    error "Can't install EPEL repository package"
+  if ! yum -y update ; then
+    error "Can't update system"
     return 1
   fi
 
@@ -202,7 +202,7 @@ build() {
     rbbuild "$version" "$VERSIONS_DIR/$version" \
             --yes \
             --continue \
-            --ignore-checksums \
+            --ignore-loadavg \
             --mirror "essentialkaos" \
             --threads "$threads" \
             --dl-cache "$CACHE_DIR"
@@ -396,6 +396,10 @@ wipe() {
 # Echo: No
 copyPrebuiltOpenSSL() {
   local version="$1"
+
+  if [[ -z $(ls -1 "$VERSIONS_DIR") ]] ; then
+    return
+  fi
 
   if [[ "${version:0:1}" != "2" && "${version:0:1}" != "3" ]] ; then
     return
