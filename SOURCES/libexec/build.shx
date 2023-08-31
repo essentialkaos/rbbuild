@@ -36,7 +36,7 @@ require "utils"
 
 # Start Ruby build
 #
-# 1: Path to defintion file (String)
+# 1: Path to definition file (String)
 # 2: Target directory (String)
 #
 # Code: Yes
@@ -117,7 +117,7 @@ build.start() {
 
 # Return path to system for install
 #
-# 1: Path to defintion file (String)
+# 1: Path to definition file (String)
 # 2: Target directory (String)
 #
 # Code: No
@@ -237,7 +237,7 @@ build.printEnvInfo() {
 
 # Start build process
 #
-# 1: Path to defintion file (String)
+# 1: Path to definition file (String)
 # 2: Mirror (String) [Optional]
 #
 # Code: No
@@ -340,11 +340,20 @@ build.rbenvRehash() {
 
 # Get number of threads for build
 #
+# 1: Default number of threads (Number) [Optional]
+#
 # Code: No
 # Echo: Number of threads (Number)
 build.getBuildThreadsNum() {
+  local default_threads="$1"
+
   if [[ -n "$threads" ]] ; then
     echo "$threads"
+    return
+  fi
+
+  if [[ -n "$default_threads" ]] ; then
+    echo "$default_threads"
     return
   fi
 

@@ -10,7 +10,6 @@ deps(deb): git build-essential zlib1g-dev libreadline6-dev tk-dev ca-certificate
 deps(deb): autoconf libc6-dev libncurses5-dev bison libffi-dev
 
 CONFOPTS(openssl-1.0.2u): {os_name}-{os_arch} --openssldir={prefix}/openssl/ssl zlib-dynamic no-ssl3 shared -fPIC
-MAKEOPTS(openssl-1.0.2u): -j 1
 PREFIX(openssl-1.0.2u): {prefix}/openssl
 
 CONFOPTS(ruby-2.2.3): --with-openssl-dir={prefix}/openssl --disable-install-doc

@@ -1,5 +1,5 @@
 # -- [RBdef] --
-# UPDATED 13/Feb/2023 18:45:14 by Anton Novojilov <andy@essentialkaos.com>
+# UPDATED 28/Aug/2023 11:52:56 by Anton Novojilov <andy@essentialkaos.com>
 
 eol(normal): 2020-03-31
 eol(security): 2021-03-31
@@ -11,18 +11,17 @@ deps(deb): autoconf libc6-dev libncurses5-dev bison libffi-dev
 
 deps(bin): ruby
 
-CONFOPTS(openssl-1.1.1t): {os_name}-{os_arch} --openssldir={prefix}/openssl/ssl zlib-dynamic no-ssl3 shared -fPIC
-MAKEOPTS(openssl-1.1.1t): -j 1
-PREFIX(openssl-1.1.1t): {prefix}/openssl
+CONFOPTS(openssl-1.1.1v): {os_name}-{os_arch} --openssldir={prefix}/openssl/ssl zlib-dynamic no-ssl3 shared -fPIC
+PREFIX(openssl-1.1.1v): {prefix}/openssl
 
 CONFOPTS(ruby-2.5.5): --with-openssl-dir={prefix}/openssl --disable-install-doc
 
 [default]
-  package: "openssl-1.1.1t" "https://www.openssl.org/source/openssl-1.1.1t.tar.gz" "a06b067b7e3bd6a2cb52a06f087ff13346ce7360" openssl
+  package: "openssl-1.1.1v" "https://www.openssl.org/source/openssl-1.1.1v.tar.gz" "3ec7b37aefcbcd8d4bd9b2f3687dd77948d46382" openssl
   patchset: "https://ruby.kaos.st/patches/2.5.5.tzst" "40384107c7e3056ca6e8a1007a3b9afe32b972ba"
   package: "ruby-2.5.5" "https://cache.ruby-lang.org/pub/ruby/2.5/ruby-2.5.5.tar.gz" "e6a063728950762925108abbdbf68968ec1ab5bb"
 
 [essentialkaos]
-  package: "openssl-1.1.1t" "https://ruby.kaos.st/openssl-1.1.1t.tzst" "bcde324e7036ee0d5d642c1f9a8a1e993b19b043" openssl
+  package: "openssl-1.1.1v" "https://ruby.kaos.st/openssl-1.1.1v.tzst" "9faf0adabb32d83b8fcc8c6e7d24b120558b579f" openssl
   patchset: "https://ruby.kaos.st/patches/2.5.5.tzst" "40384107c7e3056ca6e8a1007a3b9afe32b972ba"
   package: "ruby-2.5.5" "https://ruby.kaos.st/ruby-2.5.5.tzst" "019f78d9a528723c41d1927d7a5680f9e267f5eb"

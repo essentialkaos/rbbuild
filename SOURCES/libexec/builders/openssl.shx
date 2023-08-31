@@ -28,7 +28,12 @@ builder.openssl() {
   prfx="${XPREFIX:-$prefix}"
 
   if [[ ! $mopts =~ \-j\  ]] ; then
-    mopts="${mopts} -j $(build.getBuildThreadsNum)"
+    mopts="${mopts} -j $(build.getBuildThreadsNum 1)"
+  fi
+
+  if [[ -e "$prfx/lib/libssl.so" ]] ; then
+    show "\nFound prebuilt version of OpenSSL, build skipped…\n" $GREY
+    return 0
   fi
 
   pushd "$pkg_dir" &> "$verb_output" || build.cancel "Can't set working directory to $pkg_dir"

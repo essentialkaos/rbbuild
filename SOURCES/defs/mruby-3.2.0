@@ -1,0 +1,13 @@
+# -- [RBdef] --
+# UPDATED 28/Aug/2023 11:57:25 by Anton Novojilov <andy@essentialkaos.com>
+
+deps(rpm): make gcc gcc-c++ bison git
+deps(deb): make gcc gcc-c++ bison git
+
+deps(bin): ruby
+
+[default]
+  git: "mruby-3.2.0" "https://github.com/mruby/mruby.git" "3.2.0" mruby
+
+[essentialkaos]
+  package: "mruby-3.2.0" "https://ruby.kaos.st/mruby-3.2.0.tzst" "da1544bc2fd1b40d3897b00f7bac2f626805f930" mruby
