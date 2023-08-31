@@ -59,7 +59,7 @@ rm -rf %{buildroot}
 - Added mruby-3.2.0
 - Removed jruby-9.2.x
 - OpenSSL updated to 1.1.1v for 2.4.0+
-- Make options for OpenSSL removed from def files
+- Make options for OpenSSL removed from all def files
 
 * Sun Apr 09 2023 Anton Novojilov <andy@essentialkaos.com> - 2.0.3-0
 - Added 2.7.8
