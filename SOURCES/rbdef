@@ -13,12 +13,13 @@ fi
 APP="RBBuild Def Utils"
 
 # App version (String)
-VER="2.0.0"
+VER="2.1.0"
 
 ################################################################################
 
 NORM=0
 BOLD=1
+ITLC=3
 UNLN=4
 RED=31
 GREEN=32
@@ -29,32 +30,41 @@ CYAN=36
 GREY=37
 DARK=90
 
-CL_NORM="\e[0m"
-CL_BOLD="\e[0;${BOLD};49m"
-CL_UNLN="\e[0;${UNLN};49m"
-CL_RED="\e[0;${RED};49m"
-CL_GREEN="\e[0;${GREEN};49m"
-CL_YELLOW="\e[0;${YELLOW};49m"
-CL_BLUE="\e[0;${BLUE};49m"
-CL_MAG="\e[0;${MAG};49m"
-CL_CYAN="\e[0;${CYAN};49m"
-CL_GREY="\e[0;${GREY};49m"
-CL_DARK="\e[0;${DARK};49m"
-CL_BL_RED="\e[1;${RED};49m"
-CL_BL_GREEN="\e[1;${GREEN};49m"
-CL_BL_YELLOW="\e[1;${YELLOW};49m"
-CL_BL_BLUE="\e[1;${BLUE};49m"
-CL_BL_MAG="\e[1;${MAG};49m"
-CL_BL_CYAN="\e[1;${CYAN};49m"
-CL_BL_GREY="\e[1;${GREY};49m"
+CL_NORM="\e[${NORM}m"
+CL_BOLD="\e[${BOLD}m"
+CL_ITLC="\e[${ITLC}m"
+CL_UNLN="\e[${UNLN}m"
+CL_RED="\e[${RED}m"
+CL_GREEN="\e[${GREEN}m"
+CL_YELLOW="\e[${YELLOW}m"
+CL_BLUE="\e[${BLUE}m"
+CL_MAG="\e[${MAG}m"
+CL_CYAN="\e[${CYAN}m"
+CL_GREY="\e[${GREY}m"
+CL_DARK="\e[${DARK}m"
+CL_BL_RED="\e[${BOLD};${RED}m"
+CL_BL_GREEN="\e[${BOLD};${GREEN}m"
+CL_BL_YELLOW="\e[${BOLD};${YELLOW}m"
+CL_BL_BLUE="\e[${BOLD};${BLUE}m"
+CL_BL_MAG="\e[${BOLD};${MAG}m"
+CL_BL_CYAN="\e[${BOLD};${CYAN}m"
+CL_BL_GREY="\e[${BOLD};${GREY}m"
+CL_IT_DARK="\e[${ITLC};${DARK}m"
+CL_BG_RED="\e[7m${CL_RED}"
+CL_BG_GREEN="\e[7m${CL_GREEN}"
+CL_BG_YELLOW="\e[7m${CL_YELLOW}"
+CL_BG_BLUE="\e[7m${CL_BLUE}"
+CL_BG_MAG="\e[7m${CL_MAG}"
+CL_BG_CYAN="\e[7m${CL_CYAN}"
+CL_BG_GREY="\e[7m${CL_GREY}"
 
 ################################################################################
 
 # List of supported options (String)
-SUPPORTED_OPTS="!help !version !remove !force author !no_colors"
+SUPPORTED_OPTS="!help !version !remove !force author !no_color"
 
 # List of supported short options (String)
-SHORT_OPTS="h:!help v:!version r:!remove f:!force a:author nc:!no_colors"
+SHORT_OPTS="h:!help v:!version r:!remove f:!force a:author nc:!no_color"
 
 # Path to configuration file (String)
 PREFS_FILE="$HOME/.config/rbbuild/rbdef.conf"
@@ -80,13 +90,15 @@ author=""
 # Code: No
 # Echo: No
 main() {
-  if [[ ! -t 1 || -n "$no_colors" ]] ; then
-    unset NORM BOLD UNLN RED GREEN YELLOW BLUE MAG CYAN GREY DARK
+  if [[ ! -c /dev/stdout || -n "$no_color" || -n "$NO_COLOR" ]] ; then
+    unset NORM BOLD CL_ITLC UNLN RED GREEN YELLOW BLUE MAG CYAN GREY DARK
     unset CL_NORM CL_BOLD CL_UNLN CL_RED CL_GREEN CL_YELLOW CL_BLUE CL_MAG CL_CYAN CL_GREY CL_DARK
-    unset CL_BL_RED CL_BL_GREEN CL_BL_YELLOW CL_BL_BLUE CL_BL_MAG CL_BL_CYAN CL_BL_GREY CL_BL_DARK
+    unset CL_BL_RED CL_BL_GREEN CL_BL_YELLOW CL_BL_BLUE CL_BL_MAG CL_BL_CYAN CL_BL_GREY CL_IT_DARK
+    unset CL_BG_RED CL_BG_GREEN CL_BG_YELLOW CL_BG_BLUE CL_BG_MAG CL_BG_CYAN CL_BG_GREY
+    no_color=true
   fi
 
-  if [[ -n "$version" || -n "$ver" ]] ; then
+  if [[ -n "$version" ]] ; then
     about 
     doExit
   fi
@@ -873,7 +885,7 @@ usage() {
   showo "$CL_GREEN" "--remove, -r"              "Remove downloaded sources (use with ${CL_YELLOW}repack${CL_NORM} or ${CL_YELLOW}proc${CL_NORM} command)"
   showo "$CL_GREEN" "--force, -f"               "Always download sources while def processing (use with ${CL_YELLOW}proc${CL_NORM} command)"
   showo "$CL_GREEN" "--author, -a"              "Author of def file (use with ${CL_YELLOW}proc${CL_NORM} command)"
-  showo "$CL_GREEN" "--no-colors, -nc"          "Disable colors in output"
+  showo "$CL_GREEN" "--no-color, -nc"           "Disable colors in output"
   showo "$CL_GREEN" "--help"                    "Show this help message"
   showo "$CL_GREEN" "--version, -v"             "Show information about version"
   show ""

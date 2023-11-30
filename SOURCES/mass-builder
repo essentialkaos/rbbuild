@@ -7,12 +7,13 @@
 APP="MassBuilder"
 
 # App version (String)
-VER="6.0.0"
+VER="6.1.0"
 
 ################################################################################
 
 NORM=0
 BOLD=1
+ITLC=3
 UNLN=4
 RED=31
 GREEN=32
@@ -23,31 +24,33 @@ CYAN=36
 GREY=37
 DARK=90
 
-CL_NORM="\e[0m"
-CL_BOLD="\e[0;${BOLD};49m"
-CL_UNLN="\e[0;${UNLN};49m"
-CL_RED="\e[0;${RED};49m"
-CL_GREEN="\e[0;${GREEN};49m"
-CL_YELLOW="\e[0;${YELLOW};49m"
-CL_BLUE="\e[0;${BLUE};49m"
-CL_MAG="\e[0;${MAG};49m"
-CL_CYAN="\e[0;${CYAN};49m"
-CL_GREY="\e[0;${GREY};49m"
-CL_DARK="\e[0;${DARK};49m"
-CL_BL_RED="\e[1;${RED};49m"
-CL_BL_GREEN="\e[1;${GREEN};49m"
-CL_BL_YELLOW="\e[1;${YELLOW};49m"
-CL_BL_BLUE="\e[1;${BLUE};49m"
-CL_BL_MAG="\e[1;${MAG};49m"
-CL_BL_CYAN="\e[1;${CYAN};49m"
-CL_BL_GREY="\e[1;${GREY};49m"
-CL_BG_RED="\e[7;${RED};49m"
-CL_BG_GREEN="\e[7;${GREEN};49m"
-CL_BG_YELLOW="\e[7;${YELLOW};49m"
-CL_BG_BLUE="\e[7;${BLUE};49m"
-CL_BG_MAG="\e[7;${MAG};49m"
-CL_BG_CYAN="\e[7;${CYAN};49m"
-CL_BG_GREY="\e[7;${GREY};49m"
+CL_NORM="\e[${NORM}m"
+CL_BOLD="\e[${BOLD}m"
+CL_ITLC="\e[${ITLC}m"
+CL_UNLN="\e[${UNLN}m"
+CL_RED="\e[${RED}m"
+CL_GREEN="\e[${GREEN}m"
+CL_YELLOW="\e[${YELLOW}m"
+CL_BLUE="\e[${BLUE}m"
+CL_MAG="\e[${MAG}m"
+CL_CYAN="\e[${CYAN}m"
+CL_GREY="\e[${GREY}m"
+CL_DARK="\e[${DARK}m"
+CL_BL_RED="\e[${BOLD};${RED}m"
+CL_BL_GREEN="\e[${BOLD};${GREEN}m"
+CL_BL_YELLOW="\e[${BOLD};${YELLOW}m"
+CL_BL_BLUE="\e[${BOLD};${BLUE}m"
+CL_BL_MAG="\e[${BOLD};${MAG}m"
+CL_BL_CYAN="\e[${BOLD};${CYAN}m"
+CL_BL_GREY="\e[${BOLD};${GREY}m"
+CL_IT_DARK="\e[${ITLC};${DARK}m"
+CL_BG_RED="\e[7m${CL_RED}"
+CL_BG_GREEN="\e[7m${CL_GREEN}"
+CL_BG_YELLOW="\e[7m${CL_YELLOW}"
+CL_BG_BLUE="\e[7m${CL_BLUE}"
+CL_BG_MAG="\e[7m${CL_MAG}"
+CL_BG_CYAN="\e[7m${CL_CYAN}"
+CL_BG_GREY="\e[7m${CL_GREY}"
 
 ################################################################################
 
@@ -197,16 +200,8 @@ build() {
 
     separator "$version ($current/$total)"
 
-    if ! copyPrebuiltOpenSSL "$version" ; then
-      if [[ -e "$VERSIONS_DIR/$version" ]] ; then
-        rm -rf "$VERSIONS_DIR/${version:?}"
-      fi
-    fi
-
     rbbuild "$version" "$VERSIONS_DIR/$version" \
-            --yes \
-            --continue \
-            --ignore-loadavg \
+            --yes --ignore-loadavg \
             --mirror "essentialkaos" \
             --threads "$threads" \
             --dl-cache "$CACHE_DIR"
@@ -276,7 +271,7 @@ check() {
 
   separator "VALIDATION"
 
-  local rb_version rb_openssl
+  local rb_version rb_openssl rb_openssl_cert
 
   while read -r version ; do
 
@@ -292,6 +287,7 @@ check() {
 
     rb_version=$(ruby --version 2> /dev/null)
     rb_openssl=$(ruby -ropenssl -e 'puts OpenSSL::OPENSSL_VERSION' 2> /dev/null)
+    rb_openssl_cert=$(ruby -ropenssl -e 'p OpenSSL::X509::DEFAULT_CERT_FILE' 2> /dev/null)
 
     if [[ -z "$rb_version" ]] ; then
       has_errors=true
@@ -299,7 +295,11 @@ check() {
       continue
     fi
 
-    show "${rb_version} ${CL_DARK}(${rb_openssl:-Unknown OpenSSL})${CL_NORM}"
+    if [[ -n "$rb_openssl" ]] ; then
+      show "${rb_version} ${CL_DARK}($rb_openssl | $rb_openssl_cert)${CL_NORM}"
+    else
+      show "${rb_version} ${CL_DARK}(Unknown OpenSSL)${CL_NORM}"
+    fi
 
   done < <(awk 1 "$versions" | grep -vE '^$')
 
@@ -396,46 +396,6 @@ wipe() {
 }
 
 ################################################################################
-
-# Find and copy prebuilt OpenSSL
-#
-# 1: Version to copy to (String)
-#
-# Code: No
-# Echo: No
-copyPrebuiltOpenSSL() {
-  local version="$1"
-
-  if [[ -z $(ls -1 "$VERSIONS_DIR") ]] ; then
-    return 1
-  fi
-
-  if [[ "${version:0:1}" != "2" && "${version:0:1}" != "3" ]] ; then
-    return 1
-  fi
-
-  local req_openssl_ver prebuilt_ver
-
-  req_openssl_ver=$(rbbuild "$version" | grep 'package:' | grep openssl | head -1 | sed 's/^ *//' | cut -f2 -d' ' | tr -d '"' | cut -f2,99 -d '-')
-
-  if [[ -z "$req_openssl_ver" ]] ; then
-    return 1
-  fi
-
-  prebuilt_ver=$(grep -rn "Version: $req_openssl_ver" $VERSIONS_DIR/*/openssl/lib/pkgconfig | head -1 | cut -f6 -d'/')
-
-  if [[ -z "$prebuilt_ver" ]] ; then
-    return 1
-  fi
-
-  mkdir "$VERSIONS_DIR/$version"
-  cp -rp "$VERSIONS_DIR/$prebuilt_ver/openssl" "$VERSIONS_DIR/$version"
-
-  # Update prefix path
-  sed -i "s#$VERSIONS_DIR/$prebuilt_ver/openssl#$VERSIONS_DIR/$version/openssl#g" "$VERSIONS_DIR/$version/openssl/lib/pkgconfig"/*
-
-  return 0
-}
 
 # Get EL version from os-release file
 #

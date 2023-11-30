@@ -13,12 +13,13 @@ fi
 APP="RBBuild"
 
 # App version (String)
-VER="2.3.0"
+VER="2.4.0"
 
 ################################################################################
 
 NORM=0
 BOLD=1
+ITLC=3
 UNLN=4
 RED=31
 GREEN=32
@@ -29,43 +30,45 @@ CYAN=36
 GREY=37
 DARK=90
 
-CL_NORM="\e[0m"
-CL_BOLD="\e[0;${BOLD};49m"
-CL_UNLN="\e[0;${UNLN};49m"
-CL_RED="\e[0;${RED};49m"
-CL_GREEN="\e[0;${GREEN};49m"
-CL_YELLOW="\e[0;${YELLOW};49m"
-CL_BLUE="\e[0;${BLUE};49m"
-CL_MAG="\e[0;${MAG};49m"
-CL_CYAN="\e[0;${CYAN};49m"
-CL_GREY="\e[0;${GREY};49m"
-CL_DARK="\e[0;${DARK};49m"
-CL_BL_RED="\e[1;${RED};49m"
-CL_BL_GREEN="\e[1;${GREEN};49m"
-CL_BL_YELLOW="\e[1;${YELLOW};49m"
-CL_BL_BLUE="\e[1;${BLUE};49m"
-CL_BL_MAG="\e[1;${MAG};49m"
-CL_BL_CYAN="\e[1;${CYAN};49m"
-CL_BL_GREY="\e[1;${GREY};49m"
-CL_BG_RED="\e[7;${RED};49m"
-CL_BG_GREEN="\e[7;${GREEN};49m"
-CL_BG_YELLOW="\e[7;${YELLOW};49m"
-CL_BG_BLUE="\e[7;${BLUE};49m"
-CL_BG_MAG="\e[7;${MAG};49m"
-CL_BG_CYAN="\e[7;${CYAN};49m"
-CL_BG_GREY="\e[7;${GREY};49m"
+CL_NORM="\e[${NORM}m"
+CL_BOLD="\e[${BOLD}m"
+CL_ITLC="\e[${ITLC}m"
+CL_UNLN="\e[${UNLN}m"
+CL_RED="\e[${RED}m"
+CL_GREEN="\e[${GREEN}m"
+CL_YELLOW="\e[${YELLOW}m"
+CL_BLUE="\e[${BLUE}m"
+CL_MAG="\e[${MAG}m"
+CL_CYAN="\e[${CYAN}m"
+CL_GREY="\e[${GREY}m"
+CL_DARK="\e[${DARK}m"
+CL_BL_RED="\e[${BOLD};${RED}m"
+CL_BL_GREEN="\e[${BOLD};${GREEN}m"
+CL_BL_YELLOW="\e[${BOLD};${YELLOW}m"
+CL_BL_BLUE="\e[${BOLD};${BLUE}m"
+CL_BL_MAG="\e[${BOLD};${MAG}m"
+CL_BL_CYAN="\e[${BOLD};${CYAN}m"
+CL_BL_GREY="\e[${BOLD};${GREY}m"
+CL_IT_DARK="\e[${ITLC};${DARK}m"
+CL_BG_RED="\e[7m${CL_RED}"
+CL_BG_GREEN="\e[7m${CL_GREEN}"
+CL_BG_YELLOW="\e[7m${CL_YELLOW}"
+CL_BG_BLUE="\e[7m${CL_BLUE}"
+CL_BG_MAG="\e[7m${CL_MAG}"
+CL_BG_CYAN="\e[7m${CL_CYAN}"
+CL_BG_GREY="\e[7m${CL_GREY}"
 
 ################################################################################
 
 SUPPORTED_OPTS="dest_dir !help mirror output !quiet tmp threads 
  !verbose !version cc_comp cxx_comp !mirror_list !ignore_checksums dl_cache 
- !rbenv name proxy !debug !yes !no_patch !no_colors !no_spinner 
+ !rbenv name proxy !debug !yes !no_patch !no_color !no_spinner 
  !ignore_loadavg !continue"
 
 SHORT_OPTS="h:!help d:dest_dir m:mirror o:output q:!quiet T:tmp N:name 
  t:threads V:!verbose v:!version y:!yes P:proxy L:!mirror_list D:!debug 
  ic:!ignore_checksums dc:dl_cache r:!rbenv cc:cc_comp cxx:cxx_comp 
- np:!no_patch nc:!no_colors ns:!no_spinner il:!ignore_loadavg C:!continue"
+ np:!no_patch nc:!no_color ns:!no_spinner il:!ignore_loadavg C:!continue"
 
 ################################################################################
 
@@ -133,10 +136,12 @@ declare -A _requires
 ################################################################################
 
 main() {
-  if [[ ! -t 1 || -n "$no_colors" ]] ; then
-    unset NORM BOLD UNLN RED GREEN YELLOW BLUE MAG CYAN GREY DARK
+  if [[ ! -c /dev/stdout || -n "$no_color" || -n "$NO_COLOR" ]] ; then
+    unset NORM BOLD CL_ITLC UNLN RED GREEN YELLOW BLUE MAG CYAN GREY DARK
     unset CL_NORM CL_BOLD CL_UNLN CL_RED CL_GREEN CL_YELLOW CL_BLUE CL_MAG CL_CYAN CL_GREY CL_DARK
-    unset CL_BL_RED CL_BL_GREEN CL_BL_YELLOW CL_BL_BLUE CL_BL_MAG CL_BL_CYAN CL_BL_GREY CL_BL_DARK
+    unset CL_BL_RED CL_BL_GREEN CL_BL_YELLOW CL_BL_BLUE CL_BL_MAG CL_BL_CYAN CL_BL_GREY CL_IT_DARK
+    unset CL_BG_RED CL_BG_GREEN CL_BG_YELLOW CL_BG_BLUE CL_BG_MAG CL_BG_CYAN CL_BG_GREY
+    no_color=true
   fi
 
   if [[ -n "$version" ]] ; then
@@ -364,7 +369,7 @@ usage() {
   showo "--tmp, -T"               "Path to temporary directory ${CL_DARK}(used for unpacking files and build process)${CL_NORM}"  "path"
   showo "--yes, -y"               "Answer \"yes\" to all questions"
   showo "--continue, -C"          "Don't clean prefix directory before build"
-  showo "--no-colors, -nc"        "Don't use colors in output"
+  showo "--no-color, -nc"         "Don't use colors in output"
   showo "--no-spinner, -ns"       "Don't show spinner"
   showo "--help, -h"              "Show this help message"
   showo "--version, -v"           "Show information about version"
@@ -372,16 +377,16 @@ usage() {
   show "${CL_BOLD}Examples${CL_NORM}"
   show ""
   show "  rbbuild 2.7.5 /home/user/ruby-2.7.5 -t 4 -m essentialkaos"
-  show "  Build 2.7.5 with sources from EK mirror using 4 threads" $DARK
+  show "  ${CL_IT_DARK}Build 2.7.5 with sources from EK mirror using 4 threads${CL_NORM}"
   show ""
   show "  rbbuild 3.0.5 /home/user/ruby-3.0.5"
-  show "  Build 3.0.5 and install it to given directory" $DARK
+  show "  ${CL_IT_DARK}Build 3.0.5 and install it to given directory${CL_NORM}"
   show ""
   show "  rbbuild 3.1.1 -r"
-  show "  Build 3.1.1 and install it to RBEnv" $DARK
+  show "  ${CL_IT_DARK}Build 3.1.1 and install it to RBEnv${CL_NORM}"
   show ""
   show "  rbbuild 3.1.1 | more"
-  show "  Show def file for 3.1.1" $DARK
+  show "  ${CL_IT_DARK}Show def file for 3.1.1${CL_NORM}"
   show ""
 }
 
