@@ -7,12 +7,13 @@
 APP="MassBuilder"
 
 # App version (String)
-VER="6.0.1"
+VER="6.1.0"
 
 ################################################################################
 
 NORM=0
 BOLD=1
+ITLC=3
 UNLN=4
 RED=31
 GREEN=32
@@ -23,31 +24,33 @@ CYAN=36
 GREY=37
 DARK=90
 
-CL_NORM="\e[0m"
-CL_BOLD="\e[0;${BOLD};49m"
-CL_UNLN="\e[0;${UNLN};49m"
-CL_RED="\e[0;${RED};49m"
-CL_GREEN="\e[0;${GREEN};49m"
-CL_YELLOW="\e[0;${YELLOW};49m"
-CL_BLUE="\e[0;${BLUE};49m"
-CL_MAG="\e[0;${MAG};49m"
-CL_CYAN="\e[0;${CYAN};49m"
-CL_GREY="\e[0;${GREY};49m"
-CL_DARK="\e[0;${DARK};49m"
-CL_BL_RED="\e[1;${RED};49m"
-CL_BL_GREEN="\e[1;${GREEN};49m"
-CL_BL_YELLOW="\e[1;${YELLOW};49m"
-CL_BL_BLUE="\e[1;${BLUE};49m"
-CL_BL_MAG="\e[1;${MAG};49m"
-CL_BL_CYAN="\e[1;${CYAN};49m"
-CL_BL_GREY="\e[1;${GREY};49m"
-CL_BG_RED="\e[7;${RED};49m"
-CL_BG_GREEN="\e[7;${GREEN};49m"
-CL_BG_YELLOW="\e[7;${YELLOW};49m"
-CL_BG_BLUE="\e[7;${BLUE};49m"
-CL_BG_MAG="\e[7;${MAG};49m"
-CL_BG_CYAN="\e[7;${CYAN};49m"
-CL_BG_GREY="\e[7;${GREY};49m"
+CL_NORM="\e[${NORM}m"
+CL_BOLD="\e[${BOLD}m"
+CL_ITLC="\e[${ITLC}m"
+CL_UNLN="\e[${UNLN}m"
+CL_RED="\e[${RED}m"
+CL_GREEN="\e[${GREEN}m"
+CL_YELLOW="\e[${YELLOW}m"
+CL_BLUE="\e[${BLUE}m"
+CL_MAG="\e[${MAG}m"
+CL_CYAN="\e[${CYAN}m"
+CL_GREY="\e[${GREY}m"
+CL_DARK="\e[${DARK}m"
+CL_BL_RED="\e[${BOLD};${RED}m"
+CL_BL_GREEN="\e[${BOLD};${GREEN}m"
+CL_BL_YELLOW="\e[${BOLD};${YELLOW}m"
+CL_BL_BLUE="\e[${BOLD};${BLUE}m"
+CL_BL_MAG="\e[${BOLD};${MAG}m"
+CL_BL_CYAN="\e[${BOLD};${CYAN}m"
+CL_BL_GREY="\e[${BOLD};${GREY}m"
+CL_IT_DARK="\e[${ITLC};${DARK}m"
+CL_BG_RED="\e[7m${CL_RED}"
+CL_BG_GREEN="\e[7m${CL_GREEN}"
+CL_BG_YELLOW="\e[7m${CL_YELLOW}"
+CL_BG_BLUE="\e[7m${CL_BLUE}"
+CL_BG_MAG="\e[7m${CL_MAG}"
+CL_BG_CYAN="\e[7m${CL_CYAN}"
+CL_BG_GREY="\e[7m${CL_GREY}"
 
 ################################################################################
 
