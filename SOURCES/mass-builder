@@ -7,7 +7,7 @@
 APP="MassBuilder"
 
 # App version (String)
-VER="6.0.1"
+VER="6.0.2"
 
 ################################################################################
 
@@ -149,7 +149,7 @@ prepare() {
                     rbenv rbbuild jre11 jemalloc-devel nano \
                     autoconf bison gcc gcc-c++ libtool automake \
                     openssl-devel glibc-devel libffi-devel \
-                    ncurses-devel readline-devel tk-devel \
+                    ncurses-devel readline-devel tk-devel perl-IPC-Cmd \
                     zlib-devel libyaml-devel rustc git patch ; then
 
     error "Can't install required dependencies"
