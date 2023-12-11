@@ -60,6 +60,7 @@ rm -rf %{buildroot}
 - Added truffleruby-23.1.0
 - Added truffleruby-23.1.1
 - OpenSSL updated to 1.1.1w for 2.4.0+
+- Removed all *-railsexpress versions
 
 * Mon Aug 28 2023 Anton Novojilov <andy@essentialkaos.com> - 2.0.4-0
 - Added jruby-9.3.10.0
