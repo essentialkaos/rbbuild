@@ -1,5 +1,5 @@
 # -- [RBdef] --
-# UPDATED 28/Aug/2023 11:52:58 by Anton Novojilov <andy@essentialkaos.com>
+# UPDATED 11/Dec/2023 14:13:59 by Anton Novojilov <andy@essentialkaos.com>
 
 eol(normal): 2021-03-31
 eol(security): 2022-03-31
@@ -11,17 +11,17 @@ deps(deb): autoconf libc6-dev libncurses5-dev bison libffi-dev
 
 deps(bin): ruby
 
-CONFOPTS(openssl-1.1.1v): {os_name}-{os_arch} --openssldir={prefix}/openssl/ssl zlib-dynamic no-ssl3 shared -fPIC
-PREFIX(openssl-1.1.1v): {prefix}/openssl
+CONFOPTS(openssl-1.1.1w): {os_name}-{os_arch} --openssldir={prefix}/openssl/ssl zlib-dynamic no-ssl3 shared -fPIC
+PREFIX(openssl-1.1.1w): {prefix}/openssl
 
 CONFOPTS(ruby-2.6.2): --with-openssl-dir={prefix}/openssl --disable-install-doc
 
 [default]
-  package: "openssl-1.1.1v" "https://www.openssl.org/source/openssl-1.1.1v.tar.gz" "3ec7b37aefcbcd8d4bd9b2f3687dd77948d46382" openssl
+  package: "openssl-1.1.1w" "https://www.openssl.org/source/openssl-1.1.1w.tar.gz" "76fbf3ca4370e12894a408ef75718f32cdab9671" openssl
   patchset: "https://ruby.kaos.st/patches/2.6.2.tzst" "26f378a42e837cc774d5e7dd759d5eb3f3c83ba5"
   package: "ruby-2.6.2" "https://cache.ruby-lang.org/pub/ruby/2.6/ruby-2.6.2.tar.gz" "44c6634a41f63ebdc1f3ce6ddcf48a4766bb4df7"
 
 [essentialkaos]
-  package: "openssl-1.1.1v" "https://ruby.kaos.st/openssl-1.1.1v.tzst" "9faf0adabb32d83b8fcc8c6e7d24b120558b579f" openssl
+  package: "openssl-1.1.1w" "https://ruby.kaos.st/openssl-1.1.1w.tzst" "e9dcdbc98b9172de70f285f96ace5e5a9f885999" openssl
   patchset: "https://ruby.kaos.st/patches/2.6.2.tzst" "26f378a42e837cc774d5e7dd759d5eb3f3c83ba5"
   package: "ruby-2.6.2" "https://ruby.kaos.st/ruby-2.6.2.tzst" "64ff826034eafb322d7f7a4dc1f20980cdfc0d75"
