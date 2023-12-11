@@ -52,6 +52,13 @@ rm -rf %{buildroot}
 
 %changelog
 * Mon Dec 11 2023 Anton Novojilov <andy@essentialkaos.com> - 2.0.5-0
+- Added jruby-9.3.11.0
+- Added jruby-9.3.12.0
+- Added jruby-9.3.13.0
+- Added jruby-9.4.4.0
+- Added jruby-9.4.5.0
+- Added truffleruby-23.1.0
+- Added truffleruby-23.1.1
 - OpenSSL updated to 1.1.1w for 2.4.0-3.0.6
 - OpenSSL updated to 3.1.4 for 3.1.0+
 
