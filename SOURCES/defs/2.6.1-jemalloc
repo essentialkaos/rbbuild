@@ -17,5 +17,5 @@ CONFOPTS(ruby-2.6.1): --with-jemalloc --with-openssl-dir={prefix}/openssl --disa
   package: "ruby-2.6.1" "https://cache.ruby-lang.org/pub/ruby/2.6/ruby-2.6.1.tar.gz" "416842bb5b4ca655610df1f0389b6e21d25154f8"
 
 [essentialkaos]
-  package: "openssl-1.1.1w" "https://ruby.kaos.st/openssl-1.1.1.tzst" "317299d5750cde489e1ce50aad3a2dd9f2b2ff4d" openssl
+  package: "openssl-1.1.1w" "https://ruby.kaos.st/openssl-1.1.1w.tzst" "e9dcdbc98b9172de70f285f96ace5e5a9f885999" openssl
   package: "ruby-2.6.1" "https://ruby.kaos.st/ruby-2.6.1.tzst" "6e0b2268ba99120a3d804b5ef148c4486a3e4812"

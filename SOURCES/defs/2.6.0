@@ -19,5 +19,5 @@ CONFOPTS(ruby-2.6.0): --with-openssl-dir={prefix}/openssl --disable-install-doc
   package: "ruby-2.6.0" "https://cache.ruby-lang.org/pub/ruby/2.6/ruby-2.6.0.tar.gz" "c95f4e86e21390270dad3ebb94491fd42ee2ce69"
 
 [essentialkaos]
-  package: "openssl-1.1.1w" "https://ruby.kaos.st/openssl-1.1.1.tzst" "317299d5750cde489e1ce50aad3a2dd9f2b2ff4d" openssl
+  package: "openssl-1.1.1w" "https://ruby.kaos.st/openssl-1.1.1w.tzst" "e9dcdbc98b9172de70f285f96ace5e5a9f885999" openssl
   package: "ruby-2.6.0" "https://ruby.kaos.st/ruby-2.6.0.tzst" "17c7f3174f8432614c8e1953541129f15d6c1781"
