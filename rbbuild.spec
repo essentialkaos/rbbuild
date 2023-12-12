@@ -58,6 +58,7 @@ rm -rf %{buildroot}
 
 %changelog
 * Tue Dec 12 2023 Anton Novojilov <andy@essentialkaos.com> - 2.3.2-0
+- Fixed bug with listing versions
 - Fixed railsexpress build
 
 * Thu Nov 30 2023 Anton Novojilov <andy@essentialkaos.com> - 2.3.1-0
