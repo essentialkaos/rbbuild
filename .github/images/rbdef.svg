@@ -53,13 +53,13 @@
 
   <text x="50%" y="20" text-anchor="middle"><tspan class="terminal">Terminal</tspan></text>
   <text x="12" y="56"><tspan class="bold">Usage:</tspan> rbdef <tspan class="g">{options}</tspan> <tspan class="y">{command}</tspan> arguments…</text>
-  <text x="12" y="96"><tspan class="bold">Commands:</tspan></text>
+  <text x="12" y="96"><tspan class="bold">Commands</tspan></text>
   <text x="12" y="136">  <tspan class="y">repack</tspan> <tspan class="DG">......................</tspan> Repack source archive to tar.zst</text>
   <text x="12" y="156">  <tspan class="y">replace</tspan> <tspan class="DG">.....................</tspan> Find and replace records in def files</text>
   <text x="12" y="176">  <tspan class="y">proc</tspan> <tspan class="DG">........................</tspan> Add SHA-1 checksum to records in def files</text>
   <text x="12" y="196">  <tspan class="y">crc</tspan> <tspan class="DG">.........................</tspan> Generate CRC for given file or URL</text>
   <text x="12" y="216">  <tspan class="y">rec</tspan> <tspan class="DG">.........................</tspan> Create record line from URL</text>
-  <text x="12" y="256"><tspan class="bold">Options:</tspan></text>
+  <text x="12" y="256"><tspan class="bold">Options</tspan></text>
   <text x="12" y="296">  <tspan class="g">--remove, -r</tspan> <tspan class="DG">................</tspan> Remove downloaded sources (use with <tspan class="y">repack</tspan> or <tspan class="y">proc</tspan> command)</text>
   <text x="12" y="316">  <tspan class="g">--force, -f</tspan> <tspan class="DG">.................</tspan> Always download sources while def processing (use with <tspan class="y">proc</tspan> command)</text>
   <text x="12" y="336">  <tspan class="g">--author, -a</tspan> <tspan class="DG">................</tspan> Author of def file (use with <tspan class="y">proc</tspan> command)</text>
