@@ -872,7 +872,7 @@ usage() {
   show ""
   show "${CL_BOLD}Usage:${CL_NORM} rbdef ${CL_GREEN}{options}${CL_NORM} ${CL_YELLOW}{command}${CL_NORM} arguments…"
   show ""
-  show "Commands:" $BOLD
+  show "Commands" $BOLD
   show ""
   showo "$CL_YELLOW" "repack"  "Repack source archive to tar.zst"
   showo "$CL_YELLOW" "replace" "Find and replace records in def files"
@@ -880,14 +880,14 @@ usage() {
   showo "$CL_YELLOW" "crc"     "Generate CRC for given file or URL"
   showo "$CL_YELLOW" "rec"     "Create record line from URL"
   show ""
-  show "Options:" $BOLD
+  show "Options" $BOLD
   show ""
-  showo "$CL_GREEN" "--remove, -r"              "Remove downloaded sources (use with ${CL_YELLOW}repack${CL_NORM} or ${CL_YELLOW}proc${CL_NORM} command)"
-  showo "$CL_GREEN" "--force, -f"               "Always download sources while def processing (use with ${CL_YELLOW}proc${CL_NORM} command)"
-  showo "$CL_GREEN" "--author, -a"              "Author of def file (use with ${CL_YELLOW}proc${CL_NORM} command)"
-  showo "$CL_GREEN" "--no-color, -nc"           "Disable colors in output"
-  showo "$CL_GREEN" "--help"                    "Show this help message"
-  showo "$CL_GREEN" "--version, -v"             "Show information about version"
+  showo "$CL_GREEN" "--remove, -r"    "Remove downloaded sources (use with ${CL_YELLOW}repack${CL_NORM} or ${CL_YELLOW}proc${CL_NORM} command)"
+  showo "$CL_GREEN" "--force, -f"     "Always download sources while def processing (use with ${CL_YELLOW}proc${CL_NORM} command)"
+  showo "$CL_GREEN" "--author, -a"    "Author of def file (use with ${CL_YELLOW}proc${CL_NORM} command)"
+  showo "$CL_GREEN" "--no-color, -nc" "Disable colors in output"
+  showo "$CL_GREEN" "--help"          "Show this help message"
+  showo "$CL_GREEN" "--version, -v"   "Show information about version"
   show ""
 }
 
