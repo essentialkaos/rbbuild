@@ -822,11 +822,11 @@ showo() {
 
   if [[ -z "$ent_args" ]] ; then
     optt="$ent_name"
-    optf=$(( 28 - ${#optt} ))
+    optf=$(( 17 - ${#optt} ))
     echo -e "  ${ent_clr}${ent_name}${CL_NORM} ${CL_DARK}${breadcrumbs:0:$optf}${CL_NORM} $ent_desc"
   else
     optt="$ent_name $ent_args"
-    optf=$(( 28 - ${#optt} ))
+    optf=$(( 17 - ${#optt} ))
     echo -e "  ${ent_clr}${ent_name}${CL_NORM} ${CL_GREY}${optp}${CL_NORM} ${CL_DARK}${breadcrumbs:0:$optf}${CL_NORM} $ent_desc"
   fi
 }
