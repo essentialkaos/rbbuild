@@ -56,6 +56,8 @@ rm -rf %{buildroot}
 - Added 3.1.6-jemalloc
 - Added 3.3.2
 - Added 3.3.2-jemalloc
+- Added 3.3.3
+- Added 3.3.3-jemalloc
 - Added jruby-9.4.7.0
 
 * Thu Apr 25 2024 Anton Novojilov <andy@essentialkaos.com> - 2.0.7-0
