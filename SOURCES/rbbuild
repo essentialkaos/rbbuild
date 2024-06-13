@@ -13,7 +13,7 @@ fi
 APP="RBBuild"
 
 # App version (String)
-VER="2.4.1"
+VER="2.4.2"
 
 ################################################################################
 
@@ -136,7 +136,7 @@ declare -A _requires
 ################################################################################
 
 main() {
-  if [[ ! -c /dev/stdout || -n "$no_color" || -n "$NO_COLOR" ]] ; then
+  if [[ -n "$no_color" || -n "$NO_COLOR" ]] || [[ ! -c /dev/stdout && -z $FAKETTY ]] ; then
     unset NORM BOLD CL_ITLC UNLN RED GREEN YELLOW BLUE MAG CYAN GREY DARK
     unset CL_NORM CL_BOLD CL_UNLN CL_RED CL_GREEN CL_YELLOW CL_BLUE CL_MAG CL_CYAN CL_GREY CL_DARK
     unset CL_BL_RED CL_BL_GREEN CL_BL_YELLOW CL_BL_BLUE CL_BL_MAG CL_BL_CYAN CL_BL_GREY CL_IT_DARK
@@ -348,7 +348,7 @@ usage() {
   show ""
   show "${CL_BOLD}Usage:${CL_NORM} rbbuild ${CL_GREEN}{options}${CL_NORM} def-file ${CL_DARK}target-dir${CL_NORM}"
   show ""
-  show "${CL_BOLD}Options${CL_NORM}"
+  show "Options" $BOLD
   show ""
   showo "--threads, -t"           "Number of threads for build process"                                       "num"
   showo "--no-patch, -np"         "Skip patch directives in definition file"
@@ -374,19 +374,19 @@ usage() {
   showo "--help, -h"              "Show this help message"
   showo "--version, -v"           "Show information about version"
   show ""
-  show "${CL_BOLD}Examples${CL_NORM}"
+  show "Examples" $BOLD
   show ""
   show "  rbbuild 2.7.5 /home/user/ruby-2.7.5 -t 4 -m essentialkaos"
-  show "  ${CL_IT_DARK}Build 2.7.5 with sources from EK mirror using 4 threads${CL_NORM}"
+  show "  Build 2.7.5 with sources from EK mirror using 4 threads" $DARK
   show ""
   show "  rbbuild 3.0.5 /home/user/ruby-3.0.5"
-  show "  ${CL_IT_DARK}Build 3.0.5 and install it to given directory${CL_NORM}"
+  show "  Build 3.0.5 and install it to given directory" $DARK
   show ""
   show "  rbbuild 3.1.1 -r"
-  show "  ${CL_IT_DARK}Build 3.1.1 and install it to RBEnv${CL_NORM}"
+  show "  Build 3.1.1 and install it to RBEnv" $DARK
   show ""
   show "  rbbuild 3.1.1 | more"
-  show "  ${CL_IT_DARK}Show def file for 3.1.1${CL_NORM}"
+  show "  Show def file for 3.1.1" $DARK
   show ""
 }
 
