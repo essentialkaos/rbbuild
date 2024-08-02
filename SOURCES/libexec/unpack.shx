@@ -27,9 +27,6 @@ unpack.archive() {
   elif [[ $arch_file =~ .zip$ ]] ; then
     showm "Unpacking ${CL_BOLD}zip${CL_NORM} archive… "
     unpack.ZIP "$arch_file"
-  elif [[ $arch_file =~ .7z$ ]] ; then
-    showm "Unpacking ${CL_BOLD}7z${CL_NORM} archive… "
-    unpack.7Z "$arch_file"
   else
     error "Unknown or unsupported archive format"
     return 1
@@ -108,22 +105,6 @@ unpack.ZIP() {
   fi
 
   unzip "$1" &> "$verb_output"
-
-  return $?
-}
-
-# Unpack 7z file
-#
-# 1: Path to archive file (String)
-#
-# Code: Yes
-# Echo: No
-unpack.7Z() {
-  if ! system.hasApp "7za" ; then
-    return 1
-  fi
-
-  7za x "$1" &> "$verb_output"
 
   return $?
 }
