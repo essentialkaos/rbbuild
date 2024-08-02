@@ -184,7 +184,7 @@ build() {
     fi
   fi
 
-  local version total current has_errors theads
+  local version total current has_errors threads
 
   threads=$(getconf _NPROCESSORS_ONLN)
   total=$(grep -cvE '^$' "$versions")
