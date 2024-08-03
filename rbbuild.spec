@@ -58,6 +58,7 @@ rm -rf %{buildroot}
 
 %changelog
 * Sat Aug 03 2024 Anton Novojilov <andy@essentialkaos.com> - 2.4.3-0
+- Use all cores to build OpenSSL by default
 - Removed 7zip support
 
 * Sun Jun 09 2024 Anton Novojilov <andy@essentialkaos.com> - 2.4.2-0
