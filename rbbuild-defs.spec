@@ -56,6 +56,7 @@ rm -rf %{buildroot}
 - Added 3.2.5-jemalloc
 - Added 3.3.4
 - Added 3.3.4-jemalloc
+- Added jruby-9.3.15.0
 - Added jruby-9.4.8.0
 - Added truffleruby-24.0.2
 
