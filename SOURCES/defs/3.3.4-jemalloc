@@ -10,12 +10,12 @@ deps(rpm): autoconf glibc-devel ncurses-devel bison libffi-devel jemalloc-devel 
 CONFOPTS(openssl-3.0.14): {os_name}-{os_arch} --libdir=lib --openssldir={prefix}/openssl/ssl zlib-dynamic no-ssl3 shared -fPIC
 PREFIX(openssl-3.0.14): {prefix}/openssl
 
-CONFOPTS(ruby-3.3.1): --with-jemalloc --with-openssl-dir={prefix}/openssl --disable-install-doc
+CONFOPTS(ruby-3.3.4): --with-jemalloc --with-openssl-dir={prefix}/openssl --disable-install-doc
 
 [default]
   package: "openssl-3.0.14" "https://www.openssl.org/source/openssl-3.0.14.tar.gz" "80b67212212a5ba81b071026d1ad851d6cbcca93" openssl
-  package: "ruby-3.3.1" "https://cache.ruby-lang.org/pub/ruby/3.3/ruby-3.3.1.tar.gz" "affd82947d7cd84bd586f7f487a1da0c0bd8b1fd"
+  package: "ruby-3.3.4" "https://cache.ruby-lang.org/pub/ruby/3.3/ruby-3.3.4.tar.gz" "408362dfb0413122e09d35bafdcced8922b54e71"
 
 [essentialkaos]
   package: "openssl-3.0.14" "https://ruby.kaos.st/openssl-3.0.14.tzst" "f62bc2cb86292b928d53e58e02658a1c804bf587" openssl
-  package: "ruby-3.3.1" "https://ruby.kaos.st/ruby-3.3.1.tzst" "ef3c9d0834cdfd8d9ed4a64d1c6dd9295774e2c8"
+  package: "ruby-3.3.4" "https://ruby.kaos.st/ruby-3.3.4.tzst" "b6a922d4e3d03f72a19a2ce36cbc6535dbfd1a2a"

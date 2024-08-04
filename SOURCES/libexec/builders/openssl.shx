@@ -28,7 +28,7 @@ builder.openssl() {
   prfx="${XPREFIX:-$prefix}"
 
   if [[ ! $mopts =~ \-j\  ]] ; then
-    mopts="${mopts} -j $(build.getBuildThreadsNum 1)"
+    mopts="${mopts} -j $(build.getBuildThreadsNum)"
   fi
 
   if [[ -e "$prfx/lib/libssl.so" ]] ; then
@@ -65,7 +65,7 @@ builder.openssl() {
         fi
 
         if [[ -z "$failed" ]] ; then
-          showc "make install_sw $iopts"
+          showc "make install_sw install_ssldirs $iopts"
           if ! make install_sw $iopts ; then
             failed=true
           fi
