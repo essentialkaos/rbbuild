@@ -2,7 +2,7 @@
 
 Summary:    Utility for compiling and installing different ruby versions
 Name:       rbbuild
-Version:    2.4.3
+Version:    2.4.4
 Release:    0%{?dist}
 License:    Apache License, Version 2.0
 Vendor:     ESSENTIAL KAOS
@@ -57,6 +57,9 @@ rm -rf %{buildroot}
 ################################################################################
 
 %changelog
+* Fri Dec 06 2024 Anton Novojilov <andy@essentialkaos.com> - 2.4.4-0
+- Improved options parsing
+
 * Sat Aug 03 2024 Anton Novojilov <andy@essentialkaos.com> - 2.4.3-0
 - Use all cores to build OpenSSL by default
 - Removed 7zip support
