@@ -1,0 +1,11 @@
+# -- [RBdef] --
+# UPDATED 03/Jan/2025 01:30:58 by Anton Novojilov <andy@essentialkaos.com>
+
+deps(rpm): gcc openssl-devel
+deps(deb): gcc libssl-dev
+
+[default]
+  package: "truffleruby-24.1.0" "https://github.com/oracle/truffleruby/releases/download/graal-24.1.0/truffleruby-24.1.0-linux-amd64.tar.gz" "32e5e898f2191e4f0c975fc55c31b70524284f1f" truffle
+
+[essentialkaos]
+  package: "truffleruby-24.1.0" "https://ruby.kaos.st/truffleruby-24.1.0.tzst" "9bc0b08ce944685524fe3a942dc2f2ab94202bf5" truffle
