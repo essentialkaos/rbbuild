@@ -2,7 +2,7 @@
 
 Summary:    Def files for rbbuild utility
 Name:       rbbuild-defs
-Version:    2.0.10
+Version:    2.0.11
 Release:    0%{?dist}
 License:    Apache License, Version 2.0
 Vendor:     ESSENTIAL KAOS
