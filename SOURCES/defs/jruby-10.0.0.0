@@ -1,0 +1,11 @@
+# -- [RBdef] --
+# UPDATED 15/Apr/2025 14:38:46 by Anton Novojilov <andy@essentialkaos.com>
+
+deps(rpm): make gcc gcc-c++ jre21
+deps(deb): make gcc build-essentials openjdk-11
+
+[default]
+  package: "jruby-10.0.0.0" "https://s3.amazonaws.com/jruby.org/downloads/10.0.0.0/jruby-bin-10.0.0.0.tar.gz" "6c3fdec21aee16343f3735eb5940a59bc0d6a26e" jruby
+
+[essentialkaos]
+  package: "jruby-10.0.0.0" "https://ruby.kaos.st/jruby-10.0.0.0.tzst" "983f07c277d1ede901b627ae65335759c11f9a33" jruby
