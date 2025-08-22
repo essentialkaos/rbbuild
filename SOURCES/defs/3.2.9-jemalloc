@@ -1,0 +1,21 @@
+# -- [RBdef] --
+# UPDATED 22/Aug/2025 15:09:38 by Anton Novojilov <andy@essentialkaos.com>
+
+eol(normal): 2025-03-31
+eol(security): 2026-03-31
+
+deps(rpm): make gcc gcc-c++ zlib-devel readline-devel tk-devel ca-certificates libyaml-devel
+deps(rpm): autoconf glibc-devel ncurses-devel bison libffi-devel jemalloc-devel rust
+
+CONFOPTS(openssl-3.0.17): {os_name}-{os_arch} --libdir=lib --openssldir={prefix}/openssl/ssl zlib-dynamic no-ssl3 shared -fPIC
+PREFIX(openssl-3.0.17): {prefix}/openssl
+
+CONFOPTS(ruby-3.2.9): --with-jemalloc --with-openssl-dir={prefix}/openssl --disable-install-doc
+
+[default]
+  package: "openssl-3.0.17" "https://github.com/openssl/openssl/releases/download/openssl-3.0.17/openssl-3.0.17.tar.gz" "2e2718ff608eca5c8c56b9343816b6e2fd33fbec" openssl
+  package: "ruby-3.2.9" "https://cache.ruby-lang.org/pub/ruby/3.2/ruby-3.2.9.tar.gz" "174f37666192a3fdc9cf24e5eddc0cf4d5de0b1e"
+
+[essentialkaos]
+  package: "openssl-3.0.17" "https://ruby.kaos.st/openssl-3.0.17.tzst" "7741f15196b77c62663498b1bc6fb3962ca89cce" openssl
+  package: "ruby-3.2.9" "https://ruby.kaos.st/ruby-3.2.9.tzst" "5f764047158c7218c821f99ea8065f0396ac63dc"
