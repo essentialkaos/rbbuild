@@ -68,6 +68,7 @@ rm -rf %{buildroot}
 - Added truffleruby-24.2.1
 - Added truffleruby-24.2.2
 - Updated URL of source for all jruby defs
+- OpenSSL updated to 3.0.17 for 3.1.0+
 
 * Tue Apr 15 2025 Anton Novojilov <andy@essentialkaos.com> - 2.0.13-0
 - Added jruby-10.0.0.0
