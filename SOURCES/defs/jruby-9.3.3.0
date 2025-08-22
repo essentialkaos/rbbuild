@@ -6,7 +6,7 @@ deps(deb): make gcc build-essentials
 deps(bin): java
 
 [default]
-  package: "jruby-9.3.3.0" "https://s3.amazonaws.com/jruby.org/downloads/9.3.3.0/jruby-bin-9.3.3.0.tar.gz" "3d65f3afe9e811372e402ea81060d00cd950ca3f" jruby
+  package: "jruby-9.3.3.0" "https://repo1.maven.org/maven2/org/jruby/jruby-dist/9.3.3.0/jruby-bin-9.3.3.0.tar.gz" "3d65f3afe9e811372e402ea81060d00cd950ca3f" jruby
 
 [essentialkaos]
   package: "jruby-9.3.3.0" "https://ruby.kaos.st/jruby-9.3.3.0.tzst" "39298898bfbbb2cf3cfd87d536569b0abacf01e9" jruby
