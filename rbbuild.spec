@@ -15,7 +15,7 @@ BuildArch:  noarch
 BuildRoot:  %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 Requires:   %{name}-defs >= 2
-Requires:   bash zstd patch gawk bc git
+Requires:   bash curl zstd patch gawk bc git
 
 Provides:   %{name} = %{version}-%{release}
 
