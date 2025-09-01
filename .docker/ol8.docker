@@ -16,6 +16,12 @@ LABEL org.opencontainers.image.title="RBBuild" \
       org.opencontainers.image.url="https://kaos.sh/d/rbbuild" \
       org.opencontainers.image.source="https://github.com/essentialkaos/rbbuild"
 
+COPY SOURCES/rbbuild /usr/bin/rbbuild
+COPY SOURCES/rbdef /usr/bin/rbdef
+COPY SOURCES/mass-builder /usr/bin/mass-builder
+COPY SOURCES/libexec/* /usr/libexec/rbbuild/
+COPY SOURCES/defs/* /usr/local/share/rbbuild/
+
 # hadolint ignore=DL3031,DL3041
 RUN <<EOF
   # Configure image environment
@@ -28,19 +34,11 @@ RUN <<EOF
   dnf -y -q remove libevent
   dnf clean all
   rm -rf /var/cache/dnf /var/log/dnf.*
-  mkdir -p /usr/libexec/rbbuild \
-           /usr/local/share/rbbuild
+  chmod +x /usr/bin/rbbuild \
+           /usr/bin/rbdef \
+           /usr/bin/mass-builder
+  mass-builder prepare
 EOF
-
-COPY SOURCES/rbbuild /usr/bin/rbbuild
-COPY SOURCES/rbdef /usr/bin/rbdef
-COPY SOURCES/mass-builder /usr/bin/mass-builder
-COPY SOURCES/libexec/* /usr/libexec/rbbuild/
-COPY SOURCES/defs/* /usr/local/share/rbbuild/
-
-RUN chmod +x /usr/bin/rbbuild \
-             /usr/bin/rbdef \
-             /usr/bin/mass-builder
 
 VOLUME /rbbuild
 WORKDIR /rbbuild

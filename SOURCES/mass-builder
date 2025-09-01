@@ -7,7 +7,7 @@
 APP="MassBuilder"
 
 # App version (String)
-VER="6.1.4"
+VER="6.2.0"
 
 ################################################################################
 
@@ -147,7 +147,7 @@ prepare() {
   fi
 
   if ! yum -y $opts install \
-                    rbenv rbbuild jre11 jemalloc-devel nano \
+                    rbenv jre11 jemalloc-devel nano \
                     autoconf bison gcc gcc-c++ libtool automake \
                     openssl-devel glibc-devel libffi-devel \
                     ncurses-devel readline-devel tk-devel perl-IPC-Cmd \
@@ -155,6 +155,13 @@ prepare() {
 
     error "Can't install required dependencies"
     return 1
+  fi
+
+  if ! type -P rbbuild &> /dev/null ; then
+     if ! yum -y $opts install rbbuild rbbuild-defs ; then
+      error "Can't install RBBuild package"
+      return 1
+     fi
   fi
 
   mkdir -p /root/rbbuild-cache
@@ -458,7 +465,11 @@ isSystemReady() {
     need_prepare=true
   fi
 
-  if ! rpm -q rbbuild &> /dev/null; then
+  if ! type -P rbbuild &> /dev/null; then
+    need_prepare=true
+  fi
+
+  if ! rpm -q rbenv &> /dev/null; then
     need_prepare=true
   fi
 
@@ -493,7 +504,7 @@ separator() {
   local name="$1"
   local win_width i sep
 
-  win_width=$(tput cols)
+  win_width=$(tput cols 2>/dev/null)
   win_width="${win_width:-88}"
 
   if [[ -n "$name" ]] ; then

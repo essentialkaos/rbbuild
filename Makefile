@@ -5,11 +5,17 @@
 
 ########################################################################################
 
-build-images: ## Build Docker images
+build-images: build-ol8 build-ol9 build-ol10 ## Build Docker images
+
+build-ol8:
 	@echo -e "\e[1;36;49m\nBuilding Oracle Linux 8 image…\n\e[0m"
 	docker build -f .docker/ol8.docker -t ghcr.io/essentialkaos/rbbuild:ol8 .
+
+build-ol9:
 	@echo -e "\e[1;36;49m\nBuilding Oracle Linux 9 image…\n\e[0m"
 	docker build -f .docker/ol9.docker -t ghcr.io/essentialkaos/rbbuild:ol9 .
+
+build-ol10:
 	@echo -e "\e[1;36;49m\nBuilding Oracle Linux 10 image…\n\e[0m"
 	docker build -f .docker/ol10.docker -t ghcr.io/essentialkaos/rbbuild:ol10 .
 
