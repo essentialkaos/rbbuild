@@ -19,8 +19,9 @@ LABEL org.opencontainers.image.title="RBBuild" \
 COPY SOURCES/rbbuild /usr/bin/rbbuild
 COPY SOURCES/rbdef /usr/bin/rbdef
 COPY SOURCES/mass-builder /usr/bin/mass-builder
-COPY SOURCES/libexec/* /usr/libexec/rbbuild/
-COPY SOURCES/defs/* /usr/local/share/rbbuild/
+
+COPY SOURCES/defs /usr/local/share/rbbuild
+COPY SOURCES/libexec /usr/libexec/rbbuild
 
 # hadolint ignore=DL3031,DL3041
 RUN <<EOF

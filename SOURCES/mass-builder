@@ -66,6 +66,7 @@ VERSIONS_DIR="$RBENV_DIR/versions"
 ################################################################################
 
 is_ruby_set=""
+cwd=$(pwd)
 
 ################################################################################
 
@@ -209,7 +210,7 @@ build() {
     separator "$version ($current/$total)"
 
     rbbuild "$version" "$VERSIONS_DIR/$version" \
-            --yes --ignore-loadavg \
+            --yes --ignore-loadavg --no-spinner \
             --mirror "essentialkaos" \
             --threads "$threads" \
             --dl-cache "$CACHE_DIR"
@@ -377,10 +378,10 @@ pack() {
 
     showm "\nWriting ${output}… "
 
-    tar -cvf "/root/${output}" -- *.tzst &> /dev/null
+    tar -cvf "$cwd/${output}" -- *.tzst &> /dev/null
     rm -f -- *.tzst
 
-    size=$(getGraceFileSize "/root/${output}")
+    size=$(getGraceFileSize "$cwd/${output}")
     show "${CL_GREEN}DONE${CL_NORM} ${CL_DARK}($size)${CL_NORM}"
 
   popd &> /dev/null || return 1
@@ -398,7 +399,7 @@ pack() {
 # Echo: No
 wipe() {
   rm -rf ${VERSIONS_DIR:?}/* &> /dev/null
-  rm -f "/root/ruby-el$(getELVersion).tar" &> /dev/null
+  rm -f "$cwd/ruby-el$(getELVersion).tar" &> /dev/null
 
   show "All built versions successfully deleted" $GREEN
 }
