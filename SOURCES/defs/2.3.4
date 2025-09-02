@@ -9,7 +9,7 @@ deps(rpm): autoconf glibc-devel ncurses-devel bison libffi-devel
 deps(deb): build-essential zlib1g-dev libreadline6-dev tk-dev ca-certificates
 deps(deb): autoconf libc6-dev libncurses5-dev bison libffi-dev
 
-CONFOPTS(openssl-1.0.2u): {os_name}-{os_arch} --openssldir={prefix}/openssl/ssl zlib-dynamic no-ssl3 shared -fPIC
+CONFOPTS(openssl-1.0.2u): {os_name}-{os_arch} --openssldir={prefix}/openssl/ssl zlib-dynamic no-ssl3 no-tests shared -fPIC
 PREFIX(openssl-1.0.2u): {prefix}/openssl
 
 CONFOPTS(ruby-2.3.4): --with-openssl-dir={prefix}/openssl --disable-install-doc

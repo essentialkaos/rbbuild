@@ -12,7 +12,7 @@ deps(deb): build-essential zlib1g-dev libreadline6-dev tk-dev ca-certificates
 deps(deb): autoconf libc6-dev libncurses5-dev bison libffi-dev libyaml-dev
 deps(deb): rustc
 
-CONFOPTS(openssl-3.0.17): {os_name}-{os_arch} --libdir=lib --openssldir={prefix}/openssl/ssl zlib-dynamic no-ssl3 shared -fPIC
+CONFOPTS(openssl-3.0.17): {os_name}-{os_arch} --libdir=lib --openssldir={prefix}/openssl/ssl zlib-dynamic no-ssl3 no-tests shared -fPIC
 PREFIX(openssl-3.0.17): {prefix}/openssl
 
 CONFOPTS(ruby-3.2.8): --with-openssl-dir={prefix}/openssl --disable-install-doc
