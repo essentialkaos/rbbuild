@@ -52,8 +52,18 @@ rpm.checkInstalled() {
   local dep dep_list
 
   for dep in "$@" ; do
-    if ! rpm -q "$dep" &> /dev/null ; then
-      dep_list+=("$dep")
+    if ! rpm -q "$dep" &>/dev/null ; then
+      if [[ "$dep" == "zlib-devel" ]] ; then
+        if rpm -q zlib-ng-compat &>/dev/null ; then
+          if ! rpm -q zlib-ng-compat-devel &>/dev/null ; then
+            dep_list+=("zlib-ng-compat-devel")
+          fi
+        else
+          dep_list+=("zlib-devel")
+        fi
+      else
+        dep_list+=("$dep")
+      fi
     fi
   done
 

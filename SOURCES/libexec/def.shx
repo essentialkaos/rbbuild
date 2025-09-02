@@ -65,7 +65,7 @@ def.check() {
     return 1
   fi
 
-  if ! head -1 "$def_file" | grep -q '# \-\- \[RBdef\] \-\-' ; then
+  if ! head -1 "$def_file" | grep -q '# -- \[RBdef\] --' ; then
     if [[ -z "$quiet_check" ]] ; then
       def_name=$(basename "$def_file")
       error "File $def_name doesn't contain default definition file header"

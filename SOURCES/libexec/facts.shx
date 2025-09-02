@@ -113,7 +113,7 @@ facts.collect() {
     fi
   fi
 
-  os_arch=$(uname -p)
+  os_arch=$(uname -m)
 
   if [[ "$os_arch" == "x86_64" && "$os_name" == "$OS_LINUX" ]] ; then
     os_arch_alt="amd64"

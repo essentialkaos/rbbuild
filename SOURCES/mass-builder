@@ -123,22 +123,22 @@ prepare() {
 
   separator "PREPARE SYSTEM"
 
-  yum clean all
-  yum -y -q --nogpgcheck update almalinux-release rocky-release oraclelinux-release redhat-release
+  dnf clean all
+  dnf -y -q --nogpgcheck update almalinux-release rocky-release oraclelinux-release redhat-release
 
   if ! rpm -q kaos-repo &> /dev/null ; then
-    if ! yum install -y "https://pkgs.kaos.st/kaos-repo-latest.el$(getELVersion).noarch.rpm" ; then
+    if ! dnf install -y "https://pkgs.kaos.st/kaos-repo-latest.el$(getELVersion).noarch.rpm" ; then
       error "Can't install EK public repository package"
       return 1
     fi
   fi
 
-  if ! yum -y install epel-release ; then
+  if ! dnf -y install epel-release ; then
     error "Can't install EPEL repository package"
     return 1
   fi
 
-  if ! yum -y update ; then
+  if ! dnf -y update ; then
     error "Can't update system"
     return 1
   fi
@@ -147,19 +147,31 @@ prepare() {
     opts="--enablerepo=kaos-testing"
   fi
 
-  if ! yum -y $opts install \
+  if ! dnf -y $opts install \
                     rbenv jre11 jemalloc-devel nano \
                     autoconf bison gcc gcc-c++ libtool automake \
                     openssl-devel glibc-devel libffi-devel \
                     ncurses-devel readline-devel tk-devel perl-IPC-Cmd \
-                    zlib-devel libyaml-devel rustc git patch ; then
+                    libyaml-devel rustc git patch ; then
 
     error "Can't install required dependencies"
     return 1
   fi
 
+  if rpm -q zlib-ng-compat &>/dev/null ; then
+    if ! dnf -y $opts install zlib-ng-compat-devel ; then
+      error "Can't install zlib-ng-compat-devel package"
+      return 1
+    fi
+  else
+    if ! dnf -y $opts install zlib-devel ; then
+      error "Can't install zlib-devel package"
+      return 1
+    fi
+  fi
+
   if ! type -P rbbuild &> /dev/null ; then
-     if ! yum -y $opts install rbbuild rbbuild-defs ; then
+     if ! dnf -y $opts install rbbuild rbbuild-defs ; then
       error "Can't install RBBuild package"
       return 1
      fi
