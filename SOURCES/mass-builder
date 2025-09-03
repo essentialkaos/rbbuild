@@ -204,9 +204,8 @@ build() {
     fi
   fi
 
-  local version total current has_errors threads
+  local version total current has_errors
 
-  threads=$(getconf _NPROCESSORS_ONLN)
   total=$(grep -cvE '^$' "$versions")
 
   while read -r version ; do
@@ -224,7 +223,6 @@ build() {
     rbbuild "$version" "$VERSIONS_DIR/$version" \
             --yes --ignore-loadavg --no-spinner \
             --mirror "essentialkaos" \
-            --threads "$threads" \
             --dl-cache "$CACHE_DIR"
 
     if [[ $? -ne 0 ]] ; then

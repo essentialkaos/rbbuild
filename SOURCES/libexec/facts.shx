@@ -131,7 +131,7 @@ facts.collect() {
   fi
 
   cpu_total=$(nproc --ignore=1)
-  cpu_limit=$(getCPULimit)
+  cpu_limit=$(facts.getCPULimit)
 
   gcc_version=$(facts.getGCCVersion)
   clang_version=$(facts.getClangVersion)
@@ -230,7 +230,7 @@ facts.getRubyVersion() {
 #
 # Code: No
 # Echo: CPU limit (Number)
-fact.getCPULimit() {
+facts.getCPULimit() {
   if [[ ! -f /sys/fs/cgroup/cpu.max ]] ; then
     echo "$cpu_total"
     return
@@ -246,7 +246,7 @@ fact.getCPULimit() {
   fi
 
   cpu_period=$(cat /sys/fs/cgroup/cpu.max | cut -f2 -d' ')
-  cpu_limit=$(awk "BEGIN {print $cpu_quota/$cpu_period")
+  cpu_limit=$(awk "BEGIN {print $cpu_quota/$cpu_period}")
 
   printf "%.0f" "$cpu_limit"
 }
