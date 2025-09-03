@@ -148,7 +148,7 @@ prepare() {
   fi
 
   if ! dnf -y $opts install \
-                    rbenv jre11 jemalloc-devel nano \
+                    rbenv jre21 jemalloc-devel nano \
                     autoconf bison gcc gcc-c++ libtool automake \
                     openssl-devel glibc-devel libffi-devel \
                     ncurses-devel readline-devel tk-devel perl-IPC-Cmd \

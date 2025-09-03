@@ -13,7 +13,7 @@ fi
 APP="RBBuild"
 
 # App version (String)
-VER="2.4.5"
+VER="2.5.0"
 
 ################################################################################
 
@@ -123,6 +123,8 @@ declare -A allowed_vars=(
   ["os_arnm"]="1"
   ["os_dist"]="1"
   ["os_kern"]="1"
+  ["cpu_total"]="1"
+  ["cpu_limit"]="1"
   ["gcc_version"]="1"
   ["clang_version"]="1"
   ["java_version"]="1"

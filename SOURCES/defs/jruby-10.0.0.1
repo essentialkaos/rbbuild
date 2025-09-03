@@ -1,8 +1,9 @@
 # -- [RBdef] --
 # UPDATED 22/Aug/2025 15:00:41 by Anton Novojilov <andy@essentialkaos.com>
 
-deps(rpm): make gcc gcc-c++ jre21
-deps(deb): make gcc build-essentials openjdk-11
+deps(rpm): make gcc gcc-c++
+deps(deb): make gcc build-essentials
+deps(bin): java
 
 [default]
   package: "jruby-10.0.0.1" "https://repo1.maven.org/maven2/org/jruby/jruby-dist/10.0.0.1/jruby-dist-10.0.0.1-bin.tar.gz" "2a0ff2f01b36eae9f900b7d0d120f33bdc4554e2" jruby
