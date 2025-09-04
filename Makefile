@@ -5,6 +5,20 @@
 
 ########################################################################################
 
+build-images: build-ol8 build-ol9 build-ol10 ## Build Docker images
+
+build-ol8:
+	@echo -e "\e[1;36;49m\nBuilding Oracle Linux 8 image…\n\e[0m"
+	docker build -f .docker/ol8.docker -t ghcr.io/essentialkaos/rbbuild:ol8 .
+
+build-ol9:
+	@echo -e "\e[1;36;49m\nBuilding Oracle Linux 9 image…\n\e[0m"
+	docker build -f .docker/ol9.docker -t ghcr.io/essentialkaos/rbbuild:ol9 .
+
+build-ol10:
+	@echo -e "\e[1;36;49m\nBuilding Oracle Linux 10 image…\n\e[0m"
+	docker build -f .docker/ol10.docker -t ghcr.io/essentialkaos/rbbuild:ol10 .
+
 get-shellcheck: ## Download and install the latest version of shellcheck (requires sudo)
 ifneq ($(shell id -u), 0)
 	@echo -e "\e[31m▲ This target requires sudo\e[0m"
@@ -58,7 +72,7 @@ endif
 help: ## Show this info
 	@echo -e '\nSupported targets:\n'
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
-		| awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[33m%-18s\033[0m %s\n", $$1, $$2}'
+		| awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[33m%-15s\033[0m %s\n", $$1, $$2}'
 	@echo -e ''
 
 ########################################################################################

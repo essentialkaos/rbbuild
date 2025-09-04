@@ -7,7 +7,7 @@
 APP="MassBuilder"
 
 # App version (String)
-VER="6.1.4"
+VER="6.2.0"
 
 ################################################################################
 
@@ -66,6 +66,7 @@ VERSIONS_DIR="$RBENV_DIR/versions"
 ################################################################################
 
 is_ruby_set=""
+cwd=$(pwd)
 
 ################################################################################
 
@@ -122,22 +123,22 @@ prepare() {
 
   separator "PREPARE SYSTEM"
 
-  yum clean all
-  yum -y -q --nogpgcheck update almalinux-release rocky-release oraclelinux-release redhat-release
+  dnf clean all
+  dnf -y -q --nogpgcheck update almalinux-release rocky-release oraclelinux-release redhat-release
 
   if ! rpm -q kaos-repo &> /dev/null ; then
-    if ! yum install -y "https://pkgs.kaos.st/kaos-repo-latest.el$(getELVersion).noarch.rpm" ; then
+    if ! dnf install -y "https://pkgs.kaos.st/kaos-repo-latest.el$(getELVersion).noarch.rpm" ; then
       error "Can't install EK public repository package"
       return 1
     fi
   fi
 
-  if ! yum -y install epel-release ; then
+  if ! dnf -y install epel-release ; then
     error "Can't install EPEL repository package"
     return 1
   fi
 
-  if ! yum -y update ; then
+  if ! dnf -y update ; then
     error "Can't update system"
     return 1
   fi
@@ -146,15 +147,34 @@ prepare() {
     opts="--enablerepo=kaos-testing"
   fi
 
-  if ! yum -y $opts install \
-                    rbenv rbbuild jre11 jemalloc-devel nano \
+  if ! dnf -y $opts install \
+                    rbenv jre21 jemalloc-devel nano \
                     autoconf bison gcc gcc-c++ libtool automake \
                     openssl-devel glibc-devel libffi-devel \
                     ncurses-devel readline-devel tk-devel perl-IPC-Cmd \
-                    zlib-devel libyaml-devel rustc git patch ; then
+                    libyaml-devel rustc git patch ; then
 
     error "Can't install required dependencies"
     return 1
+  fi
+
+  if rpm -q zlib-ng-compat &>/dev/null ; then
+    if ! dnf -y $opts install zlib-ng-compat-devel ; then
+      error "Can't install zlib-ng-compat-devel package"
+      return 1
+    fi
+  else
+    if ! dnf -y $opts install zlib-devel ; then
+      error "Can't install zlib-devel package"
+      return 1
+    fi
+  fi
+
+  if ! type -P rbbuild &> /dev/null ; then
+     if ! dnf -y $opts install rbbuild rbbuild-defs ; then
+      error "Can't install RBBuild package"
+      return 1
+     fi
   fi
 
   mkdir -p /root/rbbuild-cache
@@ -184,9 +204,8 @@ build() {
     fi
   fi
 
-  local version total current has_errors threads
+  local version total current has_errors
 
-  threads=$(getconf _NPROCESSORS_ONLN)
   total=$(grep -cvE '^$' "$versions")
 
   while read -r version ; do
@@ -202,9 +221,8 @@ build() {
     separator "$version ($current/$total)"
 
     rbbuild "$version" "$VERSIONS_DIR/$version" \
-            --yes --ignore-loadavg \
+            --yes --ignore-loadavg --no-spinner \
             --mirror "essentialkaos" \
-            --threads "$threads" \
             --dl-cache "$CACHE_DIR"
 
     if [[ $? -ne 0 ]] ; then
@@ -370,10 +388,10 @@ pack() {
 
     showm "\nWriting ${output}… "
 
-    tar -cvf "/root/${output}" -- *.tzst &> /dev/null
+    tar -cvf "$cwd/${output}" -- *.tzst &> /dev/null
     rm -f -- *.tzst
 
-    size=$(getGraceFileSize "/root/${output}")
+    size=$(getGraceFileSize "$cwd/${output}")
     show "${CL_GREEN}DONE${CL_NORM} ${CL_DARK}($size)${CL_NORM}"
 
   popd &> /dev/null || return 1
@@ -391,7 +409,7 @@ pack() {
 # Echo: No
 wipe() {
   rm -rf ${VERSIONS_DIR:?}/* &> /dev/null
-  rm -f "/root/ruby-el$(getELVersion).tar" &> /dev/null
+  rm -f "$cwd/ruby-el$(getELVersion).tar" &> /dev/null
 
   show "All built versions successfully deleted" $GREEN
 }
@@ -458,7 +476,11 @@ isSystemReady() {
     need_prepare=true
   fi
 
-  if ! rpm -q rbbuild &> /dev/null; then
+  if ! type -P rbbuild &> /dev/null; then
+    need_prepare=true
+  fi
+
+  if ! rpm -q rbenv &> /dev/null; then
     need_prepare=true
   fi
 
@@ -493,7 +515,7 @@ separator() {
   local name="$1"
   local win_width i sep
 
-  win_width=$(tput cols)
+  win_width=$(tput cols 2>/dev/null)
   win_width="${win_width:-88}"
 
   if [[ -n "$name" ]] ; then

@@ -1,0 +1,12 @@
+# -- [RBdef] --
+# UPDATED 22/Aug/2025 15:00:41 by Anton Novojilov <andy@essentialkaos.com>
+
+deps(rpm): make gcc gcc-c++
+deps(deb): make gcc build-essentials
+deps(bin): java
+
+[default]
+  package: "jruby-10.0.2.0" "https://repo1.maven.org/maven2/org/jruby/jruby-dist/10.0.2.0/jruby-dist-10.0.2.0-bin.tar.gz" "6da46adfdb021a1efb906c779446f47b59eff8a2" jruby
+
+[essentialkaos]
+  package: "jruby-10.0.2.0" "https://ruby.kaos.st/jruby-10.0.2.0.tzst" "1e959fa940c9fb4cb91d5a77bc7dd7cc68b41fd0" jruby

@@ -1,8 +1,8 @@
 # -- [RBdef] --
-# UPDATED 20/Feb/2025 23:05:13 by Anton Novojilov <andy@essentialkaos.com>
+# UPDATED 22/Aug/2025 15:24:44 by Anton Novojilov <andy@essentialkaos.com>
 
-eol(normal): 2025-03-31
-eol(security): 2026-03-31
+eol(normal): 2026-03-31
+eol(security): 2027-03-31
 
 deps(rpm): make gcc gcc-c++ zlib-devel readline-devel tk-devel ca-certificates
 deps(rpm): autoconf glibc-devel ncurses-devel bison libffi-devel libyaml-devel
@@ -12,15 +12,15 @@ deps(deb): build-essential zlib1g-dev libreadline6-dev tk-dev ca-certificates
 deps(deb): autoconf libc6-dev libncurses5-dev bison libffi-dev libyaml-dev
 deps(deb): rustc
 
-CONFOPTS(openssl-3.0.16): {os_name}-{os_arch} --libdir=lib --openssldir={prefix}/openssl/ssl zlib-dynamic no-ssl3 shared -fPIC
-PREFIX(openssl-3.0.16): {prefix}/openssl
+CONFOPTS(openssl-3.0.17): {os_name}-{os_arch} --libdir=lib --openssldir={prefix}/openssl/ssl zlib-dynamic no-ssl3 no-tests shared -fPIC
+PREFIX(openssl-3.0.17): {prefix}/openssl
 
 CONFOPTS(ruby-3.3.0): --with-openssl-dir={prefix}/openssl --disable-install-doc
 
 [default]
-  package: "openssl-3.0.16" "https://github.com/openssl/openssl/releases/download/openssl-3.0.16/openssl-3.0.16.tar.gz" "9f2b9d6aa10576a5938b5a9cbc777af3ff51d64a" openssl
+  package: "openssl-3.0.17" "https://github.com/openssl/openssl/releases/download/openssl-3.0.17/openssl-3.0.17.tar.gz" "2e2718ff608eca5c8c56b9343816b6e2fd33fbec" openssl
   package: "ruby-3.3.0" "https://cache.ruby-lang.org/pub/ruby/3.3/ruby-3.3.0.tar.gz" "1a7e56851bf29bda1183aca99b3b323c58e0187b"
 
 [essentialkaos]
-  package: "openssl-3.0.16" "https://ruby.kaos.st/openssl-3.0.16.tzst" "75e05b3e5caf38072b7a51f1e39bcb0692b2b777" openssl
+  package: "openssl-3.0.17" "https://ruby.kaos.st/openssl-3.0.17.tzst" "7741f15196b77c62663498b1bc6fb3962ca89cce" openssl
   package: "ruby-3.3.0" "https://ruby.kaos.st/ruby-3.3.0.tzst" "764abe3dd32b7896e7efe16950c9f66590a2cdce"

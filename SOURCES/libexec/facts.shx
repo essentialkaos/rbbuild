@@ -75,6 +75,14 @@ ruby_version=""
 
 ################################################################################
 
+# Total number of CPUs (Number)
+cpu_total=""
+
+# Current CPU limit (Number)
+cpu_limit=""
+
+################################################################################
+
 require "utils"
 
 ################################################################################
@@ -113,7 +121,7 @@ facts.collect() {
     fi
   fi
 
-  os_arch=$(uname -p)
+  os_arch=$(uname -m)
 
   if [[ "$os_arch" == "x86_64" && "$os_name" == "$OS_LINUX" ]] ; then
     os_arch_alt="amd64"
@@ -121,6 +129,9 @@ facts.collect() {
   elif [[ "$os_arch" == "i386" && "$os_name" == "$OS_LINUX" ]]; then
     os_arnm="linux32"
   fi
+
+  cpu_total=$(nproc --ignore=1)
+  cpu_limit=$(facts.getCPULimit)
 
   gcc_version=$(facts.getGCCVersion)
   clang_version=$(facts.getClangVersion)
@@ -213,4 +224,29 @@ facts.getRubyVersion() {
   if system.hasApp "ruby" ; then
     ruby --version 2>/dev/null | cut -f2 -d' '
   fi
+}
+
+# Get CPU limit
+#
+# Code: No
+# Echo: CPU limit (Number)
+facts.getCPULimit() {
+  if [[ ! -f /sys/fs/cgroup/cpu.max ]] ; then
+    echo "$cpu_total"
+    return
+  fi
+
+  local cpu_quota cpu_period cpu_limit
+
+  cpu_quota=$(cat /sys/fs/cgroup/cpu.max | cut -f1 -d' ')
+
+  if [[ "$cpu_quota" == "max" ]] ; then
+    echo "$cpu_total"
+    return
+  fi
+
+  cpu_period=$(cat /sys/fs/cgroup/cpu.max | cut -f2 -d' ')
+  cpu_limit=$(awk "BEGIN {print $cpu_quota/$cpu_period}")
+
+  printf "%.0f" "$cpu_limit"
 }

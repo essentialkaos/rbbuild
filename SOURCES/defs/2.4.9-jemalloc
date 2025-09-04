@@ -7,7 +7,7 @@ eol(security): 2020-03-31
 deps(rpm): make gcc gcc-c++ zlib-devel readline-devel tk-devel ca-certificates
 deps(rpm): autoconf glibc-devel ncurses-devel bison libffi-devel jemalloc-devel
 
-CONFOPTS(openssl-1.1.1w): {os_name}-{os_arch} --openssldir={prefix}/openssl/ssl zlib-dynamic no-ssl3 shared -fPIC
+CONFOPTS(openssl-1.1.1w): {os_name}-{os_arch} --openssldir={prefix}/openssl/ssl zlib-dynamic no-ssl3 no-tests shared -fPIC
 PREFIX(openssl-1.1.1w): {prefix}/openssl
 
 CONFOPTS(ruby-2.4.9): --with-jemalloc --with-openssl-dir={prefix}/openssl --disable-install-doc
