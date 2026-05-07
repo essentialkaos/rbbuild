@@ -1,7 +1,36 @@
+> [!IMPORTANT]
+> ### Project Sunset Notice 🌇
+>
+> ***This project is no longer actively maintained.***
+>
+> After careful consideration, we’ve decided to sunset development and support for this repository. While it has been a valuable effort, we are no longer able to dedicate the time and resources required to maintain it at the level we consider responsible.
+> <details>
+> <summary><b>More info</b></summary>
+>
+> #### What this means
+> - No new features or enhancements will be added;
+> - Bug fixes and security updates are no longer guaranteed;
+> - Issues and pull requests may not receive responses.
+>
+> #### For existing users
+>
+> The code will remain available in its current state for reference and continued use under the existing license. However, you should consider migrating to alternative solutions or forking the project if you plan to rely on it long-term.
+>
+> #### Forking and continuation
+>
+> If you are interested in taking over maintenance or building upon this project, you are encouraged to fork it.
+>
+> #### Thank you
+>
+> We sincerely appreciate everyone who contributed, reported issues, or used this project. Your support made it worthwhile.
+> </details>
+
+----
+
 <p align="center"><a href="#readme"><img src=".github/images/card.svg"/></a></p>
 
 <p align="center">
-  <a href="https://kaos.sh/w/rbbuild/ci"><img src="https://kaos.sh/w/rbbuild/ci.svg" alt="GitHub Actions CI Status" /></a>
+  <a href="https://kaos.sh/w/rbbuild/ci"><img src="https://github.com/essentialkaos/rbbuild/actions/workflows/ci.yml/badge.svg" alt="GitHub Actions CI Status" /></a>
   <a href="#license"><img src=".github/images/license.svg"></a>
 </p>
 
@@ -50,11 +79,11 @@ sudo make install
 
 | Branch | Status |
 |--------|--------|
-| `master` | [![CI](https://kaos.sh/w/rbbuild/ci.svg?branch=master)](https://kaos.sh/w/rbbuild/ci?query=branch:master) |
-| `develop` | [![CI](https://kaos.sh/w/rbbuild/ci.svg?branch=master)](https://kaos.sh/w/rbbuild/ci?query=branch:develop) |
+| `master` | [![CI](https://github.com/essentialkaos/rbbuild/actions/workflows/ci.yml/badge.svg?branch=master)](https://kaos.sh/w/rbbuild/ci?query=branch:master) |
+| `develop` | [![CI](https://github.com/essentialkaos/rbbuild/actions/workflows/ci.yml/badge.svg?branch=develop)](https://kaos.sh/w/rbbuild/ci?query=branch:develop) |
 
 ### License
 
 [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0)
 
-<p align="center"><a href="https://essentialkaos.com"><img src="https://gh.kaos.st/ekgh.svg"/></a></p>
+<p align="center"><a href="https://essentialkaos.com"><img src="https://raw.githubusercontent.com/essentialkaos/.github/refs/heads/master/images/ekgh.svg"/></a></p>
